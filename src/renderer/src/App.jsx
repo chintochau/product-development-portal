@@ -4,11 +4,8 @@ import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { navigationItems } from "./constant";
 import { TicketsProvider } from "./contexts/ticketsContext";
 function App() {
-  const ipcHandle = () => window.electron.ipcRenderer.send('ping')
-
   return (
     <>
-      
       <TicketsProvider>
         <Router>
           <SidebarProvider>
