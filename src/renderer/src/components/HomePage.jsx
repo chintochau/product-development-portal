@@ -1,18 +1,18 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import React, { useEffect } from 'react'
+import { createNewProductTicket, getProductsLog } from '../services/gitlabServices'
+import { Button } from '@/components/ui/button'
 
-const SOVI_ID = 17062603
 
 const HomePage = () => {
 
   const [epics, setEpics] = React.useState([])
 
+  const [products, setProducts] = React.useState([])
   const loadTickets = async () => {
-    const data = await window.api.getGitlab("/groups/17062603/epics?state=opened&page=1&per_page=100");
+    const data = await getProductsLog();
     console.log(data);
-
-    setEpics(data)
-
+    setProducts(data)
   }
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const HomePage = () => {
   }, [])
 
   return (
-    <>
+    <div className='px-4'>
       <h1 className='text-2xl'>Dashboard</h1>
       <Select >
         <SelectTrigger className="w-fit">
@@ -34,7 +34,22 @@ const HomePage = () => {
           ))}
         </SelectContent>
       </Select>
-    </>
+
+      <div className='bg-accent w-full rounded-xl h-[calc(100svh-150px)]'>
+        {
+          products.map((product) => (
+            <div key={product.id}>{product.title}</div>
+          ))
+        }
+      </div>
+      <Button
+        onClick={() => {
+          createNewProductTicket()
+        }}
+      >
+        Create Sample Issue
+      </Button>
+    </div>
   )
 }
 

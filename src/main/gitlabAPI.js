@@ -18,3 +18,19 @@ export async function gitlabGet(path) {
     const res = response.data
     return res;
 }
+
+export const gitlab = async (path, type, data) => {
+    let response
+    switch (type) {
+        case "GET":
+            response = await gitlabAPI.get(path);
+            break;
+        case "POST":
+            response = await gitlabAPI.post(path,data);
+            break;
+        default:
+            break;
+    }
+    const res = response.data
+    return res;
+}

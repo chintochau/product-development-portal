@@ -4,6 +4,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 // Custom APIs for renderer
 const api = {
   getGitlab: (path) => ipcRenderer.invoke('gitlab-get',path),
+  gitlab:(path,type,data) => ipcRenderer.invoke('gitlab',path,type,data),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

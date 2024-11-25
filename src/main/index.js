@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { gitlabGet } from './gitlabAPI'
+import { gitlab, gitlabGet } from './gitlabAPI'
 
 
 function createWindow() {
@@ -77,4 +77,8 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle("gitlab-get", async (event, path) => {
   return gitlabGet(path);
+})
+
+ipcMain.handle("gitlab", async (event, path, type, data) => {
+  return gitlab(path, type, data);
 })
