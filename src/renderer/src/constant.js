@@ -9,16 +9,7 @@ export const navigationItems = [
         title: "Dashboard",
         url: "/dashboard",
         icon: Home,
-        element: HomePage,
-        nested: [
-            {
-                title: "Create New Product",
-                url: "/dashboard/new-product",
-                icon: Inbox,
-                element:CreateNewProduct
-            }
-        ]
-
+        element: HomePage
     },
     {
         title: "Inbox",
@@ -41,4 +32,13 @@ export const navigationItems = [
         icon: Settings,
         element:SettingsPage
     },
+]
+
+export const otherPages = [
+    {
+        title: "Create New Product",
+        url: "/dashboard/new-product",
+        icon: Inbox,
+        element:CreateNewProduct
+    }
 ]

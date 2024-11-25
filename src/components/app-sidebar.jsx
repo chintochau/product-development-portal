@@ -39,9 +39,9 @@ export function AppSidebar() {
             {navigationItems.map((item) => (
               <SidebarMenuItem
                 key={item.title}
-                className={cn({ 'bg-accent rounded-xl': currentPath === item.url })}
+                
               >
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className={cn({ 'bg-accent rounded-xl': currentPath === item.url })}>
                   <Link to={item.url}>
                     <item.icon />
                     <span>{item.title}</span>

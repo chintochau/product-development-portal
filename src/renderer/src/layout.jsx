@@ -2,7 +2,7 @@ import React from 'react'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
 import { HashRouter as Router, Routes, Route, Link, Outlet, useLocation } from 'react-router-dom'
-import { navigationItems } from './constant'
+import { navigationItems, otherPages } from './constant'
 import { TicketsProvider } from './contexts/ticketsContext'
 import {
   Breadcrumb,
@@ -18,20 +18,28 @@ const Layout = ({ children }) => {
   const currentPath = location.pathname
   return (
     <main className="w-full">
-      <div className='flex items-center'>
+      <div className="flex items-center">
         <SidebarTrigger />
         <Breadcrumb>
           <BreadcrumbList>
-          {
-            currentPath.split('/').length > 1 && currentPath.split('/').map((path, index) => (
-              <BreadcrumbItem key={index}>
-                <BreadcrumbLink asChild>
-                  <Link to={currentPath.split('/').slice(0, index + 1).join('/')}>{path}</Link>
-                </BreadcrumbLink>
-                {index !== 0 && index < currentPath.split('/').length - 1 && <BreadcrumbSeparator />}
-              </BreadcrumbItem>
-            ))
-          }
+            {currentPath.split('/').length > 1 &&
+              currentPath.split('/').map((path, index) => (
+                <BreadcrumbItem key={index}>
+                  <BreadcrumbLink asChild>
+                    <Link
+                      to={currentPath
+                        .split('/')
+                        .slice(0, index + 1)
+                        .join('/')}
+                    >
+                      {path}
+                    </Link>
+                  </BreadcrumbLink>
+                  {index !== 0 && index < currentPath.split('/').length - 1 && (
+                    <BreadcrumbSeparator />
+                  )}
+                </BreadcrumbItem>
+              ))}
           </BreadcrumbList>
         </Breadcrumb>
       </div>
@@ -56,6 +64,14 @@ const Layout = ({ children }) => {
               />
             ))
           )}
+
+          {otherPages.map((item) => (
+            <Route
+              key={item.title}
+              path={item.url}
+              element={item.element ? <item.element /> : <h1>{item.title}</h1>}
+            />
+          ))}
       </Routes>
     </main>
   )
