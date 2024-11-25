@@ -35,7 +35,7 @@ const HomePage = () => {
         </SelectContent>
       </Select>
 
-      <div className='bg-accent w-full rounded-xl h-[calc(100svh-150px)]'>
+      <div className='bg-accent w-full rounded-xl'>
         {
           products.map((product) => (
             <div key={product.id}>{product.title}</div>

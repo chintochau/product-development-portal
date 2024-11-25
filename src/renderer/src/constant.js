@@ -1,14 +1,23 @@
 import { Calendar, ChevronDown, Home, Inbox, Search, Settings } from "lucide-react"
 import HomePage from "./components/HomePage"
 import SettingsPage from "./components/settings/SettingsPage"
+import CreateNewProduct from "./components/CreateNewProduct"
 
 
 export const navigationItems = [
     {
         title: "Dashboard",
-        url: "/",
+        url: "/dashboard",
         icon: Home,
-        element: HomePage
+        element: HomePage,
+        nested: [
+            {
+                title: "Create New Product",
+                url: "/dashboard/new-product",
+                icon: Inbox,
+                element:CreateNewProduct
+            }
+        ]
 
     },
     {

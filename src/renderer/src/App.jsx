@@ -1,8 +1,18 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { navigationItems } from "./constant";
-import { TicketsProvider } from "./contexts/ticketsContext";
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/app-sidebar'
+import { HashRouter as Router, Routes, Route, Link, Outlet, useLocation } from 'react-router-dom'
+import { navigationItems } from './constant'
+import { TicketsProvider } from './contexts/ticketsContext'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import Layout from './layout'
+
 function App() {
   return (
     <>
@@ -10,23 +20,12 @@ function App() {
         <Router>
           <SidebarProvider>
             <AppSidebar />
-            <main className="w-full">
-              <SidebarTrigger />
-              <Routes>
-                {
-                  navigationItems.map((item) => (
-                    <Route key={item.title} path={item.url} element={item.element ? <item.element /> : <h1>{item.title}</h1>} />
-                  ))
-                }
-              </Routes>
-            </main>
+            <Layout/>
           </SidebarProvider>
         </Router>
       </TicketsProvider>
-
     </>
   )
 }
 
 export default App
-
