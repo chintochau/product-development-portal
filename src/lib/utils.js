@@ -32,3 +32,41 @@ export const filterTicketInformation = (ticket) => {
     isBug: labels?.includes("type::bug")
   }
 }
+
+
+export function timeAgo(dateString) {
+  const date = new Date(dateString);
+
+  if (isNaN(date)) {
+    throw new Error("Input must be a valid Date object or date string.");
+  }
+
+  const now = new Date();
+  const diff = now - date; // Difference in milliseconds
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+
+  let timeAgoString;
+  if (seconds < 60) {
+    timeAgoString = `${seconds} sec${seconds === 1 ? "" : "s"} ago`;
+  } else if (minutes < 60) {
+    timeAgoString = `${minutes} min${minutes === 1 ? "" : "s"} ago`;
+  } else if (hours < 24) {
+    timeAgoString = `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  } else if (days < 30) {
+    timeAgoString = `${days} day${days === 1 ? "" : "s"} ago`;
+  } else if (months < 12) {
+    timeAgoString = `${months} month${months === 1 ? "" : "s"} ago`;
+  } else {
+    timeAgoString = `${years} year${years === 1 ? "" : "s"} ago`;
+  }
+
+  // Get the local time representation
+  const localTime = date.toLocaleString();
+
+  return `${localTime} (${timeAgoString})`;
+}

@@ -14,21 +14,24 @@ import {
 import Layout from './layout'
 import { ProductsProvider } from './contexts/productsContext'
 import { SingleProductProvider } from './contexts/singleProductContext'
+import { UserProvider } from './contexts/userContext'
 
 function App() {
   return (
     <>
       <Router>
-        <TicketsProvider>
-          <ProductsProvider>
-            <SingleProductProvider>
-              <SidebarProvider>
-                <AppSidebar />
-                <Layout />
-              </SidebarProvider>
-            </SingleProductProvider>
-          </ProductsProvider>
-        </TicketsProvider>
+        <UserProvider>
+          <TicketsProvider>
+            <ProductsProvider>
+              <SingleProductProvider>
+                <SidebarProvider>
+                  <AppSidebar />
+                  <Layout />
+                </SidebarProvider>
+              </SingleProductProvider>
+            </ProductsProvider>
+          </TicketsProvider>
+        </UserProvider>
       </Router>
     </>
   )

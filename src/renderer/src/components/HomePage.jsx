@@ -73,7 +73,10 @@ const HomePage = () => {
                       {product.epicLink && (
                         <p
                           className="cursor-pointer hover:text-blue-500 hover:underline"
-                          onClick={() => window.open(product.epicLink, '_blank')}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.open(product.epicLink, '_blank')
+                          }}
                         >
                           tickets
                         </p>

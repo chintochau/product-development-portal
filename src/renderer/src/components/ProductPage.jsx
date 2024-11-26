@@ -13,28 +13,37 @@ import {
 } from '@/components/ui/card'
 import { getTicketsFromEpic } from '../services/gitlabServices'
 import { Label } from '../../../components/ui/label'
-import { daysFromToday, filterTicketInformation } from '../../../lib/utils'
+import { cn, daysFromToday, filterTicketInformation } from '../../../lib/utils'
 import TicketsChart from './product-page/TicketsChart'
+import ProcessStepper from './product-page/ProcessStepper'
+import { hardwareSteps, softwareSteps } from '../constant'
+import ProductCard from './product-page/ProductCard'
+import PIFCard from './product-page/PIFCard'
+import NotesCard from './product-page/NotesCard'
 
 const ProductPage = () => {
   const { productData, setTickets, tickets } = useSingleProduct()
   const location = useLocation()
-  const { productcode, productname, epicLink, releasedate, status, mpDate, ppDate,softwareSignoffDate } =
-    productData || {}
+  const {
+    productcode,
+    productname,
+    epicLink,
+    releasedate,
+    status,
+    mpDate,
+    ppDate,
+    softwareSignoffDate
+  } = productData || {}
 
   const loadTickets = async (epicId) => {
     const data = await getTicketsFromEpic(epicId)
     if (data) {
-        console.log(data.map((item) => filterTicketInformation(item)));
-        
       setTickets(data.map((item) => filterTicketInformation(item)))
     }
     return data
   }
 
   useEffect(() => {
-    console.log(productData)
-
     const epicId = productData?.epicLink?.split('/').pop()
     if (epicId) {
       loadTickets(epicId)
@@ -49,55 +58,38 @@ const ProductPage = () => {
           <Button variant="outline">Edit</Button>
         </Link>
       </div>
-      <div className="w-full grid grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Label>Target Release Date</Label>
-            <p className="text-muted-foreground">
-              {releasedate} {` (${daysFromToday(releasedate)})`}
-            </p>
-            <Label>Status</Label>
-            <p className="text-muted-foreground">{status}</p>
-          </CardContent>
-          <CardFooter></CardFooter>
-        </Card>
-        <Card>
+      <div className="w-full grid grid-cols-3 gap-4 ">
+        <div className="flex flex-col gap-4">
+          <ProductCard className="flex-1"/>
+          <PIFCard />
+        </div>
+        <Card className="h-fit">
           <CardHeader>
             <CardTitle>Hardware Status</CardTitle>
+            <CardDescription>*Updated by hardware team</CardDescription>
             {productname && <CardDescription>{productname}</CardDescription>}
           </CardHeader>
-          <CardContent>
-            <Label>Pre Production Date</Label>
-            <p className="text-muted-foreground">
-              {ppDate}
-              {` (${daysFromToday(ppDate)})`}
-            </p>
-            <Label>Mass Production Date</Label>
-            <p className="text-muted-foreground">
-              {mpDate} {` (${daysFromToday(mpDate)})`}
-            </p>
+          <CardContent className="max-h-96 overflow-auto">
+            <ProcessStepper steps={hardwareSteps} />
           </CardContent>
           <CardFooter></CardFooter>
         </Card>
-        <Card>
+        <Card className="h-fit">
+
           <CardHeader>
             <CardTitle>Software Status</CardTitle>
+            <CardDescription>*Updated by software team</CardDescription>
             {productname && <CardDescription>{productname}</CardDescription>}
           </CardHeader>
-          <CardContent>
-            <Label>Target Release Date</Label>
-            <p className="text-muted-foreground">{releasedate}</p>
-            <Label>Status</Label>
-            <p className="text-muted-foreground">{status}</p>
+          <CardContent className="max-h-96 overflow-auto">
+            <ProcessStepper steps={softwareSteps} />
           </CardContent>
           <CardFooter></CardFooter>
         </Card>
       </div>
-      <div className="mt-4">
-        <TicketsChart tickets={tickets} softwareSignoffDate={softwareSignoffDate}/>
+      <div className="mt-4 flex gap-4">
+        <TicketsChart tickets={tickets} softwareSignoffDate={softwareSignoffDate} className={'flex-1'}/>
+        <NotesCard className="flex-1"/>
       </div>
     </div>
   )

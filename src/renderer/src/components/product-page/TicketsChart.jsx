@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { TrendingUp } from 'lucide-react'
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import {
   Card,
@@ -24,10 +24,9 @@ const chartConfig = {
 
 import _ from 'lodash'
 
-const TicketsChart = ({ tickets, softwareSignoffDate }) => {
+const TicketsChart = ({ tickets, softwareSignoffDate, className }) => {
   // Step 1: Generate a range of dates
   // Step 1: Aggregate Tickets by Date
-  console.log('softwareSignoffDate', softwareSignoffDate)
 
   // find the start date and end date from tickets
   const startDate = softwareSignoffDate || _.minBy(tickets, 'created_at')?.created_at
@@ -60,16 +59,15 @@ const TicketsChart = ({ tickets, softwareSignoffDate }) => {
     }
   })
 
-  console.log('burndownData', burndownData)
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle>Burndown Chart</CardTitle>
-        <CardDescription>Shows the remaining tickets</CardDescription>
+        <CardDescription>Remaining tickets from Gitlab</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-96">
+        <ChartContainer config={chartConfig} className="h-60">
           <AreaChart
             accessibilityLayer
             data={burndownData}
@@ -81,6 +79,12 @@ const TicketsChart = ({ tickets, softwareSignoffDate }) => {
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => value}
+            />
+            <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={8}

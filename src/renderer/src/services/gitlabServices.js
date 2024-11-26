@@ -32,7 +32,7 @@ const convertDataToTicketObject = (data) => {
         hardwareSignoff: false,
         hardwareSignoffBy: "",
         hardwareSignoffDate: "2024-08-27",
-        status:"initiated",
+        status: "initiated",
     }
 
     return {
@@ -54,15 +54,14 @@ export const getProductLogWithIID = async (iid) => {
     return data
 }
 
-const jsonToMarkdown = (data) => {
-    console.log("data", data);
+const jsonToMarkdown = (data,message) => {
     const yamlContent = yaml.dump(data);
-    const markdown = `---\n${yamlContent}---\n\n# Additional Information\n\n${data?.description}`;
+    const markdown = `---\n${yamlContent}---\n\n${message}`;
     return markdown;
 };
 
 export const ticketToJSON = (ticket) => {
-    const { title, description, iid, epic, web_url,labels,created_at, updated_at } = ticket || {}
+    const { title, description, iid, epic, web_url, labels, created_at, updated_at } = ticket || {}
     const parsedData = frontMatter(description)
     return {
         ...parsedData.attributes,
@@ -71,12 +70,32 @@ export const ticketToJSON = (ticket) => {
         epic,
         web_url,
         labels,
-        created_at:created_at.split("T")[0],
-        updated_at:updated_at.split("T")[0]
+        created_at: created_at.split("T")[0],
+        updated_at: updated_at.split("T")[0]
     }
 }
 
 export const getTicketsFromEpic = async (epicId) => {
     const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/epics/${epicId}/issues?page=1&per_page=100`, "GET");
+    return data
+}
+
+export const getPIFFielsFromComments = async (iid) => {
+    const data = await window.api.gitlab(`projects/${projectId}/issues/${iid}/notes`, "GET");
+    return data
+}
+
+export const postNotesToTicket = async (iid, data, message) => {
+    const {
+        type, // type of comment,
+        author, // author of comment
+    } = data || {}
+    const noteData = jsonToMarkdown(data, message)
+    const response = await window.api.gitlab(`projects/${projectId}/issues/${iid}/notes`, "POST", { body: noteData });
+    return response
+}
+
+export const getNotesFromTicket = async (iid) => {
+    const data = await window.api.gitlab(`projects/${projectId}/issues/${iid}/notes?page=1&per_page=100`, "GET");
     return data
 }
