@@ -1,7 +1,15 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
-import { HashRouter as Router, Routes, Route, Link, Outlet, useLocation } from 'react-router-dom'
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Outlet,
+  useLocation,
+  Navigate
+} from 'react-router-dom'
 import { navigationItems, otherPages } from './constant'
 import { TicketsProvider } from './contexts/ticketsContext'
 import {
@@ -12,6 +20,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
+import ProductEditPage from './components/EditProductPage'
+import ProductPage from './components/ProductPage'
 
 const Layout = ({ children }) => {
   const location = useLocation()
@@ -24,21 +34,23 @@ const Layout = ({ children }) => {
           <BreadcrumbList>
             {currentPath.split('/').length > 1 &&
               currentPath.split('/').map((path, index) => (
-                <BreadcrumbItem key={index}>
-                  <BreadcrumbLink asChild>
-                    <Link
-                      to={currentPath
-                        .split('/')
-                        .slice(0, index + 1)
-                        .join('/')}
-                    >
-                      {path}
-                    </Link>
-                  </BreadcrumbLink>
+                <Fragment key={path}>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link
+                        to={currentPath
+                          .split('/')
+                          .slice(0, index + 1)
+                          .join('/')}
+                      >
+                        {path}
+                      </Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
                   {index !== 0 && index < currentPath.split('/').length - 1 && (
                     <BreadcrumbSeparator />
                   )}
-                </BreadcrumbItem>
+                </Fragment>
               ))}
           </BreadcrumbList>
         </Breadcrumb>
@@ -51,7 +63,6 @@ const Layout = ({ children }) => {
             element={item.element ? <item.element /> : <h1>{item.title}</h1>}
           />
         ))}
-
         {/* Handle nested routes explicitly */}
         {navigationItems
           .filter((item) => item.nested) // Only process items with nested routes
@@ -64,14 +75,27 @@ const Layout = ({ children }) => {
               />
             ))
           )}
-
-          {otherPages.map((item) => (
-            <Route
-              key={item.title}
-              path={item.url}
-              element={item.element ? <item.element /> : <h1>{item.title}</h1>}
-            />
-          ))}
+        {otherPages.map((item) => (
+          <Route
+            key={item.title}
+            path={item.url}
+            element={item.element ? <item.element /> : <h1>{item.title}</h1>}
+          />
+        ))}
+        {/* Default redirect to /dashboard */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route
+          path="/dashboard/:id"
+          element={
+            <ProductPage editMode />
+          }
+        />{' '}
+        <Route
+          path="/dashboard/:id/edit"
+          element={
+              <ProductEditPage editMode />
+          }
+        />
       </Routes>
     </main>
   )

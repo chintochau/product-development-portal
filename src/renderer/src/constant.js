@@ -1,8 +1,9 @@
 import { Calendar, ChevronDown, Home, Inbox, Search, Settings } from "lucide-react"
 import HomePage from "./components/HomePage"
 import SettingsPage from "./components/settings/SettingsPage"
-import CreateNewProduct from "./components/CreateNewProduct"
+import ProductEditPage from "./components/EditProductPage"
 
+export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
 export const navigationItems = [
     {
@@ -37,8 +38,8 @@ export const navigationItems = [
 export const otherPages = [
     {
         title: "Create New Product",
-        url: "/dashboard/new-product",
+        url: CREATE_NEW_PRODUCT_ROUTE,
         icon: Inbox,
-        element:CreateNewProduct
+        element:ProductEditPage
     }
 ]

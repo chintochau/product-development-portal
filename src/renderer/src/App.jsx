@@ -9,21 +9,27 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+  BreadcrumbSeparator
+} from '@/components/ui/breadcrumb'
 import Layout from './layout'
+import { ProductsProvider } from './contexts/productsContext'
+import { SingleProductProvider } from './contexts/singleProductContext'
 
 function App() {
   return (
     <>
-      <TicketsProvider>
-        <Router>
-          <SidebarProvider>
-            <AppSidebar />
-            <Layout/>
-          </SidebarProvider>
-        </Router>
-      </TicketsProvider>
+      <Router>
+        <TicketsProvider>
+          <ProductsProvider>
+            <SingleProductProvider>
+              <SidebarProvider>
+                <AppSidebar />
+                <Layout />
+              </SidebarProvider>
+            </SingleProductProvider>
+          </ProductsProvider>
+        </TicketsProvider>
+      </Router>
     </>
   )
 }

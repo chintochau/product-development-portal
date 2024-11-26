@@ -10,7 +10,7 @@ const gitlabAPI = axios.create({
     baseURL: BASE_URL,
     headers: {
         Authorization: `Bearer ${ACCESS_TOKEN}`,
-    }  
+    }
 })
 
 export async function gitlabGet(path) {
@@ -26,8 +26,14 @@ export const gitlab = async (path, type, data) => {
             response = await gitlabAPI.get(path);
             break;
         case "POST":
-            response = await gitlabAPI.post(path,data);
+            response = await gitlabAPI.post(path, data);
             break;
+        case "DELETE":
+            response = await gitlabAPI.delete(path);
+            break
+        case "PUT":
+            response = await gitlabAPI.put(path, data);
+            break
         default:
             break;
     }

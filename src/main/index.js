@@ -17,13 +17,9 @@ function createWindow() {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
     },
-    focusable: false,
-    focusable: true,
-
   })
-
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    mainWindow.showInactive()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
