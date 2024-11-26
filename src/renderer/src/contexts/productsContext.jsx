@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { deleteTicket, getProductsLog } from '../services/gitlabServices'
+import { deleteTicket, getProductsLog, ticketToJSON } from '../services/gitlabServices'
 
 const ProductsContext = createContext()
 
@@ -13,7 +13,7 @@ export const ProductsProvider = ({ children }) => {
 
   const loadProducts = async () => {
     const data = await getProductsLog()
-    setProducts(data)
+    setProducts(data.map((item) => ticketToJSON(item)))
     setLoading(false)
   }
 

@@ -24,7 +24,9 @@ import { useSingleProduct } from '../contexts/singleProductContext'
 const formSchema = z.object({
   productcode: z.string().min(2).max(50),
   productname: z.string().max(50),
-  releasedate: z.string()
+  releasedate: z.string(),
+  ppDate: z.string(),
+  mpDate: z.string()
 })
 
 const today = new Date()
@@ -39,7 +41,9 @@ const ProductEditPage = ({ editMode }) => {
     defaultValues: {
       productname: '',
       productcode: '',
-      releasedate: format(new Date(), 'yyyy-MM-dd')
+      releasedate: format(new Date(), 'yyyy-MM-dd'),
+      ppDate: format(new Date(), 'yyyy-MM-dd'),
+      mpDate: format(new Date(), 'yyyy-MM-dd'),
     }
   })
 
