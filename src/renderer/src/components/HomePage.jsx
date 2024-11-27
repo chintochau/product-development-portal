@@ -36,7 +36,7 @@ const HomePage = () => {
 
   const handleProductClick = (productLog) => {
     setProductLog(productLog)
-    navigate(`/dashboard/${productLog.iid}`)
+    navigate(`/dashboard/${productLog.iid}#${productLog.name}`)
   }
 
 

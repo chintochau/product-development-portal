@@ -33,8 +33,6 @@ export const SingleProductProvider = ({ children }) => {
       const parsedData = frontMatter(item.body)
       return { ...parsedData, id: item.id, date: item.created_at }
     })
-    console.log('notesData', notesData)
-
     setNotes(notesData.filter((item) => item.attributes.type === 'comment'))
     setPifs(notesData.filter((item) => item.attributes.type === 'pif'))
     return notesData

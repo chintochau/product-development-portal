@@ -15,6 +15,7 @@ import Layout from './layout'
 import { ProductsProvider } from './contexts/productsContext'
 import { SingleProductProvider } from './contexts/singleProductContext'
 import { UserProvider } from './contexts/userContext'
+import { BrowsingProvider } from './contexts/browsingContext'
 
 function App() {
   return (
@@ -24,10 +25,12 @@ function App() {
           <TicketsProvider>
             <ProductsProvider>
               <SingleProductProvider>
-                <SidebarProvider>
-                  <AppSidebar />
-                  <Layout />
-                </SidebarProvider>
+                <BrowsingProvider>
+                  <SidebarProvider>
+                    <AppSidebar />
+                    <Layout />
+                  </SidebarProvider>
+                </BrowsingProvider>
               </SingleProductProvider>
             </ProductsProvider>
           </TicketsProvider>

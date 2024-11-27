@@ -22,13 +22,15 @@ import {
 } from '@/components/ui/breadcrumb'
 import ProductEditPage from './components/EditProductPage'
 import ProductPage from './components/ProductPage'
+import { useBrowsing } from './contexts/browsingContext'
 
 const Layout = ({ children }) => {
   const location = useLocation()
   const currentPath = location.pathname
+  const {pageTitle} = useBrowsing()
   return (
-    <main className="w-full">
-      <div className="flex items-center">
+    <main className="w-full relative">
+      <div className="flex items-center sticky top-0 z-50 bg-background border-b ">
         <SidebarTrigger />
         <Breadcrumb>
           <BreadcrumbList>
@@ -54,6 +56,7 @@ const Layout = ({ children }) => {
               ))}
           </BreadcrumbList>
         </Breadcrumb>
+        <p className='ml-1 text-sm text-muted-foreground'>{pageTitle}</p>
       </div>
       <Routes>
         {navigationItems.map((item) => (
@@ -84,18 +87,8 @@ const Layout = ({ children }) => {
         ))}
         {/* Default redirect to /dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route
-          path="/dashboard/:id"
-          element={
-            <ProductPage editMode />
-          }
-        />{' '}
-        <Route
-          path="/dashboard/:id/edit"
-          element={
-              <ProductEditPage editMode />
-          }
-        />
+        <Route path="/dashboard/:id" element={<ProductPage editMode />} />{' '}
+        <Route path="/dashboard/:id/edit" element={<ProductEditPage editMode />} />
       </Routes>
     </main>
   )
