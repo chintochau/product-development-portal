@@ -1,15 +1,23 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { cn } from '../../../../lib/utils'
+import { cn, timeAgo } from '../../../../lib/utils'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Check, ChevronDown } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { useSingleProduct } from '../../contexts/singleProductContext'
 import { defaultHardwareSteps, defaultSoftwareSteps } from '../../constant'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../../../../components/ui/select'
 
 const SingleStep = ({ step, index, className, saveData, software, hardware }) => {
   const [completedSubSteps, setCompletedSubSteps] = useState(false)
   const [completedPercentage, setCompletedPercentage] = useState(0)
-  const { setHardware, setSoftware } = useSingleProduct()
+  const { setHardware, setSoftware, pifs } = useSingleProduct()
+  const [selectedPif, setSelectedPif] = useState(null)
 
   useEffect(() => {
     if (step.subSteps) {
@@ -24,22 +32,35 @@ const SingleStep = ({ step, index, className, saveData, software, hardware }) =>
     }
   }, [step.subSteps])
 
-  const handleClick = () => {
+  const handleClick = ({ pifFile }) => {
     if (hardware) {
       setHardware((prevHardware) => {
         // Ensure we have a base array to work with
         const hardwareSteps = prevHardware || defaultHardwareSteps
 
         // Create a new array with updated state
-        const newHardware = hardwareSteps.map((step, idx) =>
-          idx === index
-            ? {
+        const newHardware = hardwareSteps.map((step, idx) => {
+          if (idx === index) {
+            if (pifFile) {
+              return {
                 ...step,
-                completed: !step.completed,
-                timestamp: !step.completed ? new Date().toISOString().split('T')[0] : null
+                pif: {
+                  name: pifFile.attributes?.fileName,
+                  url: pifFile.attributes?.path,
+                  timestamp: new Date().toISOString().split('T')[0],
+                  pifId: pifFile.id
+                }
               }
-            : step
-        )
+            }
+            return {
+              ...step,
+              completed: !step.completed,
+              timestamp: !step.completed ? new Date().toISOString().split('T')[0] : null
+            }
+          } else {
+            return step
+          }
+        })
         saveData(newHardware)
         return newHardware
       })
@@ -49,21 +70,33 @@ const SingleStep = ({ step, index, className, saveData, software, hardware }) =>
         const softwareSteps = prevSoftware || defaultSoftwareSteps
 
         // Create a new array with updated state
-        const newSoftware = softwareSteps.map((step, idx) =>
-          idx === index
-            ? {
+        const newSoftware = softwareSteps.map((step, idx) => {
+          if (idx === index) {
+            if (pifFile) {
+              return {
                 ...step,
-                completed: !step.completed,
-                timestamp: !step.completed ? new Date().toISOString().split('T')[0] : null
+                pif: {
+                  name: pifFile.attributes?.fileName,
+                  url: pifFile.attributes?.path,
+                  timestamp: new Date().toISOString().split('T')[0],
+                  pifId: pifFile.id
+                }
               }
-            : step
-        )
+            }
+            return {
+              ...step,
+              completed: !step.completed,
+              timestamp: !step.completed ? new Date().toISOString().split('T')[0] : null
+            }
+          } else {
+            return step
+          }
+        })
         saveData(newSoftware)
         return newSoftware
       })
     }
   }
-
   return (
     <Collapsible key={index} className={cn('flex flex-col', className)}>
       <div className="flex items-center">
@@ -102,13 +135,53 @@ const SingleStep = ({ step, index, className, saveData, software, hardware }) =>
                     Milestone: {step.milestone}
                   </span>
                 )}
-                {
-                  step.pif && (
-                    <span className="text-sm font-bold text-blue-600">
-                      PIF: {step.pif.name}
-                    </span>
-                  )
-                }
+                {step.pif && (
+                  <>
+                    {step.completed ? (
+                      <span
+                        className={cn(
+                          'text-sm font-bold ',
+                          step.pif.name ? 'text-blue-600' : ' text-red-600'
+                        )}
+                      >
+                        PIF: {step.pif.name || 'you have not picked a PIF'}
+                      </span>
+                    ) : (
+                      <Select
+                        onValueChange={(pifId) => {
+                          const chosenPif = pifs.find((pif) => pif.id === pifId)
+                          handleClick({ pifFile: chosenPif })
+                        }}
+                      >
+                        <SelectTrigger className="h-5 overflow-hidden flex items-start py-0 max-w-56 text-wrap border-0">
+                          <SelectValue placeholder="Select PIF" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {pifs && pifs.length > 0 ? (
+                            <>
+                              {pifs.map((pif) => (
+                                <SelectItem key={pif.id} value={pif.id}>
+                                  <div className="flex flex-col items-start text-wrap">
+                                    <p className="text-wrap">{pif.attributes?.fileName}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {timeAgo(pif.date)}
+                                    </p>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </>
+                          ) : (
+                            <>
+                              <SelectItem disabled value="no-pifs">
+                                No PIFs found
+                              </SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </>
+                )}
               </div>
               {step.subSteps && (
                 <p className="ml-4 text-sm text-muted-foreground">
@@ -144,14 +217,13 @@ const SingleStep = ({ step, index, className, saveData, software, hardware }) =>
 }
 
 const SubStep = ({ step, index, mainIndex, software, hardware, saveData }) => {
-
   const { setHardware, setSoftware } = useSingleProduct()
   const handleClick = () => {
     if (hardware) {
       setHardware((prevHardware) => {
         // Ensure we have a base array to work with
-        const hardwareSteps = prevHardware || defaultHardwareSteps;
-      
+        const hardwareSteps = prevHardware || defaultHardwareSteps
+
         // Create a new array with updated state
         const newHardware = hardwareSteps.map((step, idx) =>
           idx === mainIndex
@@ -162,17 +234,19 @@ const SubStep = ({ step, index, mainIndex, software, hardware, saveData }) => {
                     ? {
                         ...subStep,
                         completed: !subStep.completed,
-                        timestamp: !subStep.completed ? new Date().toISOString().split('T')[0] : null
+                        timestamp: !subStep.completed
+                          ? new Date().toISOString().split('T')[0]
+                          : null
                       }
                     : subStep
                 )
               }
             : step
-        );
-      
-        saveData(newHardware);
-        return newHardware;
-      });
+        )
+
+        saveData(newHardware)
+        return newHardware
+      })
     } else if (software) {
       setSoftware((prevSoftware) => {
         // Ensure we have a base array to work with
@@ -204,7 +278,6 @@ const SubStep = ({ step, index, mainIndex, software, hardware, saveData }) => {
           )}
           onClick={handleClick}
         >
-          
           <span className="group-hover:hidden">{`${mainIndex + 1}.${index + 1}`}</span>
           <span className="hidden group-hover:inline">
             <Check />

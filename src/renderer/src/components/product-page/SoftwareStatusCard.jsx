@@ -50,7 +50,7 @@ const SoftwareStatusCard = () => {
       </CardHeader>
       <CardContent>
         <ScrollArea>
-          <div className="max-h-96 pr-3">
+          <div className="max-h-[50vh] pr-3">
             {softwareLoading ? (
               <Loader2 className="animate-spin" />
             ) : (

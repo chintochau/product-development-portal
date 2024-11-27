@@ -67,9 +67,10 @@ const sampleStepData = {
 export const defaultHardwareSteps = [
     { label: "Kick-Off", completed: false, },
     { label: "PIF Review & Approval", completed: false, pif: {
-        name: "",
-        url: "",
+        name: null,
+        url: null,
         timestamp: null,
+        pifId:null,
     }},
     {
         label: "Engineering Sample", completed: false, subSteps: [
