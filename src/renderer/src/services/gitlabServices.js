@@ -108,3 +108,9 @@ export const uploadPIFFile = async (iid, file) => { const fileBuffer = await fil
     const response = await window.api.gitlab(`projects/${projectId}/uploads`, "UPLOAD", { file: fileData });
     return response;
 }
+
+
+export const getEpics = async () => {
+    const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/epics`, "GET");
+    return data
+}

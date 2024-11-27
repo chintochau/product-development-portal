@@ -12,6 +12,13 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { format } from 'date-fns'
@@ -20,11 +27,16 @@ import { cn } from '../../../lib/utils'
 import { CalendarIcon } from 'lucide-react'
 import { createNewProductTicket, saveTicket } from '../services/gitlabServices'
 import { useSingleProduct } from '../contexts/singleProductContext'
+import { brands } from '../constant'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const formSchema = z.object({
+  useLookup: z.boolean(),
+  brand: z.string().min(2).max(50),
   productcode: z.string().min(2).max(50),
   productname: z.string().max(50),
   releasedate: z.string(),
+  lookup: z.string()
 })
 
 const today = new Date()
@@ -32,14 +44,17 @@ const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
 const maxDate = new Date(today.getFullYear(), today.getMonth() + 20, today.getDate()) // One month from today
 
 const ProductEditPage = ({ editMode }) => {
-  const { productData: data,iid } = useSingleProduct() || {}
+  const { productData: data, iid } = useSingleProduct() || {}
   // 1. Define your form.
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      useLookup: false,
+      brand: '',
       productname: '',
       productcode: '',
       releasedate: format(new Date(), 'yyyy-MM-dd'),
+      lookup: ''
     }
   })
 
@@ -69,12 +84,71 @@ const ProductEditPage = ({ editMode }) => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
+            name="lookup"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2 pt-2">
+                  <p>Lookup#{' '}</p>
+                  <FormField
+                    control={form.control}
+                    name="useLookup"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange}  className="border-primary/50"/>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="brand"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Brand</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  value={field.value}
+                  disabled={form.getValues('useLookup')}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder=" Choose a brand" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {brands.map((brand) => (
+                      <SelectItem key={brand.value} value={brand.value}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="productcode"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Product Code</FormLabel>
                 <FormControl>
-                  <Input placeholder="" {...field} />
+                  <Input placeholder="" {...field} 
+                  disabled={form.getValues('useLookup')}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -87,7 +161,9 @@ const ProductEditPage = ({ editMode }) => {
               <FormItem>
                 <FormLabel>Product Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="optional" {...field} />
+                  <Input placeholder="optional" {...field} 
+                  disabled={form.getValues('useLookup')}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -100,7 +176,9 @@ const ProductEditPage = ({ editMode }) => {
               <FormItem className="flex flex-col">
                 <FormLabel>Target Release Date:</FormLabel>
                 <Popover>
-                  <PopoverTrigger asChild>
+                  <PopoverTrigger asChild
+                  disabled={form.getValues('useLookup')}
+                  >
                     <FormControl>
                       <Button
                         variant={'outline'}

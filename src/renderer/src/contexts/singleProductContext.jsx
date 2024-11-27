@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useProducts } from './productsContext'
 import {
+  getEpics,
   getNotesFromTicket,
   getProductLogWithIID,
   postNotesToTicket,
@@ -29,6 +30,12 @@ export const SingleProductProvider = ({ children }) => {
   const [softwareId, setSoftwareId] = useState(null)
   const [hardwareLoading, setHardwareLoading] = useState(false)
   const [softwareLoading, setSoftwareLoading] = useState(false)
+  const [epics, setEpics] = useState([])
+
+
+  useEffect(() => {
+    getEpics().then((data) => setEpics(data))
+  }, [])
 
   const getProductLog = async (iid) => {
     const ticketData = await getProductLogWithIID(iid)
@@ -115,7 +122,8 @@ export const SingleProductProvider = ({ children }) => {
     hardwareLoading,
     setHardwareLoading,
     softwareLoading,
-    setSoftwareLoading
+    setSoftwareLoading,
+    epics
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>

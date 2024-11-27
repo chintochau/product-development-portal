@@ -22,20 +22,19 @@ import PIFCard from './product-page/PIFCard'
 import NotesCard from './product-page/NotesCard'
 import HardwareStatusCard from './product-page/HardwareStatusCard'
 import SoftwareStatusCard from './product-page/SoftwareStatusCard'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../../../components/ui/select'
 
 const ProductPage = () => {
-  const { productData, setTickets, tickets, loading } = useSingleProduct()
+  const { productData, setTickets, tickets, loading, epics } = useSingleProduct()
+  const [selectedEpicId, setSelectedEpicId] = React.useState(null)
   const location = useLocation()
-  const {
-    productcode,
-    productname,
-    epicLink,
-    releasedate,
-    status,
-    mpDate,
-    ppDate,
-    softwareSignoffDate
-  } = productData || {}
+  const { productcode, softwareSignoffDate } = productData || {}
 
   const loadTickets = async (epicId) => {
     const data = await getTicketsFromEpic(epicId)
@@ -46,11 +45,10 @@ const ProductPage = () => {
   }
 
   useEffect(() => {
-    const epicId = productData?.epicLink?.split('/').pop()
-    if (epicId) {
-      loadTickets(epicId)
+    if (selectedEpicId) {
+      loadTickets(selectedEpicId)
     }
-  }, [productData])
+  }, [selectedEpicId])
 
   if (loading) {
     return (
@@ -69,9 +67,12 @@ const ProductPage = () => {
       <div className="w-full flex items-center ">
         <h2 className="text-2xl">{productcode}</h2>
         <Link to={`${location.pathname}/edit`}>
-          <Button variant="link" size="sm" className=" text-muted-foreground hover:text-blue-500">Edit</Button>
+          <Button variant="link" size="sm" className=" text-muted-foreground hover:text-blue-500">
+            Edit
+          </Button>
         </Link>
       </div>
+
       <div className="w-full grid grid-cols-3 gap-4 ">
         <div className="flex flex-col gap-4">
           <ProductCard className="flex-1" />
@@ -81,11 +82,28 @@ const ProductPage = () => {
         <SoftwareStatusCard />
       </div>
       <div className="mt-4 flex gap-4">
-        <TicketsChart
-          tickets={tickets}
-          softwareSignoffDate={softwareSignoffDate}
-          className={'flex-1'}
-        />
+        <div className="relative overflow-hidden rounded-xl">
+          <div className="absolute top-0 right-0">
+            <Select value={selectedEpicId} onValueChange={(epicId) => setSelectedEpicId(epicId)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a product" />
+              </SelectTrigger>
+              <SelectContent>
+                {epics &&
+                  epics.map((epic) => (
+                    <SelectItem key={epic.id} value={epic.iid}>
+                      {epic.title}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <TicketsChart
+            tickets={tickets}
+            softwareSignoffDate={softwareSignoffDate}
+            className={'flex-1'}
+          />
+        </div>
         <NotesCard className="flex-1" />
       </div>
     </div>

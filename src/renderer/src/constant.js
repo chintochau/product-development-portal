@@ -51,6 +51,14 @@ export const otherPages = [
     }
 ]
 
+export const brands = [
+    { value: "BLS", name: "Bluesound" },
+    { value: "BPR", name: "Bluesound Pro" },
+    { value: "NAD", name: "NAD" },
+    { value: "PSB", name: "PSB" },
+    { value: "NAD CI", name: "NAD CI" },
+]
+
 
 const sampleStepData = {
     label: "Kick-Off", completed: false, timestamp: "2024-11-15", targetDate: "2024-11-20", milestone: "1.0.0", optional: true, pif: {
@@ -66,16 +74,18 @@ const sampleStepData = {
 
 export const defaultHardwareSteps = [
     { label: "Kick-Off", completed: false, },
-    { label: "PIF Review & Approval", completed: false, pif: {
-        name: null,
-        url: null,
-        timestamp: null,
-        pifId:null,
-    }},
+    {
+        label: "PIF Review & Approval", completed: false, pif: {
+            name: null,
+            url: null,
+            timestamp: null,
+            pifId: null,
+        }
+    },
     {
         label: "Engineering Sample", completed: false, subSteps: [
             { label: "ES Schematics + Layouts + BOMs Created, Reviewed and Issued to Factory", completed: false, },
-            { label: "ES PCBs + Components Procured", completed: false},
+            { label: "ES PCBs + Components Procured", completed: false },
             { label: "ES Samples Built and Shipped", completed: false, },
             { label: "ES Hardware Bring-Up (Basic Firmware) Completed", completed: false, },
             { label: "ES Software Build Completed", completed: false, },
@@ -115,18 +125,20 @@ export const defaultHardwareSteps = [
 ];
 
 export const defaultSoftwareSteps = [
-    { label: "Kick-Off", completed: false,  },
-    { label: "PIF Review & Approval", completed: false, pif: {
-        name: "",
-        url: "",
-        timestamp: null,
-    }},
-    { label: "Requirement Specification", completed: false,  },
+    { label: "Kick-Off", completed: false, },
+    {
+        label: "PIF Review & Approval", completed: false, pif: {
+            name: "",
+            url: "",
+            timestamp: null,
+        }
+    },
+    { label: "Requirement Specification", completed: false, },
     { label: "Design", completed: false, },
     { label: "Sign-Off", completed: false, },
-    { label: "Development", completed: false,  },
+    { label: "Development", completed: false, },
     { label: "Testing", completed: false, },
-    { label: "Integration", completed: false,  },
+    { label: "Integration", completed: false, },
     { label: "Sign-Off (Post-Integration)", completed: false, },
     { label: "Release", completed: false, milestone: "-" },
 ];

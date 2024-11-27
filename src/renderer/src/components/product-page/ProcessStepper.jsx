@@ -17,7 +17,6 @@ const SingleStep = ({ step, index, className, saveData, software, hardware }) =>
   const [completedSubSteps, setCompletedSubSteps] = useState(false)
   const [completedPercentage, setCompletedPercentage] = useState(0)
   const { setHardware, setSoftware, pifs } = useSingleProduct()
-  const [selectedPif, setSelectedPif] = useState(null)
 
   useEffect(() => {
     if (step.subSteps) {
