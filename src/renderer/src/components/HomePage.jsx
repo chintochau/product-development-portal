@@ -51,7 +51,6 @@ const HomePage = () => {
       <div className="w-full rounded-xl">
         {!loading ? (
           <Table>
-            <TableCaption>A list of your recent invoices.</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-fit">No.</TableHead>

@@ -16,25 +16,28 @@ import { ProductsProvider } from './contexts/productsContext'
 import { SingleProductProvider } from './contexts/singleProductContext'
 import { UserProvider } from './contexts/userContext'
 import { BrowsingProvider } from './contexts/browsingContext'
+import { ThemeProvider } from '../../components/theme-provider'
 
 function App() {
   return (
     <>
       <Router>
-        <UserProvider>
-          <TicketsProvider>
-            <ProductsProvider>
-              <SingleProductProvider>
-                <BrowsingProvider>
-                  <SidebarProvider>
-                    <AppSidebar />
-                    <Layout />
-                  </SidebarProvider>
-                </BrowsingProvider>
-              </SingleProductProvider>
-            </ProductsProvider>
-          </TicketsProvider>
-        </UserProvider>
+        <ThemeProvider>
+          <UserProvider>
+            <TicketsProvider>
+              <ProductsProvider>
+                <SingleProductProvider>
+                  <BrowsingProvider>
+                    <SidebarProvider>
+                      <AppSidebar />
+                      <Layout />
+                    </SidebarProvider>
+                  </BrowsingProvider>
+                </SingleProductProvider>
+              </ProductsProvider>
+            </TicketsProvider>
+          </UserProvider>
+        </ThemeProvider>
       </Router>
     </>
   )

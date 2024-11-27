@@ -19,6 +19,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useUser } from '../renderer/src/contexts/userContext'
 import { useEffect, useState } from 'react'
+import { ModeToggle } from './mode-toggle'
 
 export function AppSidebar() {
   const location = useLocation()
