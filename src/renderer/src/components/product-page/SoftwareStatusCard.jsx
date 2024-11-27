@@ -12,6 +12,7 @@ import { useSingleProduct } from '../../contexts/singleProductContext'
 import ProcessStepper from './ProcessStepper'
 import { Button } from '../../../../components/ui/button'
 import { Loader2 } from 'lucide-react'
+import { ScrollArea } from '../../../../components/ui/scroll-area'
 
 const SoftwareStatusCard = () => {
   const {
@@ -47,12 +48,20 @@ const SoftwareStatusCard = () => {
         <CardTitle>Software Status</CardTitle>
         <CardDescription>*Updated by software team</CardDescription>
       </CardHeader>
-      <CardContent className="max-h-96 overflow-auto">
-        {softwareLoading ? (
-          <Loader2 className="animate-spin" />
-        ) : (
-          <ProcessStepper steps={software || defaultSoftwareSteps} saveData={saveData} software />
-        )}
+      <CardContent>
+        <ScrollArea>
+          <div className="max-h-96 pr-3">
+            {softwareLoading ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <ProcessStepper
+                steps={software || defaultSoftwareSteps}
+                saveData={saveData}
+                software
+              />
+            )}
+          </div>
+        </ScrollArea>
       </CardContent>
       <CardFooter></CardFooter>
     </Card>

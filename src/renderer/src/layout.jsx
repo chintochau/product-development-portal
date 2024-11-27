@@ -23,13 +23,14 @@ import {
 import ProductEditPage from './components/EditProductPage'
 import ProductPage from './components/ProductPage'
 import { useBrowsing } from './contexts/browsingContext'
+import { ScrollArea } from '../../components/ui/scroll-area'
 
 const Layout = ({ children }) => {
   const location = useLocation()
   const currentPath = location.pathname
   const {pageTitle} = useBrowsing()
   return (
-    <main className="w-full relative">
+    <ScrollArea className="w-full h-screen relative">
       <div className="flex items-center sticky top-0 z-50 bg-background border-b ">
         <SidebarTrigger />
         <Breadcrumb>
@@ -90,7 +91,7 @@ const Layout = ({ children }) => {
         <Route path="/dashboard/:id" element={<ProductPage editMode />} />{' '}
         <Route path="/dashboard/:id/edit" element={<ProductEditPage editMode />} />
       </Routes>
-    </main>
+    </ScrollArea>
   )
 }
 
