@@ -82,7 +82,7 @@ const ProductPage = () => {
         <SoftwareStatusCard />
       </div>
       <div className="mt-4 flex gap-4">
-        <div className="relative overflow-hidden rounded-xl">
+        <div className="relative flex-1 overflow-hidden rounded-xl">
           <div className="absolute top-0 right-0">
             <Select value={selectedEpicId} onValueChange={(epicId) => setSelectedEpicId(epicId)}>
               <SelectTrigger className="w-[180px]">

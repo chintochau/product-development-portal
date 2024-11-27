@@ -111,6 +111,6 @@ export const uploadPIFFile = async (iid, file) => { const fileBuffer = await fil
 
 
 export const getEpics = async () => {
-    const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/epics`, "GET");
+    const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/epics?state=opened`, "GET");
     return data
 }

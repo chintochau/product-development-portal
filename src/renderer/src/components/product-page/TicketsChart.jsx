@@ -67,7 +67,7 @@ const TicketsChart = ({ tickets, softwareSignoffDate, className }) => {
         <CardDescription>Remaining tickets from Gitlab</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-60">
+        <ChartContainer config={chartConfig} className="h-1/2">
           <AreaChart
             accessibilityLayer
             data={burndownData}
