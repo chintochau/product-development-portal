@@ -18,8 +18,8 @@ export const SingleProductProvider = ({ children }) => {
   const [productData, setProductData] = useState(null)
   const [iid, setIid] = useState(null)
   const [tickets, setTickets] = useState([])
-  const [notes, setNotes] = useState([])
-  const [pifFilesSubmitted, setPifFilesSubmitted] = useState(null)
+  const [notes, setNotes] = useState(null)
+  const [pifs, setPifs] = useState(null)
   const [shouldReloadNotes, setShouldReloadNotes] = useState(false)
 
   const getProductLog = async (iid) => {
@@ -31,17 +31,17 @@ export const SingleProductProvider = ({ children }) => {
     const notes = await getNotesFromTicket(iid)
     const notesData = notes.map((item) => {
       const parsedData = frontMatter(item.body)
-      return { ...parsedData, id: item.id,date:item.created_at }
+      return { ...parsedData, id: item.id, date: item.created_at }
     })
     console.log('notesData', notesData)
 
     setNotes(notesData.filter((item) => item.attributes.type === 'comment'))
-    setPifFilesSubmitted(notesData.filter((item) => item.attributes.type === 'pif'))
+    setPifs(notesData.filter((item) => item.attributes.type === 'pif'))
     return notesData
   }
 
   const postNote = async (data, message) => {
-    const response = await postNotesToTicket(iid, { ...data, type: 'comment' }, message)
+    const response = await postNotesToTicket(iid, data, message)
   }
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export const SingleProductProvider = ({ children }) => {
     tickets,
     setTickets,
     notes,
-    pifFilesSubmitted,
+    pifs,
     postNote,
     setShouldReloadNotes
   }

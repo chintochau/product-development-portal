@@ -54,7 +54,7 @@ export const getProductLogWithIID = async (iid) => {
     return data
 }
 
-const jsonToMarkdown = (data,message) => {
+const jsonToMarkdown = (data, message) => {
     const yamlContent = yaml.dump(data);
     const markdown = `---\n${yamlContent}---\n\n${message}`;
     return markdown;
@@ -80,11 +80,6 @@ export const getTicketsFromEpic = async (epicId) => {
     return data
 }
 
-export const getPIFFielsFromComments = async (iid) => {
-    const data = await window.api.gitlab(`projects/${projectId}/issues/${iid}/notes`, "GET");
-    return data
-}
-
 export const postNotesToTicket = async (iid, data, message) => {
     const {
         type, // type of comment,
@@ -98,4 +93,16 @@ export const postNotesToTicket = async (iid, data, message) => {
 export const getNotesFromTicket = async (iid) => {
     const data = await window.api.gitlab(`projects/${projectId}/issues/${iid}/notes?page=1&per_page=100`, "GET");
     return data
+}
+
+export const uploadPIFFile = async (iid, file) => { const fileBuffer = await file.arrayBuffer(); // Convert the file to an ArrayBuffer
+    const fileData = {
+      name: file.name, // File name
+      type: file.type, // MIME type
+      size: file.size, // File size
+      buffer: Array.from(new Uint8Array(fileBuffer)), // Convert ArrayBuffer to an array
+    };
+  
+    const response = await window.api.gitlab(`projects/${projectId}/uploads`, "UPLOAD", { file: fileData });
+    return response;
 }

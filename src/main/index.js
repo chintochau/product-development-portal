@@ -1,9 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain,dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { gitlab, gitlabGet } from './gitlabAPI'
-
+import fs from 'fs'
 
 function createWindow() {
   // Create the browser window.
@@ -81,3 +81,17 @@ ipcMain.handle("gitlab-get", async (event, path) => {
 ipcMain.handle("gitlab", async (event, path, type, data) => {
   return gitlab(path, type, data);
 })
+
+ipcMain.handle('save-file', async (event, data) => {
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: 'Save File As',
+    defaultPath: 'downloaded_file.txt',  // Default filename
+    filters: [{ name: 'Text Files', extensions: ['txt'] }]
+  });
+
+  if (canceled || !filePath) return; // User canceled the dialog
+
+  fs.writeFileSync(filePath, data, 'utf-8'); // Write the file content to the selected path
+
+  return filePath; // Send the path back to the front end, if needed
+});

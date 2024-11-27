@@ -5,6 +5,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   getGitlab: (path) => ipcRenderer.invoke('gitlab-get',path),
   gitlab:(path,type,data) => ipcRenderer.invoke('gitlab',path,type,data),
+  saveFile: (data) => ipcRenderer.invoke('save-file', data),
+
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

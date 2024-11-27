@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import FormData from "form-data";
 // GitLab API base URL
 const BASE_URL = 'https://gitlab.com/api/v4';
 
@@ -34,9 +34,28 @@ export const gitlab = async (path, type, data) => {
         case "PUT":
             response = await gitlabAPI.put(path, data);
             break
+        case "UPLOAD":
+            const { file } = data || {};
+            if (!file) {
+                throw new Error("No file data provided.");
+            }
+
+            // Reconstruct the file as a Buffer
+            const fileBuffer = Buffer.from(file.buffer);
+            const formData = new FormData();
+
+            // Append the file with the correct filename and MIME type
+            formData.append('file', fileBuffer, { filename: file.name, contentType: file.type });
+
+            response = await gitlabAPI.post(path, formData, {
+                headers: {
+                    ...formData.getHeaders(), // Ensure proper multipart/form-data headers
+                },
+            });
+            break;
         default:
             break;
     }
-    const res = response.data
+    const res = response?.data
     return res;
 }

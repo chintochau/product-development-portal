@@ -9,7 +9,7 @@ import {
 } from '../../../../components/ui/card'
 import { useSingleProduct } from '../../contexts/singleProductContext'
 import { Input } from '../../../../components/ui/input'
-import { Textarea } from "@/components/ui/textarea"
+import { Textarea } from '@/components/ui/textarea'
 
 import { Button } from '../../../../components/ui/button'
 import { Send } from 'lucide-react'
@@ -22,13 +22,14 @@ const NotesCard = ({ className }) => {
   const { user } = useUser()
   const sendNote = async (e) => {
     e.preventDefault()
-    await postNote({ author: user.username }, message)
+    await postNote({ author: user.username, type: 'comment' }, message)
     setMessage('')
     setShouldReloadNotes(true)
   }
 
+
   const canSendMessage = () => {
-    if (user.username) {
+    if (user.username && message && message.trim() !== '') {
       return true
     }
     return false
@@ -41,15 +42,16 @@ const NotesCard = ({ className }) => {
         <CardDescription>Share your notes here</CardDescription>
       </CardHeader>
       <CardContent>
-        {notes.map((item) => (
-          <div key={item.id} className="my-2 border border-muted p-2 rounded-md">
-            <p className=' whitespace-pre-wrap'>{item.body}</p>
-            <div className="flex justify-between">
-              <p className="text-sm text-muted-foreground">{item.attributes.author}</p>
-              <p className="text-sm text-muted-foreground">{timeAgo(item.date)}</p>
+        {notes &&
+          notes.map((item) => (
+            <div key={item.id} className="my-2 border border-muted p-2 rounded-md">
+              <p className=" whitespace-pre-wrap">{item.body}</p>
+              <div className="flex justify-between">
+                <p className="text-sm text-muted-foreground">{item.attributes.author}</p>
+                <p className="text-sm text-muted-foreground">{timeAgo(item.date)}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </CardContent>
       <CardFooter>
         <form onSubmit={sendNote} className="flex w-full gap-1">
