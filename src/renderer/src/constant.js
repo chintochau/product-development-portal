@@ -52,23 +52,67 @@ export const otherPages = [
 ]
 
 
-export const hardwareSteps = [
-    { label: "Kick-Off", completed: true, timestamp: "2024-11-15", targetDate: "2024-11-20" },
-    { label: "PIF Review", completed: true, timestamp: "2024-11-16", targetDate: "2024-11-21" },
-    { label: "Component Sourcing", completed: true, timestamp: "2024-11-18", targetDate: "2024-12-01" },
-    { label: "Prototype Development", completed: false, targetDate: "2024-12-15" },
-    { label: "Prototype Testing", completed: false, targetDate: "2024-12-30" },
-    { label: "Design Adjustments", completed: false },
-    { label: "Pre-Production Sample", completed: false, targetDate: "2025-01-15" },
-    { label: "Pre-Production Testing", completed: false },
-    { label: "Mass Production Approval", completed: false },
-    { label: "Mass Production", completed: false, targetDate: "2025-03-01" },
+const sampleStepData = {
+    label: "Kick-Off", completed: false, timestamp: "2024-11-15", targetDate: "2024-11-20", milestone: "1.0.0", optional: true, pif: {
+        name: "sample pif",
+        url: "https://gitlab.com",
+        timestamp: "2024-11-15"
+    },
+    subSteps: [
+        { label: "Kick-Off", completed: false, timestamp: "2024-11-15", targetDate: "2024-11-20" },
+        { label: "Kick-Off", completed: false, timestamp: "2024-11-15", targetDate: "2024-11-20" }
+    ]
+}
+
+export const defaultHardwareSteps = [
+    { label: "Kick-Off", completed: false, },
+    { label: "PIF Review & Approval", completed: false, },
+    {
+        label: "Engineering Sample", completed: false, subSteps: [
+            { label: "ES Schematics + Layouts + BOMs Created, Reviewed and Issued to Factory", completed: false, },
+            { label: "ES PCBs + Components Procured", completed: true, timestamp: "2024-11-15", targetDate: "2024-11-20"},
+            { label: "ES Samples Built and Shipped", completed: false, },
+            { label: "ES Hardware Bring-Up (Basic Firmware) Completed", completed: false, },
+            { label: "ES Software Build Completed", completed: false, },
+            { label: "ES Performance Testing Completed", completed: false, },
+        ]
+    },
+    {
+        label: "Engineering Sample 2", completed: false, optional: true, subSteps: [
+            { label: "ES Schematics + Layouts + BOMs Created, Reviewed and Issued to Factory", completed: false, },
+            { label: "ES PCBs + Components Procured", completed: false, },
+            { label: "ES Samples Built and Shipped", completed: false, },
+            { label: "ES Hardware Bring-Up (Basic Firmware) Completed", completed: false, },
+            { label: "ES Software Build Completed", completed: false, },
+            { label: "ES Performance Testing Completed", completed: false, },
+        ]
+    },
+    {
+        label: "Pre-Production", completed: false, subSteps: [
+            { label: "PP Schematics + Layouts + BOMs Updated, Reviewed and Issued to Factory", completed: false },
+            { label: "MP Long Leadtime Components Ordered", completed: false },
+            { label: "PP PCBs + Components Procured", completed: false },
+            { label: "PP Software Build Completed", completed: false },
+            { label: "PP Samples Built and Shipped", completed: false },
+            { label: "PP Beta Testing Completed", completed: false },
+            { label: "PP Performance Testing Completed", completed: false },
+            { label: "PP Certifications Completed", completed: false },
+        ]
+    },
+    {
+        label: "Mass Production", completed: false, subSteps: [
+            { label: "MP Schematics + Layouts + BOMs Updated, Reviewed and Issued to Factory", completed: false },
+            { label: "MP PCBs + Components Procured", completed: false },
+            { label: "MP Software Build Completed", completed: false },
+            { label: "MP Built and Shipped", completed: false },
+        ]
+    },
 ];
 
-export const softwareSteps = [
-    { label: "Kick-Off", completed: true, timestamp: "2024-11-15", targetDate: "2024-11-20" },
-    { label: "PIF Review", completed: true, timestamp: "2024-11-16", targetDate: "2024-11-21" },
-    { label: "Requirement Specification", completed: true, timestamp: "2024-11-18", targetDate: "2024-11-25" },
+export const defaultSoftwareSteps = [
+    { label: "Kick-Off", completed: false, timestamp: "2024-11-15", targetDate: "2024-11-20" },
+    { label: "PIF Review & Approval", completed: false, timestamp: "2024-11-16", targetDate: "2024-11-21" },
+    { label: "Requirement Specification", completed: false, timestamp: "2024-11-18", targetDate: "2024-11-25" },
     { label: "Design", completed: false, targetDate: "2024-12-05" },
     { label: "Sign-Off", completed: false, targetDate: "2024-12-10" },
     { label: "Development", completed: false, targetDate: "2025-01-15" },

@@ -56,7 +56,7 @@ export const getProductLogWithIID = async (iid) => {
 
 const jsonToMarkdown = (data, message) => {
     const yamlContent = yaml.dump(data);
-    const markdown = `---\n${yamlContent}---\n\n${message}`;
+    const markdown = `---\n${yamlContent}---\n\n${message ? message : ""}`;
     return markdown;
 };
 

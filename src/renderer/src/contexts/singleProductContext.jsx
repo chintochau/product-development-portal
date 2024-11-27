@@ -14,6 +14,7 @@ export const useSingleProduct = () => {
 }
 
 export const SingleProductProvider = ({ children }) => {
+  const [loading,setLoading] = useState(false)
   const [productLog, setProductLog] = useState(null)
   const [productData, setProductData] = useState(null)
   const [iid, setIid] = useState(null)
@@ -21,6 +22,8 @@ export const SingleProductProvider = ({ children }) => {
   const [notes, setNotes] = useState(null)
   const [pifs, setPifs] = useState(null)
   const [shouldReloadNotes, setShouldReloadNotes] = useState(false)
+  const [hardware, setHardware] = useState(null)
+  const [software, setSoftware] = useState(null)
 
   const getProductLog = async (iid) => {
     const ticketData = await getProductLogWithIID(iid)
@@ -35,6 +38,9 @@ export const SingleProductProvider = ({ children }) => {
     })
     setNotes(notesData.filter((item) => item.attributes.type === 'comment'))
     setPifs(notesData.filter((item) => item.attributes.type === 'pif'))
+    setHardware(notesData.filter((item) => item.attributes.type === 'hardware')?.[0]?.attributes?.hardware)
+    setSoftware(notesData.filter((item) => item.attributes.type === 'software')?.[0]?.attributes?.software)
+    setLoading(false)
     return notesData
   }
 
@@ -50,6 +56,7 @@ export const SingleProductProvider = ({ children }) => {
   }, [shouldReloadNotes])
 
   useEffect(() => {
+    // setLoading(true)
     if (productLog) {
       setProductData(productLog)
       setIid(productLog.iid)
@@ -74,7 +81,11 @@ export const SingleProductProvider = ({ children }) => {
     notes,
     pifs,
     postNote,
-    setShouldReloadNotes
+    setShouldReloadNotes,
+    hardware,
+    software,
+    loading,
+    setLoading
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>
