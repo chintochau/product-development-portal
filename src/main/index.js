@@ -95,3 +95,7 @@ ipcMain.handle('save-file', async (event, data) => {
 
   return filePath; // Send the path back to the front end, if needed
 });
+
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion();
+});

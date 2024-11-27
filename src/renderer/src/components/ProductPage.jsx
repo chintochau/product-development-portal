@@ -21,6 +21,7 @@ import ProductCard from './product-page/ProductCard'
 import PIFCard from './product-page/PIFCard'
 import NotesCard from './product-page/NotesCard'
 import HardwareStatusCard from './product-page/HardwareStatusCard'
+import SoftwareStatusCard from './product-page/SoftwareStatusCard'
 
 const ProductPage = () => {
   const { productData, setTickets, tickets, loading } = useSingleProduct()
@@ -77,16 +78,7 @@ const ProductPage = () => {
           <PIFCard />
         </div>
         <HardwareStatusCard />
-        <Card className="h-fit">
-          <CardHeader>
-            <CardTitle>Software Status</CardTitle>
-            <CardDescription>*Updated by software team</CardDescription>
-          </CardHeader>
-          <CardContent className="max-h-96 overflow-auto">
-            <ProcessStepper steps={defaultSoftwareSteps} />
-          </CardContent>
-          <CardFooter></CardFooter>
-        </Card>
+        <SoftwareStatusCard />
       </div>
       <div className="mt-4 flex gap-4">
         <TicketsChart

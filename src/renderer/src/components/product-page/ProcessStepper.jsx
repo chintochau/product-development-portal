@@ -1,16 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { cn } from '../../../../lib/utils'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ChevronDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
+import { useSingleProduct } from '../../contexts/singleProductContext'
+import { defaultHardwareSteps, defaultSoftwareSteps } from '../../constant'
 
-const SingleStep = ({ step, index, className, sub }) => {
+const SingleStep = ({ step, index, className, saveData, software, hardware }) => {
   const [completedSubSteps, setCompletedSubSteps] = useState(false)
   const [completedPercentage, setCompletedPercentage] = useState(0)
+  const { setHardware, setSoftware } = useSingleProduct()
 
   useEffect(() => {
     if (step.subSteps) {
-      console.log(step.subSteps);
       // calculate the number of completed sub-steps
       const completed = step.subSteps.filter((subStep) => subStep.completed).length
       setCompletedSubSteps(completed)
@@ -21,58 +23,119 @@ const SingleStep = ({ step, index, className, sub }) => {
       setCompletedPercentage(percentage)
     }
   }, [step.subSteps])
+
+  const handleClick = () => {
+    if (hardware) {
+      setHardware((prevHardware) => {
+        // Ensure we have a base array to work with
+        const hardwareSteps = prevHardware || defaultHardwareSteps
+
+        // Create a new array with updated state
+        const newHardware = hardwareSteps.map((step, idx) =>
+          idx === index
+            ? {
+                ...step,
+                completed: !step.completed,
+                timestamp: !step.completed ? new Date().toISOString().split('T')[0] : null
+              }
+            : step
+        )
+        saveData(newHardware)
+        return newHardware
+      })
+    } else if (software) {
+      setSoftware((prevSoftware) => {
+        // Ensure we have a base array to work with
+        const softwareSteps = prevSoftware || defaultSoftwareSteps
+
+        // Create a new array with updated state
+        const newSoftware = softwareSteps.map((step, idx) =>
+          idx === index
+            ? {
+                ...step,
+                completed: !step.completed,
+                timestamp: !step.completed ? new Date().toISOString().split('T')[0] : null
+              }
+            : step
+        )
+        saveData(newSoftware)
+        return newSoftware
+      })
+    }
+  }
+
   return (
     <Collapsible key={index} className={cn('flex flex-col', className)}>
-      <CollapsibleTrigger asChild className={cn(step.subSteps && 'cursor-pointer')}>
-        <div className="flex flex-col">
-          <div className="flex items-center">
-            <div
-              className={cn(
-                'h-8 w-8 rounded-full flex items-center justify-center font-semibold',
-                step.completed ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-600',
-                sub && 'h-6 w-6'
-              )}
-            >
-              {index}
-            </div>
-            <div className="ml-4 flex flex-col">
-              <span
-                className={cn(
-                  'text-sm font-medium',
-                  step.completed ? 'text-primary' : 'text-muted-foreground'
-                )}
-              >
-                {step.label}
-              </span>
-              {step.targetDate && (
-                <span className="text-xs text-gray-400">Target Date: {step.targetDate}</span>
-              )}
-              {step.timestamp && (
-                <span className="text-xs text-gray-400">Completed: {step.timestamp}</span>
-              )}
-              {step.milestone && (
-                <span className="text-sm font-bold text-blue-600">Milestone: {step.milestone}</span>
-              )}
-            </div>
-            {step.subSteps && <p className='ml-4 text-sm text-muted-foreground'>{completedSubSteps}/{step.subSteps.length}</p>}
-            {step.subSteps && <ChevronDown className="ml-4 h-4 w-4" />}
-          </div>
-          {step.subSteps && (
-            <div className=" py-1 pl-12">
-              <Progress className="h-1" value={completedPercentage} />
-            </div>
+      <div className="flex items-center">
+        <div
+          className={cn(
+            'group h-8 w-8 rounded-full flex items-center justify-center font-semibold',
+            step.completed ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-600'
           )}
+          onClick={handleClick}
+        >
+          <span className="group-hover:hidden">{index + 1}</span>
+          <span className="hidden group-hover:inline">
+            <Check />
+          </span>
         </div>
-      </CollapsibleTrigger>
+        <CollapsibleTrigger asChild className={cn('flex-1', step.subSteps && 'cursor-pointer')}>
+          <div className="flex flex-col">
+            <div className="flex items-center">
+              <div className="ml-4 flex flex-col">
+                <span
+                  className={cn(
+                    'text-sm font-medium',
+                    step.completed ? 'text-primary' : 'text-muted-foreground'
+                  )}
+                >
+                  {step.label}
+                </span>
+                {step.targetDate && (
+                  <span className="text-xs text-gray-400">Target Date: {step.targetDate}</span>
+                )}
+                {step.timestamp && (
+                  <span className="text-xs text-gray-400">Completed: {step.timestamp}</span>
+                )}
+                {step.milestone && (
+                  <span className="text-sm font-bold text-blue-600">
+                    Milestone: {step.milestone}
+                  </span>
+                )}
+                {
+                  step.pif && (
+                    <span className="text-sm font-bold text-blue-600">
+                      PIF: {step.pif.name}
+                    </span>
+                  )
+                }
+              </div>
+              {step.subSteps && (
+                <p className="ml-4 text-sm text-muted-foreground">
+                  {completedSubSteps}/{step.subSteps.length}
+                </p>
+              )}
+              {step.subSteps && <ChevronDown className="ml-4 h-4 w-4" />}
+            </div>
+            {step.subSteps && (
+              <div className=" py-1 px-4 ">
+                <Progress className="h-1" value={completedPercentage} />
+              </div>
+            )}
+          </div>
+        </CollapsibleTrigger>
+      </div>
       <CollapsibleContent>
         {step.subSteps &&
           step.subSteps.map((subStep, subIndex) => (
-            <SingleStep
+            <SubStep
+              key={subIndex + 1}
               step={subStep}
-              index={`${index}.${subIndex + 1}`}
-              key={`${index}.${subIndex + 1}`}
-              className="pl-8 my-2"
-              sub
+              mainIndex={index}
+              index={subIndex}
+              saveData={saveData}
+              hardware={hardware}
+              software={software}
             />
           ))}
       </CollapsibleContent>
@@ -80,10 +143,116 @@ const SingleStep = ({ step, index, className, sub }) => {
   )
 }
 
-function ProcessStepper({ steps }) {
+const SubStep = ({ step, index, mainIndex, software, hardware, saveData }) => {
+
+  const { setHardware, setSoftware } = useSingleProduct()
+  const handleClick = () => {
+    if (hardware) {
+      setHardware((prevHardware) => {
+        // Ensure we have a base array to work with
+        const hardwareSteps = prevHardware || defaultHardwareSteps;
+      
+        // Create a new array with updated state
+        const newHardware = hardwareSteps.map((step, idx) =>
+          idx === mainIndex
+            ? {
+                ...step,
+                subSteps: step.subSteps.map((subStep, subIdx) =>
+                  subIdx === index
+                    ? {
+                        ...subStep,
+                        completed: !subStep.completed,
+                        timestamp: !subStep.completed ? new Date().toISOString().split('T')[0] : null
+                      }
+                    : subStep
+                )
+              }
+            : step
+        );
+      
+        saveData(newHardware);
+        return newHardware;
+      });
+    } else if (software) {
+      setSoftware((prevSoftware) => {
+        // Ensure we have a base array to work with
+        const softwareSteps = prevSoftware || defaultSoftwareSteps
+
+        // Create a new array with updated state
+        const newSoftware = softwareSteps.map((step, idx) =>
+          idx === index
+            ? {
+                ...step,
+                completed: !step.completed,
+                timestamp: !step.completed ? new Date().toISOString().split('T')[0] : null
+              }
+            : step
+        )
+        saveData(newSoftware)
+        return newSoftware
+      })
+    }
+  }
+
+  return (
+    <div className="flex flex-col pl-4 py-1">
+      <div className="flex items-center">
+        <div
+          className={cn(
+            'group h-6 w-6 rounded-full flex items-center justify-center font-semibold text-xs p-1',
+            step.completed ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-600'
+          )}
+          onClick={handleClick}
+        >
+          
+          <span className="group-hover:hidden">{`${mainIndex + 1}.${index + 1}`}</span>
+          <span className="hidden group-hover:inline">
+            <Check />
+          </span>
+        </div>
+        <div className="ml-4 flex flex-col">
+          <span
+            className={cn(
+              'text-sm font-medium',
+              step.completed ? 'text-primary' : 'text-muted-foreground'
+            )}
+          >
+            {step.label}
+          </span>
+          {step.targetDate && (
+            <span className="text-xs text-gray-400">Target Date: {step.targetDate}</span>
+          )}
+          {step.timestamp && (
+            <span className="text-xs text-gray-400">Completed: {step.timestamp}</span>
+          )}
+          {step.milestone && (
+            <span className="text-sm font-bold text-blue-600">Milestone: {step.milestone}</span>
+          )}
+        </div>
+        {step.subSteps && (
+          <p className="ml-4 text-sm text-muted-foreground">
+            {completedSubSteps}/{step.subSteps.length}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ProcessStepper({ steps, saveData, hardware, software }) {
   return (
     <div className="flex flex-col gap-4">
-      {steps && steps.map((step, index) => <SingleStep step={step} index={index + 1} />)}
+      {steps &&
+        steps.map((step, index) => (
+          <SingleStep
+            step={step}
+            index={index}
+            saveData={saveData}
+            key={index + 1}
+            hardware={hardware}
+            software={software}
+          />
+        ))}
     </div>
   )
 }

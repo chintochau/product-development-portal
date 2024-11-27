@@ -25,14 +25,6 @@ const convertDataToTicketObject = (data) => {
     const { productcode, productname, description, releasedate } = data || {}
     const descriptionData = {
         ...data,
-        epicLink: "https://gitlab.com/groups/lenbrook/sovi/-/epics/70",
-        softwareSignoff: false,
-        softwareSignoffBy: "",
-        softwareSignoffDate: "2024-08-28",
-        hardwareSignoff: false,
-        hardwareSignoffBy: "",
-        hardwareSignoffDate: "2024-08-27",
-        status: "initiated",
     }
 
     return {
@@ -87,6 +79,16 @@ export const postNotesToTicket = async (iid, data, message) => {
     } = data || {}
     const noteData = jsonToMarkdown(data, message)
     const response = await window.api.gitlab(`projects/${projectId}/issues/${iid}/notes`, "POST", { body: noteData });
+    return response
+}
+
+export const updateNotesToTicket = async (iid, noteId, data, message) => {
+    const {
+        type, // type of comment,
+        author, // author of comment
+    } = data || {}
+    const noteData = jsonToMarkdown(data, message)
+    const response = await window.api.gitlab(`projects/${projectId}/issues/${iid}/notes/${noteId}`, "PUT", { body: noteData });
     return response
 }
 

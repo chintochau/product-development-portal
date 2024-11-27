@@ -66,11 +66,15 @@ const sampleStepData = {
 
 export const defaultHardwareSteps = [
     { label: "Kick-Off", completed: false, },
-    { label: "PIF Review & Approval", completed: false, },
+    { label: "PIF Review & Approval", completed: false, pif: {
+        name: "",
+        url: "",
+        timestamp: null,
+    }},
     {
         label: "Engineering Sample", completed: false, subSteps: [
             { label: "ES Schematics + Layouts + BOMs Created, Reviewed and Issued to Factory", completed: false, },
-            { label: "ES PCBs + Components Procured", completed: true, timestamp: "2024-11-15", targetDate: "2024-11-20"},
+            { label: "ES PCBs + Components Procured", completed: false},
             { label: "ES Samples Built and Shipped", completed: false, },
             { label: "ES Hardware Bring-Up (Basic Firmware) Completed", completed: false, },
             { label: "ES Software Build Completed", completed: false, },
@@ -78,7 +82,7 @@ export const defaultHardwareSteps = [
         ]
     },
     {
-        label: "Engineering Sample 2", completed: false, optional: true, subSteps: [
+        label: "Engineering Sample 2", completed: false, optional: false, subSteps: [
             { label: "ES Schematics + Layouts + BOMs Created, Reviewed and Issued to Factory", completed: false, },
             { label: "ES PCBs + Components Procured", completed: false, },
             { label: "ES Samples Built and Shipped", completed: false, },
@@ -110,16 +114,20 @@ export const defaultHardwareSteps = [
 ];
 
 export const defaultSoftwareSteps = [
-    { label: "Kick-Off", completed: false, timestamp: "2024-11-15", targetDate: "2024-11-20" },
-    { label: "PIF Review & Approval", completed: false, timestamp: "2024-11-16", targetDate: "2024-11-21" },
-    { label: "Requirement Specification", completed: false, timestamp: "2024-11-18", targetDate: "2024-11-25" },
-    { label: "Design", completed: false, targetDate: "2024-12-05" },
-    { label: "Sign-Off", completed: false, targetDate: "2024-12-10" },
-    { label: "Development", completed: false, targetDate: "2025-01-15" },
-    { label: "Testing", completed: false, targetDate: "2025-01-30" },
-    { label: "Integration", completed: false, targetDate: "2025-02-10" },
-    { label: "Sign-Off (Post-Integration)", completed: false, targetDate: "2025-02-15" },
-    { label: "Release", completed: false, milestone: "4.8.0" },
+    { label: "Kick-Off", completed: false,  },
+    { label: "PIF Review & Approval", completed: false, pif: {
+        name: "",
+        url: "",
+        timestamp: null,
+    }},
+    { label: "Requirement Specification", completed: false,  },
+    { label: "Design", completed: false, },
+    { label: "Sign-Off", completed: false, },
+    { label: "Development", completed: false,  },
+    { label: "Testing", completed: false, },
+    { label: "Integration", completed: false,  },
+    { label: "Sign-Off (Post-Integration)", completed: false, },
+    { label: "Release", completed: false, milestone: "-" },
 ];
 
 

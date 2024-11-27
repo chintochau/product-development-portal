@@ -6,6 +6,8 @@ const api = {
   getGitlab: (path) => ipcRenderer.invoke('gitlab-get',path),
   gitlab:(path,type,data) => ipcRenderer.invoke('gitlab',path,type,data),
   saveFile: (data) => ipcRenderer.invoke('save-file', data),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+
 
 }
 

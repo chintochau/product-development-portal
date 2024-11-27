@@ -18,17 +18,31 @@ import { navigationItems } from '@/renderer/src/constant'
 import { Link, useLocation } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useUser } from '../renderer/src/contexts/userContext'
+import { useEffect, useState } from 'react'
 
 export function AppSidebar() {
   const location = useLocation()
   const currentPath = location.pathname
   const { user } = useUser()
+  const [version, setVersion] = useState(null)
+
+  const getAppVersion = async () => {
+    const version = await window.api.getAppVersion()
+    setVersion(version)
+  }
+
+  useEffect(() => {
+    getAppVersion()
+  }, [])
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton>B</SidebarMenuButton>
+            <SidebarMenuButton>
+              B<span>v{version}</span>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -67,7 +81,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton >
+            <SidebarMenuButton>
               <Link to="/login" className="flex items-center space-x-2">
                 <Avatar className="size-6">
                   <AvatarImage src="https://play-lh.googleusercontent.com/SuraPSeMbu8gmxbWqZ_W7NngmyvDgfpg4pq856Yz9StH6EccGMMVxyrqc5feFxKmLQ=w480-h960" />

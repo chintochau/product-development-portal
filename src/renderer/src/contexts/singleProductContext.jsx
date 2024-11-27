@@ -4,7 +4,8 @@ import {
   getNotesFromTicket,
   getProductLogWithIID,
   postNotesToTicket,
-  ticketToJSON
+  ticketToJSON,
+  updateNotesToTicket
 } from '../services/gitlabServices'
 import frontMatter from 'front-matter'
 const SingleProductContext = createContext()
@@ -14,7 +15,7 @@ export const useSingleProduct = () => {
 }
 
 export const SingleProductProvider = ({ children }) => {
-  const [loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [productLog, setProductLog] = useState(null)
   const [productData, setProductData] = useState(null)
   const [iid, setIid] = useState(null)
@@ -23,7 +24,11 @@ export const SingleProductProvider = ({ children }) => {
   const [pifs, setPifs] = useState(null)
   const [shouldReloadNotes, setShouldReloadNotes] = useState(false)
   const [hardware, setHardware] = useState(null)
+  const [hardwareId, setHardwareId] = useState(null)
   const [software, setSoftware] = useState(null)
+  const [softwareId, setSoftwareId] = useState(null)
+  const [hardwareLoading, setHardwareLoading] = useState(false)
+  const [softwareLoading, setSoftwareLoading] = useState(false)
 
   const getProductLog = async (iid) => {
     const ticketData = await getProductLogWithIID(iid)
@@ -38,14 +43,28 @@ export const SingleProductProvider = ({ children }) => {
     })
     setNotes(notesData.filter((item) => item.attributes.type === 'comment'))
     setPifs(notesData.filter((item) => item.attributes.type === 'pif'))
-    setHardware(notesData.filter((item) => item.attributes.type === 'hardware')?.[0]?.attributes?.hardware)
-    setSoftware(notesData.filter((item) => item.attributes.type === 'software')?.[0]?.attributes?.software)
+    setHardware(
+      notesData.filter((item) => item.attributes.type === 'hardware')?.[0]?.attributes?.hardware
+    )
+    setSoftware(
+      notesData.filter((item) => item.attributes.type === 'software')?.[0]?.attributes?.software
+    )
+    setHardwareId(notesData.filter((item) => item.attributes.type === 'hardware')?.[0]?.id)
+    setSoftwareId(notesData.filter((item) => item.attributes.type === 'software')?.[0]?.id)
+    setSoftwareLoading(false)
+    setHardwareLoading(false)
     setLoading(false)
     return notesData
   }
 
   const postNote = async (data, message) => {
     const response = await postNotesToTicket(iid, data, message)
+    return response
+  }
+
+  const updateNote = async (noteId, data, message) => {
+    const response = await updateNotesToTicket(iid, noteId, data, message)
+    return response
   }
 
   useEffect(() => {
@@ -85,7 +104,18 @@ export const SingleProductProvider = ({ children }) => {
     hardware,
     software,
     loading,
-    setLoading
+    setLoading,
+    setHardware,
+    setSoftware,
+    hardwareId,
+    softwareId,
+    updateNote,
+    setHardwareId,
+    setSoftwareId,
+    hardwareLoading,
+    setHardwareLoading,
+    softwareLoading,
+    setSoftwareLoading
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>
