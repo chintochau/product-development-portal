@@ -6,29 +6,51 @@ import {
   CardHeader,
   CardTitle
 } from '../../../../components/ui/card'
+import { cn } from '../../../../lib/utils'
+import { ScrollArea } from '../../../../components/ui/scroll-area'
 
-const TicketSection = ({ tickets }) => {
+const TicketSection = ({ tickets, className }) => {
   return (
-    <Card className="flex-1 flex flex-col gap-2">
+    <Card className={cn('flex flex-col gap-2 flex-1 min-w-96', className)}>
       <CardHeader>
-        <CardTitle>Burndown Chart</CardTitle>
-        <CardDescription>Remaining tickets from Gitlab</CardDescription>
+        <CardTitle>Tickets</CardTitle>
+        <CardDescription>Ticket from Epic</CardDescription>
       </CardHeader>
-
       <CardContent>
-        {tickets &&
-          tickets.map((ticket) => (
-            <div key={ticket.iid} className="flex items-center gap-2">
-              <div
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: ticket.isBug ? '#ef4444' : '#3b82f6' }}
-              ></div>
-              <p>{ticket.iid}</p>
-              <p>{ticket.title}</p>
-              <p>{ticket.status}</p>
-              <p>{ticket.link}</p>
-            </div>
-          ))}
+        <ScrollArea>
+          <div className="max-h-[40vw]">
+            {tickets &&
+              tickets
+                .sort((a, b) => {
+                  // sort by state = opened, closed
+                  return a.state === 'closed' ? 1 : -1
+                })
+                .map((ticket) => (
+                  <div
+                    key={ticket.iid}
+                    className={cn(
+                      'flex flex-col text-xs py-1 border-b',
+                      ticket.state === 'closed' && 'text-accent-foreground/60'
+                    )}
+                  >
+                    <div className="flex gap-2">
+                      <div
+                        className={cn(
+                          'w-4 h-4 rounded-full',
+                          ticket.isBug ? 'bg-red-500' : 'bg-green-500'
+                        )}
+                      ></div>
+                      <p>{ticket.iid}</p>
+                      <p>{ticket.state}</p>
+                    </div>
+                    <div className={cn('flex gap-2 text-sm')}>
+                      <p>{ticket.title}</p>
+                      <p>{ticket.link}</p>
+                    </div>
+                  </div>
+                ))}
+          </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   )

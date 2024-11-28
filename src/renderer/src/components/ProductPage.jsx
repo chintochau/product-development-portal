@@ -82,8 +82,9 @@ const ProductPage = () => {
         <HardwareStatusCard />
         <SoftwareStatusCard />
       </div>
+
       <div className="mt-4 flex gap-4 flex-wrap">
-        <div className="relative flex-1 overflow-hidden rounded-xl">
+        <div className="relative flex-1 overflow-hidden rounded-xl min-w-96">
           <div className="absolute top-0 right-0">
             <Select value={selectedEpicId} onValueChange={(epicId) => setSelectedEpicId(epicId)}>
               <SelectTrigger className="w-[180px]">
@@ -105,8 +106,12 @@ const ProductPage = () => {
             className={'flex-1'}
           />
         </div>
-        <TicketSection tickets={tickets} />
-        <NotesCard className="flex-1" />
+
+        <TicketSection tickets={tickets} className="w-1/2" />
+      </div>
+
+      <div>
+        <NotesCard className="flex-1 mt-4" />
       </div>
     </div>
   )
