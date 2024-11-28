@@ -1,8 +1,8 @@
 import { Calendar, ChevronDown, Home, Inbox, Search, Settings } from "lucide-react"
 import HomePage from "./components/HomePage"
 import SettingsPage from "./components/settings/SettingsPage"
-import ProductEditPage from "./components/EditProductPage"
 import Login from "./components/Login"
+import ProductEditPage from "./components/forms/EditProductPage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 

@@ -20,10 +20,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import ProductEditPage from './components/EditProductPage'
 import ProductPage from './components/ProductPage'
 import { useBrowsing } from './contexts/browsingContext'
 import { ScrollArea } from '../../components/ui/scroll-area'
+import ProductEditPage from './components/forms/EditProductPage'
 
 const Layout = ({ children }) => {
   const location = useLocation()

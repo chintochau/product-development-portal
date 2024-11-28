@@ -23,6 +23,7 @@ const chartConfig = {
 }
 
 import _ from 'lodash'
+import TicketSection from './TicketSection'
 
 const TicketsChart = ({ tickets, softwareSignoffDate, className }) => {
   // Step 1: Generate a range of dates
@@ -58,7 +59,6 @@ const TicketsChart = ({ tickets, softwareSignoffDate, className }) => {
       features: openFeatures.length
     }
   })
-
 
   return (
     <Card className={className}>

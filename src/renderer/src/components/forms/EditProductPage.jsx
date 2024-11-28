@@ -23,12 +23,12 @@ import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { format } from 'date-fns'
 import { Calendar } from '@/components/ui/calendar'
-import { cn } from '../../../lib/utils'
 import { CalendarIcon } from 'lucide-react'
-import { createNewProductTicket, saveTicket } from '../services/gitlabServices'
-import { useSingleProduct } from '../contexts/singleProductContext'
-import { brands } from '../constant'
+import { createNewProductTicket, saveTicket } from '../../services/gitlabServices'
+import { useSingleProduct } from '../../contexts/singleProductContext'
+import { brands } from '../../constant'
 import { Checkbox } from '@/components/ui/checkbox'
+import { cn } from '../../../../lib/utils'
 
 const formSchema = z.object({
   useLookup: z.boolean(),
