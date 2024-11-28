@@ -24,10 +24,6 @@ import {
   TableRow
 } from '@/components/ui/table'
 
-
-
-
-
 const HomePage = () => {
   const { loading, products, setProducts } = useProducts()
   const [epics, setEpics] = React.useState([])
@@ -39,7 +35,8 @@ const HomePage = () => {
     navigate(`/dashboard/${productLog.iid}#${productLog.name}`)
   }
 
-
+  console.log(products);
+  
   return (
     <div className="px-4">
       <div className="flex items-center justify-between">
@@ -58,12 +55,17 @@ const HomePage = () => {
                 <TableHead>Status</TableHead>
                 <TableHead>Releast Date</TableHead>
                 <TableHead>gitlab</TableHead>
+                <TableHead>link</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {products &&
                 products.map((product) => (
-                  <TableRow key={product.iid} onClick={() => handleProductClick(product)} className="cursor-pointer">
+                  <TableRow
+                    key={product.iid}
+                    onClick={() => handleProductClick(product)}
+                    className="cursor-pointer"
+                  >
                     <TableCell className="w-14">{product.iid}</TableCell>
                     <TableCell>{product.productcode}</TableCell>
                     <TableCell>{product.status}</TableCell>
@@ -80,6 +82,14 @@ const HomePage = () => {
                           tickets
                         </p>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <p
+                        className="cursor-pointer hover:text-blue-500 hover:underline"
+                        onClick={() => window.open(product.web_url, '_blank')}
+                      >
+                        Link
+                      </p>
                     </TableCell>
                   </TableRow>
                 ))}

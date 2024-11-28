@@ -1,9 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain,dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { gitlab, gitlabGet } from './gitlabAPI'
 import fs from 'fs'
+import { wrike } from './wrikeAPI'
 
 function createWindow() {
   // Create the browser window.
@@ -80,6 +81,10 @@ ipcMain.handle("gitlab-get", async (event, path) => {
 
 ipcMain.handle("gitlab", async (event, path, type, data) => {
   return gitlab(path, type, data);
+})
+
+ipcMain.handle("wrike", async (event, path, type, data) => {
+  return wrike(path, type, data);
 })
 
 ipcMain.handle('save-file', async (event, data) => {

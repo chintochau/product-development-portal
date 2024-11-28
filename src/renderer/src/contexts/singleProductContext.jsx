@@ -32,6 +32,8 @@ export const SingleProductProvider = ({ children }) => {
   const [softwareLoading, setSoftwareLoading] = useState(false)
   const [epics, setEpics] = useState([])
 
+  const [hardwareTasks, setHardwareTasks] = useState([])
+
 
   useEffect(() => {
     getEpics().then((data) => setEpics(data))
@@ -123,7 +125,9 @@ export const SingleProductProvider = ({ children }) => {
     setHardwareLoading,
     softwareLoading,
     setSoftwareLoading,
-    epics
+    epics,
+    hardwareTasks,
+    setHardwareTasks
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>

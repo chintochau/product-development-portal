@@ -8,10 +8,13 @@ import {
 } from '../../../../components/ui/card'
 import { cn } from '../../../../lib/utils'
 import { ScrollArea } from '../../../../components/ui/scroll-area'
+import { Button } from '../../../../components/ui/button'
+import { useSingleProduct } from '../../contexts/singleProductContext'
 
 const TicketSection = ({ tickets, className }) => {
+  const {productLog,productData} = useSingleProduct()
   return (
-    <Card className={cn('flex flex-col gap-2 flex-1 min-w-96', className)}>
+    <Card className={cn('flex flex-col gap-2 flex-1 min-w-96', className)}> 
       <CardHeader>
         <CardTitle>Tickets</CardTitle>
         <CardDescription>Ticket from Epic</CardDescription>
