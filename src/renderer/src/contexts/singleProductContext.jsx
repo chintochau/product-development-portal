@@ -31,13 +31,18 @@ export const SingleProductProvider = ({ children }) => {
   const [hardwareLoading, setHardwareLoading] = useState(false)
   const [softwareLoading, setSoftwareLoading] = useState(false)
   const [epics, setEpics] = useState([])
-
   const [hardwareTasks, setHardwareTasks] = useState([])
-
+  const [wrikeWorkflows, setWrikeWorkflows] = useState()
 
   useEffect(() => {
     getEpics().then((data) => setEpics(data))
+    getWrikeWorkflows()
   }, [])
+
+  const getWrikeWorkflows = async () => {
+    const data = await window.api.wrike('workflows', 'GET')
+    setWrikeWorkflows(data)
+  }
 
   const getProductLog = async (iid) => {
     const ticketData = await getProductLogWithIID(iid)
@@ -53,7 +58,7 @@ export const SingleProductProvider = ({ children }) => {
     setNotes(notesData.filter((item) => item.attributes.type === 'comment'))
     setPifs(notesData.filter((item) => item.attributes.type === 'pif'))
     setHardware(
-      notesData.filter((item) => item.attributes.type === 'hardware')?.[0]?.attributes?.hardware
+      notesData.filter((item) => item.attributes.type === 'hardware')?.[0]?.attributes?.wrikeId
     )
     setSoftware(
       notesData.filter((item) => item.attributes.type === 'software')?.[0]?.attributes?.software
@@ -127,7 +132,8 @@ export const SingleProductProvider = ({ children }) => {
     setSoftwareLoading,
     epics,
     hardwareTasks,
-    setHardwareTasks
+    setHardwareTasks,
+    wrikeWorkflows,
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>

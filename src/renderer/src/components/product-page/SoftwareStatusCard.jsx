@@ -13,8 +13,9 @@ import ProcessStepper from './ProcessStepper'
 import { Button } from '../../../../components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { ScrollArea } from '../../../../components/ui/scroll-area'
+import { cn } from '../../../../lib/utils'
 
-const SoftwareStatusCard = () => {
+const SoftwareStatusCard = ({className}) => {
   const {
     software,
     postNote,
@@ -43,7 +44,8 @@ const SoftwareStatusCard = () => {
   }
 
   return (
-    <Card className="h-fit">
+    <Card className={cn("h-fit", className)}>
+
       <CardHeader>
         <CardTitle>Software Status</CardTitle>
         <CardDescription>*Updated by software team</CardDescription>

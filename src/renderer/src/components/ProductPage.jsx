@@ -49,6 +49,9 @@ const ProductPage = () => {
     if (selectedEpicId) {
       loadTickets(selectedEpicId)
     }
+    return () => {
+      setTickets([])
+    }
   }, [selectedEpicId])
 
   if (loading) {
@@ -74,18 +77,18 @@ const ProductPage = () => {
         </Link>
       </div>
 
-      <div className="w-full grid grid-cols-3 gap-4 ">
-        <div className="flex flex-col gap-4">
-          <ProductCard className="flex-1" />
+      <div className="w-full flex gap-4">
+        <div className="w-1/3 flex flex-col gap-4">
+          <ProductCard />
           <PIFCard />
         </div>
-        <HardwareStatusCard />
-        <SoftwareStatusCard />
+        <HardwareStatusCard className="w-2/3"/>
+        <SoftwareStatusCard className="w-2/3"/>
       </div>
 
       <div className="mt-4 flex gap-4 flex-wrap">
         <div className="relative flex-1 overflow-hidden rounded-xl min-w-96">
-          <div className="absolute top-0 right-0">
+          <div className="absolute top-4 right-4">
             <Select value={selectedEpicId} onValueChange={(epicId) => setSelectedEpicId(epicId)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select a product" />

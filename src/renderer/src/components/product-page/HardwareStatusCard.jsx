@@ -11,7 +11,15 @@ import { defaultHardwareSteps } from '../../constant'
 import { useSingleProduct } from '../../contexts/singleProductContext'
 import ProcessStepper from './ProcessStepper'
 import { Button } from '../../../../components/ui/button'
-import { Loader2 } from 'lucide-react'
+import {
+  Check,
+  CheckCheck,
+  CheckCircle,
+  ChevronDown,
+  ChevronRight,
+  Loader2,
+  Minus
+} from 'lucide-react'
 import { ScrollArea } from '../../../../components/ui/scroll-area'
 import { getWrikeProjects } from '../../services/wrikeServices'
 import {
@@ -21,55 +29,112 @@ import {
   SelectTrigger,
   SelectValue
 } from '../../../../components/ui/select'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '../../../../components/ui/collapsible'
+import { cn, isInProgress } from '../../../../lib/utils'
+import { Badge } from '@/components/ui/badge'
 
-const HardwareTask = ({ task, className }) => {
+const HardwareTask = ({ task, className, element }) => {
+  const { wrikeWorkflows } = useSingleProduct()
   const [subTasks, setSubTasks] = useState()
+  const [open, setOpen] = useState(false)
+
   const getSubTasks = async (subtaskIds) => {
     if (!subtaskIds || !subtaskIds.length) return
     const res = await window.api.wrike(`tasks/${subtaskIds.join(',')}`, 'GET')
-    console.log('sub tasks; ', res.data)
-    setSubTasks(res.data)
+    setSubTasks(
+      res.data.sort((a, b) => {
+        // sort by item.dates.start
+        return new Date(a.dates.start) - new Date(b.dates.start)
+      })
+    )
+
     return res.data
   }
   const { subTaskIds } = task || {}
+
+  useEffect(() => {
+    if (!subTasks) {
+      getSubTasks(subTaskIds)
+    }
+  }, [subTaskIds, subTasks])
+
+  const inProgress = isInProgress(task.dates.start, task.dates.due)
+  const isCompleted = task.status === 'Completed'
+  const hasSubTasks = subTaskIds?.length > 0
+
   return (
-    <div className="pl-4 flex flex-col" onClick={() => getSubTasks(subTaskIds)}>
-      <div className="cursor-pointer hover:bg-accent px-2 py-1">
-        {`${task.title}  (${subTaskIds?.length})`}
+    <Collapsible
+      className={cn('my-2 pl-2', open ? 'border-l border-l-muted-foreground rounded-l-md' : '')}
+      open={open}
+      onOpenChange={() => {
+        hasSubTasks && setOpen(!open)
+      }}
+    >
+      <CollapsibleTrigger
+        className={cn(
+          'flex justify-between items-center w-full',
+          isCompleted ? 'text-primary font-semibold' : '',
+          hasSubTasks ? 'hover:underline' : 'cursor-default',
+          inProgress ? 'text-blue-500' : ''
+        )}
+      >
+        <div className="flex flex-col justify-start">
+          <div className="flex items-center gap-2">
+            {isCompleted ? <CheckCircle className="size-4 text-blue-500" /> : element}
+            <p className="text-left">
+              {task.title}
+              {hasSubTasks && (
+                <span className="text-muted-foreground text-sm">{` (${subTaskIds.length})`}</span>
+              )}
+            </p>
+          </div>
+        </div>
+      </CollapsibleTrigger>
+      <div className={cn('flex gap-2 ', inProgress ? 'text-blue-500' : 'text-muted-foreground ')}>
+        {task.dates.start && <p className="text-xs">start: {task.dates.start.split('T')[0]}</p>}
+        {task.dates.due && <p className="text-xs">due: {task.dates.due.split('T')[0]}</p>}
       </div>
-      {subTasks?.length > 0 && subTasks.map((item) => <HardwareTask key={item.id} task={item} />)}
-    </div>
+      <CollapsibleContent className="pl-1">
+        {subTasks?.length > 0 &&
+          subTasks.map((item) => (
+            <HardwareTask key={item.id} task={item} element={<Minus className="size-4" />} />
+          ))}
+      </CollapsibleContent>
+    </Collapsible>
   )
 }
 
-const HardwareStatusCard = () => {
+const HardwareStatusCard = ({ className }) => {
   const {
-    hardware,
     postNote,
     setShouldReloadNotes,
     hardwareId,
     updateNote,
     setHardwareLoading,
-    hardwareLoading
+    hardware,
+    setHardware
   } = useSingleProduct()
 
   const [folders, setFolders] = useState()
-  const [selectedFolderId, setSelectedFolderId] = useState()
   const [tasks, setTasks] = useState()
 
-  const saveData = async (hardware) => {
+  const saveData = async (wrikeId) => {
     if (hardwareId) {
       const res = await updateNote(hardwareId, {
         type: 'hardware',
         author: 'admin',
-        hardware: hardware
+        wrikeId
       })
     } else {
       setHardwareLoading(true)
       const res = await postNote({
         type: 'hardware',
         author: 'admin',
-        hardware: hardware
+        wrikeId
       })
       setShouldReloadNotes(true)
     }
@@ -91,22 +156,31 @@ const HardwareStatusCard = () => {
   }, [])
 
   useEffect(() => {
-    if (selectedFolderId) {
-      getTasks(selectedFolderId)
+    if (hardware) {
+      getTasks(hardware)
     }
-  }, [selectedFolderId])
+    return () => {
+      setTasks()
+    }
+  }, [hardware])
 
   return (
-    <Card className="h-fit">
+    <Card className={cn('h-fit', className)}>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <p>Hardware Status</p>
-          <Button variant="link">Refresh</Button>
         </CardTitle>
-        {selectedFolderId}
         <CardDescription>
-          <Select value={selectedFolderId} onValueChange={setSelectedFolderId}>
-            <SelectTrigger>
+          *Info from Wrike
+          
+          <Select
+            value={hardware}
+            onValueChange={(folderId) => {
+              saveData(folderId)
+              setHardware(folderId)
+            }}
+          >
+            <SelectTrigger className="w-fit">
               <SelectValue placeholder="Select a project" />
             </SelectTrigger>
             <SelectContent>
