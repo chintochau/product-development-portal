@@ -11,45 +11,45 @@ import { Label } from '../../../../components/ui/label'
 import { productInformation } from '../../constant'
 import { cn } from '../../../../lib/utils'
 import { ScrollArea } from '../../../../components/ui/scroll-area'
+import { useSingleProduct } from '../../contexts/singleProductContext'
 
 const contentClassName = 'font-semibold text-sm'
 
-const ProductCard = ({className}) => {
+const ProductCard = ({ className }) => {
+  const { productData } = useSingleProduct()
   const {
     brand,
     projectName,
     description,
     model,
-    massProduct1,
+    mp1Date,
     launch,
     status,
     greenlightDate,
     greenlightTargetMP
-  } = productInformation
+  } = productData || {}
   return (
-    <Card className={cn("h-fit", className)}>
+    <Card className={cn('h-fit', className)}>
       <CardHeader>
         <CardTitle>Overview</CardTitle>
-        <CardDescription>*Info from Master Roadmap Excel sheet</CardDescription>
+        <CardDescription>*Info from Master Roadmap</CardDescription>
       </CardHeader>
-      <CardContent >
+      <CardContent>
         <ScrollArea>
-          <div className='max-h-72'>
+          <div className="max-h-72">
             <Label>Brand</Label>
             <p className={contentClassName}>{brand}</p>
             <Label>Project Name</Label>
             <p className={contentClassName}>{projectName}</p>
             <Label>Description</Label>
             <p className={contentClassName}>{description}</p>
-            {model && (
-              <>
-                <Label>Model</Label>
-                <p className={contentClassName}>{model}</p>
-              </>
-            )}
+
+            <Label>Model</Label>
+            <p className={contentClassName}>{model}</p>
+
             <Label>Mass Production 1</Label>
-            <p className={contentClassName}>{massProduct1}</p>
-            <Label>Launch</Label>
+            <p className={contentClassName}>{mp1Date}</p>
+            <Label>Launch Date</Label>
             <p className={contentClassName}>{launch}</p>
             <Label>Status</Label>
             <p className={contentClassName}>{status}</p>

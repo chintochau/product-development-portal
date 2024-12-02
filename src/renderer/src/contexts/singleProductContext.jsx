@@ -16,6 +16,7 @@ export const useSingleProduct = () => {
 }
 
 export const SingleProductProvider = ({ children }) => {
+  const { products } = useProducts()
   const [loading, setLoading] = useState(false)
   const [productLog, setProductLog] = useState(null)
   const [productData, setProductData] = useState(null)
@@ -89,7 +90,13 @@ export const SingleProductProvider = ({ children }) => {
   }, [shouldReloadNotes])
 
   useEffect(() => {
-    // setLoading(true)
+    if (iid) {
+      getProductLog(iid)
+    }
+  }, [products])
+
+  useEffect(() => {
+    setLoading(true)
     if (productLog) {
       setProductData(productLog)
       setIid(productLog.iid)
@@ -102,6 +109,47 @@ export const SingleProductProvider = ({ children }) => {
       setIid(null)
     }
   }, [iid, productLog])
+
+  const saveData = async ({ software, type, wrikeId }) => {
+    switch (type) {
+      case 'software':
+        if (softwareId) {
+          const res = await updateNote(softwareId, {
+            type,
+            author: 'admin',
+            software: software
+          })
+        } else {
+          setSoftwareLoading(true)
+          const res = await postNote({
+            type,
+            author: 'admin',
+            software: software
+          })
+          setShouldReloadNotes(true)
+        }
+        break
+      case 'hardware':
+        if (hardwareId) {
+          const res = await updateNote(hardwareId, {
+            type,
+            author: 'admin',
+            wrikeId
+          })
+        } else {
+          setHardwareLoading(true)
+          const res = await postNote({
+            type,
+            author: 'admin',
+            wrikeId
+          })
+          setShouldReloadNotes(true)
+        }
+        break
+      default:
+        break
+    }
+  }
 
   const value = {
     productData,
@@ -134,6 +182,7 @@ export const SingleProductProvider = ({ children }) => {
     hardwareTasks,
     setHardwareTasks,
     wrikeWorkflows,
+    saveData
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>

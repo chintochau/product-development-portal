@@ -29,6 +29,17 @@ const Layout = ({ children }) => {
   const location = useLocation()
   const currentPath = location.pathname
   const {pageTitle} = useBrowsing()
+
+
+const isProductPaht = () => {
+  // check if path is dashbaord/:iid
+
+  if (currentPath.startsWith('/dashboard/')) {
+    return true
+  }
+
+}
+
   return (
     <ScrollArea className="w-full h-screen relative">
       <div className="flex items-center sticky top-0 z-50 bg-background border-b ">

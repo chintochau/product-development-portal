@@ -109,36 +109,10 @@ const HardwareTask = ({ task, className, element }) => {
 }
 
 const HardwareStatusCard = ({ className }) => {
-  const {
-    postNote,
-    setShouldReloadNotes,
-    hardwareId,
-    updateNote,
-    setHardwareLoading,
-    hardware,
-    setHardware
-  } = useSingleProduct()
+  const { hardware, setHardware, saveData } = useSingleProduct()
 
   const [folders, setFolders] = useState()
   const [tasks, setTasks] = useState()
-
-  const saveData = async (wrikeId) => {
-    if (hardwareId) {
-      const res = await updateNote(hardwareId, {
-        type: 'hardware',
-        author: 'admin',
-        wrikeId
-      })
-    } else {
-      setHardwareLoading(true)
-      const res = await postNote({
-        type: 'hardware',
-        author: 'admin',
-        wrikeId
-      })
-      setShouldReloadNotes(true)
-    }
-  }
 
   const getProjects = async () => {
     const res = await getWrikeProjects()
@@ -172,11 +146,13 @@ const HardwareStatusCard = ({ className }) => {
         </CardTitle>
         <CardDescription>
           *Info from Wrike
-          
           <Select
             value={hardware}
             onValueChange={(folderId) => {
-              saveData(folderId)
+              saveData({
+                type: 'hardware',
+                wrikeId: folderId
+              })
               setHardware(folderId)
             }}
           >

@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { getTicketsFromEpic } from '../services/gitlabServices'
+import { getTicketsFromEpic, saveTicket, updateTicketDescription } from '../services/gitlabServices'
 import { Label } from '../../../components/ui/label'
 import { cn, daysFromToday, filterTicketInformation } from '../../../lib/utils'
 import TicketsChart from './product-page/TicketsChart'
@@ -30,13 +30,15 @@ import {
   SelectValue
 } from '../../../components/ui/select'
 import TicketSection from './product-page/TicketSection'
+import { useProducts } from '../contexts/productsContext'
+import { Loader2 } from 'lucide-react'
 
 const ProductPage = () => {
   const { productData, setTickets, tickets, loading, epics } = useSingleProduct()
   const [selectedEpicId, setSelectedEpicId] = React.useState(null)
+  const { setShouldRefreshProducts } = useProducts()
   const location = useLocation()
-  const { productcode, softwareSignoffDate } = productData || {}
-
+  const { projectName, softwareSignoffDate } = productData || {}
   const loadTickets = async (epicId) => {
     const data = await getTicketsFromEpic(epicId)
     if (data) {
@@ -46,8 +48,8 @@ const ProductPage = () => {
   }
 
   useEffect(() => {
-    if (selectedEpicId) {
-      loadTickets(selectedEpicId)
+    if (selectedEpicId || productData?.epicId) {
+      loadTickets(selectedEpicId || productData?.epicId)
     }
     return () => {
       setTickets([])
@@ -58,10 +60,10 @@ const ProductPage = () => {
     return (
       <div className="px-4">
         <div className="w-full flex items-center justify-between">
-          <h2 className="text-2xl">{productcode}</h2>
+          <h2 className="text-2xl">{projectName}</h2>
         </div>
         <div className="flex justify-center items-center h-screen">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+          <Loader2 className="animate-spin size-12" />
         </div>
       </div>
     )
@@ -69,27 +71,39 @@ const ProductPage = () => {
   return (
     <div className="px-4">
       <div className="w-full flex items-center ">
-        <h2 className="text-2xl">{productcode}</h2>
-        <Link to={`${location.pathname}/edit`}>
-          <Button variant="link" size="sm" className=" text-muted-foreground hover:text-blue-500">
-            Edit
-          </Button>
-        </Link>
+        <h2 className="text-2xl">{projectName}</h2>
       </div>
-
       <div className="w-full flex gap-4">
-        <div className="w-1/3 flex flex-col gap-4">
+        <div className="relative w-1/3 flex flex-col gap-4">
+          <div className="absolute top-4 right-4">
+            <Link to={`${location.pathname}/edit`}>
+              <Button
+                variant="link"
+                size="sm"
+                className=" text-muted-foreground hover:text-blue-500"
+              >
+                Edit
+              </Button>
+            </Link>
+          </div>
           <ProductCard />
           <PIFCard />
         </div>
-        <HardwareStatusCard className="w-2/3"/>
-        <SoftwareStatusCard className="w-2/3"/>
+        <HardwareStatusCard className="w-2/3" />
+        <SoftwareStatusCard className="w-2/3" />
       </div>
 
       <div className="mt-4 flex gap-4 flex-wrap">
         <div className="relative flex-1 overflow-hidden rounded-xl min-w-96">
           <div className="absolute top-4 right-4">
-            <Select value={selectedEpicId} onValueChange={(epicId) => setSelectedEpicId(epicId)}>
+            <Select
+              value={productData?.epicId}
+              onValueChange={(epicId) => {
+                updateTicketDescription(productData.iid, { ...productData, epicId })
+                setShouldRefreshProducts(true)
+                setSelectedEpicId(epicId)
+              }}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select a product" />
               </SelectTrigger>

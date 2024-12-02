@@ -15,37 +15,10 @@ import { Loader2 } from 'lucide-react'
 import { ScrollArea } from '../../../../components/ui/scroll-area'
 import { cn } from '../../../../lib/utils'
 
-const SoftwareStatusCard = ({className}) => {
-  const {
-    software,
-    postNote,
-    setShouldReloadNotes,
-    softwareId,
-    updateNote,
-    setSoftwareLoading,
-    softwareLoading
-  } = useSingleProduct()
-  const saveData = async (software) => {
-    if (softwareId) {
-      const res = await updateNote(softwareId, {
-        type: 'software',
-        author: 'admin',
-        software: software
-      })
-    } else {
-      setSoftwareLoading(true)
-      const res = await postNote({
-        type: 'software',
-        author: 'admin',
-        software: software
-      })
-      setShouldReloadNotes(true)
-    }
-  }
-
+const SoftwareStatusCard = ({ className }) => {
+  const { software, softwareLoading } = useSingleProduct()
   return (
-    <Card className={cn("h-fit", className)}>
-
+    <Card className={cn('h-fit', className)}>
       <CardHeader>
         <CardTitle>Software Status</CardTitle>
         <CardDescription>*Updated by software team</CardDescription>
@@ -56,11 +29,7 @@ const SoftwareStatusCard = ({className}) => {
             {softwareLoading ? (
               <Loader2 className="animate-spin" />
             ) : (
-              <ProcessStepper
-                steps={software || defaultSoftwareSteps}
-                saveData={saveData}
-                software
-              />
+              <ProcessStepper steps={software || defaultSoftwareSteps} software />
             )}
           </div>
         </ScrollArea>

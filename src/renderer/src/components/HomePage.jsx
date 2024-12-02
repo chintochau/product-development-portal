@@ -25,8 +25,7 @@ import {
 } from '@/components/ui/table'
 
 const HomePage = () => {
-  const { loading, products, setProducts } = useProducts()
-  const [epics, setEpics] = React.useState([])
+  const { loading, products, setShouldRefreshProducts } = useProducts()
   const { setProductLog } = useSingleProduct()
   const navigate = useNavigate()
 
@@ -35,8 +34,10 @@ const HomePage = () => {
     navigate(`/dashboard/${productLog.iid}#${productLog.name}`)
   }
 
-  console.log(products);
-  
+  useEffect(() => {
+    setShouldRefreshProducts(true)
+  }, [])
+
   return (
     <div className="px-4">
       <div className="flex items-center justify-between">
@@ -51,9 +52,10 @@ const HomePage = () => {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-fit">No.</TableHead>
-                <TableHead>Product</TableHead>
+                <TableHead>Project Name</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Releast Date</TableHead>
+                <TableHead>MP1</TableHead>
+                <TableHead>Launch</TableHead>
                 <TableHead>gitlab</TableHead>
                 <TableHead>link</TableHead>
               </TableRow>
@@ -67,16 +69,20 @@ const HomePage = () => {
                     className="cursor-pointer"
                   >
                     <TableCell className="w-14">{product.iid}</TableCell>
-                    <TableCell>{product.productcode}</TableCell>
+                    <TableCell>{product.projectName}</TableCell>
                     <TableCell>{product.status}</TableCell>
-                    <TableCell>{product.releasedate}</TableCell>
+                    <TableCell>{product.mp1Date}</TableCell>
+                    <TableCell>{product.launch}</TableCell>
                     <TableCell>
-                      {product.epicLink && (
+                      {product.epicId && (
                         <p
                           className="cursor-pointer hover:text-blue-500 hover:underline"
                           onClick={(e) => {
                             e.stopPropagation()
-                            window.open(product.epicLink, '_blank')
+                            window.open(
+                              'https://gitlab.com/groups/lenbrook/sovi/-/epics/' + product.epicId,
+                              '_blank'
+                            )
                           }}
                         >
                           tickets
@@ -86,7 +92,10 @@ const HomePage = () => {
                     <TableCell>
                       <p
                         className="cursor-pointer hover:text-blue-500 hover:underline"
-                        onClick={() => window.open(product.web_url, '_blank')}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          window.open(product.web_url, '_blank')
+                        }}
                       >
                         Link
                       </p>

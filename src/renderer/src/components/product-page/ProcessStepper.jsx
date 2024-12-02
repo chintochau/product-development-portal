@@ -13,10 +13,10 @@ import {
   SelectValue
 } from '../../../../components/ui/select'
 
-const SingleStep = ({ step, index, className, saveData, software, hardware }) => {
+const SingleStep = ({ step, index, className, software, hardware }) => {
   const [completedSubSteps, setCompletedSubSteps] = useState(false)
   const [completedPercentage, setCompletedPercentage] = useState(0)
-  const { setHardware, setSoftware, pifs } = useSingleProduct()
+  const { setHardware, setSoftware, pifs, saveData } = useSingleProduct()
 
   useEffect(() => {
     if (step.subSteps) {
@@ -60,7 +60,10 @@ const SingleStep = ({ step, index, className, saveData, software, hardware }) =>
             return step
           }
         })
-        saveData(newHardware)
+        saveData({
+          type: 'hardware',
+          hardware: newHardware
+        })
         return newHardware
       })
     } else if (software) {
@@ -91,7 +94,10 @@ const SingleStep = ({ step, index, className, saveData, software, hardware }) =>
             return step
           }
         })
-        saveData(newSoftware)
+        saveData({
+          type: 'software',
+          software: newSoftware
+        })
         return newSoftware
       })
     }
@@ -243,7 +249,10 @@ const SubStep = ({ step, index, mainIndex, software, hardware, saveData }) => {
             : step
         )
 
-        saveData(newHardware)
+        saveData({
+          type: 'hardware',
+          hardware: newHardware
+        })
         return newHardware
       })
     } else if (software) {
@@ -261,7 +270,10 @@ const SubStep = ({ step, index, mainIndex, software, hardware, saveData }) => {
               }
             : step
         )
-        saveData(newSoftware)
+        saveData({
+          type: 'software',
+          software: newSoftware
+        })
         return newSoftware
       })
     }

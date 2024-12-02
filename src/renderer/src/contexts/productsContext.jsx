@@ -10,6 +10,7 @@ export const useProducts = () => {
 export const ProductsProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [products, setProducts] = useState([])
+  const [shouldRefreshProducts, setShouldRefreshProducts] = useState(false)
 
   const loadProducts = async () => {
     const data = await getProductsLog()
@@ -23,6 +24,14 @@ export const ProductsProvider = ({ children }) => {
     }
   }, [loading])
 
+  useEffect(() => {
+    if (shouldRefreshProducts) {
+      loadProducts()
+      setShouldRefreshProducts(false)
+    }
+    return () => {}
+  }, [shouldRefreshProducts])
+
   const deleteProductLog = async (iid) => {
     deleteTicket(iid)
   }
@@ -32,7 +41,9 @@ export const ProductsProvider = ({ children }) => {
     setLoading,
     products,
     setProducts,
-    deleteProductLog
+    deleteProductLog,
+    shouldRefreshProducts,
+    setShouldRefreshProducts
   }
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>

@@ -51,12 +51,19 @@ export const otherPages = [
     }
 ]
 
-export const brands = [
+export const defaultBrands = [
     { value: "BLS", name: "Bluesound" },
     { value: "BPR", name: "Bluesound Pro" },
     { value: "NAD", name: "NAD" },
     { value: "PSB", name: "PSB" },
     { value: "NAD CI", name: "NAD CI" },
+]
+
+export const defaultStatus = [
+    { value: "concept", name: "Concept" },
+    { value: "concept approved", name: "Concept Approved" },
+    { value: "greenlight", name: "Greenlight" },
+    { value: "complete", name: "Complete" },
 ]
 
 

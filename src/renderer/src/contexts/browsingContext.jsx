@@ -12,11 +12,11 @@ export const BrowsingProvider = ({ children }) => {
   const location = useLocation()
   const path = location.pathname
   const [pageTitle, setPageTitle] = useState()
-  const { productLog, productData } = useSingleProduct()
+  const { productData } = useSingleProduct()
 
   useEffect(() => {
     if (productData) {
-      setPageTitle("- " + productData.productcode)
+      setPageTitle("- " + productData.projectName)
     } 
     
     if (path === '/dashboard') {
