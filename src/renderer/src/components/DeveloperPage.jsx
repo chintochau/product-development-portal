@@ -113,7 +113,7 @@ const DeveloperPage = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">ID</TableHead>
+            <TableHead>ID</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Assignees</TableHead>
           </TableRow>
@@ -121,14 +121,15 @@ const DeveloperPage = () => {
         <TableBody>
           {tickets?.map((ticket) => (
             <TableRow key={ticket.iid}>
-              <TableCell className="font-medium">{ticket.iid}</TableCell>
+              <TableHead className="w-[170px]">{ticket.references?.relative}</TableHead>
               <TableCell className="font-medium">{ticket.title}</TableCell>
+
               <TableCell className="font-medium relative">
                 <div className="min-h-8"></div>
                 {ticket.assignees?.map((dev, index) => (
                   <Avatar
                     key={dev.id + index}
-                    className={cn(`absolute top-1 bg-background`, `left-${index*2}`)}
+                    className={cn(`absolute top-1 bg-background`, `left-${index * 2}`)}
                   >
                     <AvatarImage src={dev.avatar_url} />
                     <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>

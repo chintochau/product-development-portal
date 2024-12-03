@@ -126,7 +126,7 @@ export const getEpics = async () => {
 
 
 export const getUsers = async () => {
-    const data = await window.api.gitlab(`/groups/${SOVI_GROUP_ID}/members?`, "GET");
+    const data = await window.api.gitlab(`/groups/${SOVI_GROUP_ID}/members?per_page=100`, "GET");
     return data
 }
 
