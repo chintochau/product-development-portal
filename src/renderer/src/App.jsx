@@ -17,6 +17,7 @@ import { SingleProductProvider } from './contexts/singleProductContext'
 import { UserProvider } from './contexts/userContext'
 import { BrowsingProvider } from './contexts/browsingContext'
 import { ThemeProvider } from '../../components/theme-provider'
+import { DeveloperProvider } from './contexts/developerContext'
 
 function App() {
   return (
@@ -29,8 +30,10 @@ function App() {
                 <SingleProductProvider>
                   <BrowsingProvider>
                     <SidebarProvider>
-                      <AppSidebar />
-                      <Layout />
+                      <DeveloperProvider>
+                        <AppSidebar />
+                        <Layout />
+                      </DeveloperProvider>
                     </SidebarProvider>
                   </BrowsingProvider>
                 </SingleProductProvider>

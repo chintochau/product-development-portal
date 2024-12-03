@@ -4,6 +4,7 @@ import SettingsPage from "./components/settings/SettingsPage"
 import Login from "./components/Login"
 import ProductEditPage from "./components/forms/EditProductPage"
 import { FeatureRequestForm } from "./components/forms/FeatureRequestForm"
+import DeveloperPage from "./components/DeveloperPage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -24,6 +25,7 @@ export const navigationItems = [
         title: "Developers",
         url: "/developers",
         icon: BarChart,
+        element:DeveloperPage
     },
     {
         title: "Ticket Browser",

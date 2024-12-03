@@ -123,3 +123,14 @@ export const getEpics = async () => {
     const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/epics?state=opened`, "GET");
     return data
 }
+
+
+export const getUsers = async () => {
+    const data = await window.api.gitlab(`/groups/${SOVI_GROUP_ID}/members?`, "GET");
+    return data
+}
+
+export const getGroupIssuesForDeveloper = async (developerId) => {
+    const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/issues?assignee_id=${developerId}&state=opened&per_page=100&labels=workflow:: 2 doing`, "GET");
+    return data
+}
