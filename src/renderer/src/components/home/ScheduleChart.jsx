@@ -70,9 +70,6 @@ const ScheduleChart = () => {
       )
     }
   }, [products])
-
-  console.log(chartData)
-
   return (
     <Card>
       <CardHeader>

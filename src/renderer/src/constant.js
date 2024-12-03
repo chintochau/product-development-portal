@@ -1,8 +1,9 @@
-import { Calendar, ChevronDown, Home, Inbox, Search, Settings } from "lucide-react"
+import { BarChart, Calendar, ChevronDown, Edit, Home, Inbox, List, Search, Settings } from "lucide-react"
 import HomePage from "./components/HomePage"
 import SettingsPage from "./components/settings/SettingsPage"
 import Login from "./components/Login"
 import ProductEditPage from "./components/forms/EditProductPage"
+import { FeatureRequestForm } from "./components/forms/FeatureRequestForm"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -14,19 +15,20 @@ export const navigationItems = [
         element: HomePage
     },
     {
-        title: "Inbox",
+        title: "Feature Requests",
         url: "/inbox",
-        icon: Inbox,
+        icon: Edit,
+        element: FeatureRequestForm
     },
     {
-        title: "Calendar",
-        url: "/calendar",
-        icon: Calendar,
+        title: "Developers",
+        url: "/developers",
+        icon: BarChart,
     },
     {
-        title: "Search",
-        url: "/search",
-        icon: Search,
+        title: "Ticket Browser",
+        url: "/tickets",
+        icon: List,
     },
     {
         title: "Settings",

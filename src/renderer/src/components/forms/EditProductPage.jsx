@@ -96,6 +96,7 @@ const ProductEditPage = ({ editMode }) => {
 
   return (
     <div className="px-4">
+      <h1 className="text-2xl">{editMode ? 'Edit Product' : 'New Product'}</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
