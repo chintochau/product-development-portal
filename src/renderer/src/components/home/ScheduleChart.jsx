@@ -122,8 +122,7 @@ const ScheduleChart = () => {
 
 const ToolTipConpoment = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
-    console.log(payload)
-
+    
     const start1 = dayjs(payload[0].value[1]).format('DD-MM-YYYY')
     const end1 = dayjs(payload[0].value[0]).format('DD-MM-YYYY')
     const start2 = dayjs(payload[1].value[0]).format('DD-MM-YYYY')

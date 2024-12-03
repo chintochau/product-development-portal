@@ -10,10 +10,52 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import { format } from 'date-fns'
 import { Input } from '../../../../components/ui/input'
 import { Button } from '../../../../components/ui/button'
 import { Textarea } from '../../../../components/ui/textarea'
+import { Editor } from '@tiptap/core'
+import StarterKit from '@tiptap/starter-kit'
+import { Markdown as MarkdownExtension } from 'tiptap-markdown'
+import { EditorContent, useEditor } from '@tiptap/react'
+import Placeholder from '@tiptap/extension-placeholder'
+
+const extensions = [
+  StarterKit.configure({
+    bulletList: {
+      keepMarks: true
+    },
+    orderedList: {
+      keepMarks: true
+    }
+  }),
+  Placeholder.configure({
+    // Use a placeholder:
+    placeholder: `E.g., 
+Functional Requirements:
+	•	Add a toggle switch in the settings menu for enabling/disabling Dark Mode.
+	•	Automatically detect system-wide Dark Mode preference on supported devices.
+	•	Ensure Dark Mode applies to all screens, including login, dashboard, and settings.
+
+Non-Functional Requirements:
+	•	Maintain a consistent color contrast ratio of at least 4.5:1 for accessibility.
+	•	Ensure performance impact remains minimal (<5% increase in load time).
+	•	Implement fallback to default Light Mode on unsupported older devices.`
+    // Use different placeholders depending on the node type:
+    // placeholder: ({ node }) => {
+    //   if (node.type.name === 'heading') {
+    //     return 'What’s the title?'
+    //   }
+
+    //   return 'Can you add some further context?'
+    // },
+  }),
+  MarkdownExtension
+]
+
+const editor = new Editor({
+  content: '<p>Example Text</p>',
+  extensions: [StarterKit]
+})
 
 const formSchema = z.object({
   title: z.string(),
@@ -40,6 +82,21 @@ export function FeatureRequestForm() {
     // ✅ This will be type-safe and validated.
     console.log(values)
   }
+
+  const editor = useEditor({
+    extensions: extensions,
+    content: form.watch('requirements'),
+    editorProps: {
+      attributes: {
+        class:
+          'prose prose-sm sm:prose  dark:prose-invert md:max-w-full p-4 focus:outline-none border rounded-md min-h-80 overflow-y-auto'
+      }
+    },
+    onUpdate: ({ editor }) => {
+      form.setValue('requirements', editor.storage.markdown.getMarkdown())
+    },
+    placeholder: 'Requirements'
+  })
 
   return (
     <div className="px-4">
@@ -108,20 +165,18 @@ export function FeatureRequestForm() {
               <FormItem>
                 <FormLabel>Requirements</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder={`“E.g.
-
-Functional Requirements:
-	•	Add a toggle switch in the settings menu for enabling/disabling Dark Mode.
-	•	Automatically detect system-wide Dark Mode preference on supported devices.
-	•	Ensure Dark Mode applies to all screens, including login, dashboard, and settings.
-
-Non-Functional Requirements:
-	•	Maintain a consistent color contrast ratio of at least 4.5:1 for accessibility.
-	•	Ensure performance impact remains minimal (<5% increase in load time).
-	•	Implement fallback to default Light Mode on unsupported older devices.”`}
-                    {...field}
-                  />
+                  <div>
+                    <style>{`
+.tiptap p.is-editor-empty:first-child::before {
+  color: #6b7280;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+                    `}</style>
+                    <EditorContent editor={editor} value={form.watch('requirements')} />
+                  </div>
                 </FormControl>
                 <FormDescription>
                   Outline the technical or functional requirements needed to implement the feature.

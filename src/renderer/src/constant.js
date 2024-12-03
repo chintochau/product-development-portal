@@ -16,7 +16,7 @@ export const navigationItems = [
     },
     {
         title: "Feature Requests",
-        url: "/inbox",
+        url: "/feature-requests",
         icon: Edit,
         element: FeatureRequestForm
     },
