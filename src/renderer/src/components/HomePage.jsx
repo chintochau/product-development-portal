@@ -23,6 +23,9 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { DataTable } from './home/data-table'
+import { columns } from './home/columns'
+import ScheduleChart from './home/ScheduleChart'
 
 const HomePage = () => {
   const { loading, products, setShouldRefreshProducts } = useProducts()
@@ -39,76 +42,20 @@ const HomePage = () => {
   }, [])
 
   return (
-    <div className="px-4">
-      <div className="flex items-center justify-between">
+    <div className="px-4 flex flex-col">
+      <div className="flex items-center">
         <h1 className="text-2xl">Dashboard</h1>
         <Link to={CREATE_NEW_PRODUCT_ROUTE}>
-          <Button variant="outline">+</Button>
+          <Button variant="link" size="sm" className="text-muted-foreground">Add new product</Button>
         </Link>
       </div>
-      <div className="w-full rounded-xl">
-        {!loading ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-fit">No.</TableHead>
-                <TableHead>Project Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>MP1</TableHead>
-                <TableHead>Launch</TableHead>
-                <TableHead>gitlab</TableHead>
-                <TableHead>link</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products &&
-                products.map((product) => (
-                  <TableRow
-                    key={product.iid}
-                    onClick={() => handleProductClick(product)}
-                    className="cursor-pointer"
-                  >
-                    <TableCell className="w-14">{product.iid}</TableCell>
-                    <TableCell>{product.projectName}</TableCell>
-                    <TableCell>{product.status}</TableCell>
-                    <TableCell>{product.mp1Date}</TableCell>
-                    <TableCell>{product.launch}</TableCell>
-                    <TableCell>
-                      {product.epicId && (
-                        <p
-                          className="cursor-pointer hover:text-blue-500 hover:underline"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            window.open(
-                              'https://gitlab.com/groups/lenbrook/sovi/-/epics/' + product.epicId,
-                              '_blank'
-                            )
-                          }}
-                        >
-                          tickets
-                        </p>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <p
-                        className="cursor-pointer hover:text-blue-500 hover:underline"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          window.open(product.web_url, '_blank')
-                        }}
-                      >
-                        Link
-                      </p>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <div className="w-full flex items-center justify-center py-12">
-            <Loader2 className="animate-spin size-12" />
-          </div>
-        )}
+      <div className="w-full rounded-xl py-4 ">
+        <DataTable columns={columns} data={products} />
+      </div>
+      <div className="w-full rounded-xl py-4">
+        <div className='relative h-[calc(50vh)] bottom-0'>
+          <ScheduleChart />
+        </div>
       </div>
     </div>
   )
