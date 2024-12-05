@@ -123,13 +123,12 @@ const DeveloperPage = () => {
             <TableRow key={ticket.iid}>
               <TableHead className="w-[170px]">{ticket.references?.relative}</TableHead>
               <TableCell className="font-medium">{ticket.title}</TableCell>
-
               <TableCell className="font-medium relative">
                 <div className="min-h-8"></div>
                 {ticket.assignees?.map((dev, index) => (
                   <Avatar
                     key={dev.id + index}
-                    className={cn(`absolute top-1 bg-background`, `left-${index * 2}`)}
+                    className={cn(`absolute top-1 bg-background left-${index * 2}`)}
                   >
                     <AvatarImage src={dev.avatar_url} />
                     <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>

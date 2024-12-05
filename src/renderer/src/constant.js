@@ -1,10 +1,11 @@
-import { BarChart, Calendar, ChevronDown, Edit, Home, Inbox, List, Search, Settings } from "lucide-react"
+import { BarChart, Calendar, ChevronDown, Edit, Home, Inbox, List, Map, Search, Settings } from "lucide-react"
 import HomePage from "./components/HomePage"
 import SettingsPage from "./components/settings/SettingsPage"
 import Login from "./components/Login"
 import ProductEditPage from "./components/forms/EditProductPage"
 import { FeatureRequestForm } from "./components/forms/FeatureRequestForm"
 import DeveloperPage from "./components/DeveloperPage"
+import RoadmapPage from "./components/RoadmapPage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -31,6 +32,12 @@ export const navigationItems = [
         title: "Ticket Browser",
         url: "/tickets",
         icon: List,
+    },
+    {
+        title: "Roadmap",
+        url: "/roadmap",
+        icon: Map,
+        element:RoadmapPage
     },
     {
         title: "Settings",
