@@ -156,6 +156,10 @@ export const SingleProductProvider = ({ children }) => {
     }
   }
 
+  const getFeatureEpics =  () => {
+    return epics.filter((item) => item.labels.includes('type::feature'))
+  }
+
   const value = {
     productData,
     iid,
@@ -188,7 +192,8 @@ export const SingleProductProvider = ({ children }) => {
     setHardwareTasks,
     wrikeWorkflows,
     saveData,
-    milestones
+    milestones,
+    getFeatureEpics
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>

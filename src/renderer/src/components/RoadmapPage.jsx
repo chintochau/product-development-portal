@@ -18,15 +18,24 @@ const widthFactor = 5
 const mainColor = '#0070f3'
 const epicColor = '#22c55e'
 const hardwareColor = '#f59e0b'
+const featureColor = '#ef4444' // red
+const isProduct = (task) => task.type === 'product'
+
+const legendColorScale = scaleOrdinal({
+  domain: ['Main', 'Software', 'Hardware', 'Feature'],
+  range: [mainColor, epicColor, hardwareColor, featureColor]
+})
+
+// Margins
+const margin = { top: 20, right: 200, bottom: 40, left: 150 }
 
 const RoadmapPage = () => {
   const [chartData, setChartData] = useState([])
   const { products } = useProducts()
-  const { epics, milestones } = useSingleProduct()
+  const { epics, milestones, getFeatureEpics } = useSingleProduct()
   const [showMilestones, setShowMilestones] = useState(false)
   const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
-  console.log(chartData)
-
+  const [shouldloadFeatures, setShouldloadFeatures] = useState(false)
   useEffect(() => {
     if (products) {
       const newChartData = products.map((product) => {
@@ -39,7 +48,8 @@ const RoadmapPage = () => {
               : new Date(product.launch),
           fill: mainColor, // blue,
           epicId: product.epicId,
-          wrikeId: product.wrikeId
+          wrikeId: product.wrikeId,
+          type: 'product'
         }
       })
       setChartData(
@@ -66,8 +76,27 @@ const RoadmapPage = () => {
       const maxDate = new Date(Math.max(...newChartData.map((t) => t.end.getTime())))
       setRange([Math.max(minDate, dayjs().subtract(1, 'month').valueOf()), maxDate])
       setShouldLoadWrike(true)
+      setShouldloadFeatures(true)
     }
   }, [products, epics])
+
+  useEffect(() => {
+    if (shouldloadFeatures) {
+      const features = getFeatureEpics()
+        .filter((f) => f.start_date && f.due_date)
+        .map((f) => {
+          return {
+            id: f.id,
+            name: f.title,
+            start: new Date(f.start_date),
+            end: new Date(f.due_date),
+            fill: featureColor
+          }
+        })
+      setChartData((prevData) => [...prevData, ...features])
+      setShouldloadFeatures(false)
+    }
+  }, [epics, shouldloadFeatures])
 
   const fetchDataFromWrike = async (taskData, taskIndex) => {
     try {
@@ -117,8 +146,6 @@ const RoadmapPage = () => {
     }
   }, [chartData, shouldLoadWrike])
 
-  // Margins
-  const margin = { top: 20, right: 200, bottom: 40, left: 100 }
   // Initial Date Range
   const minDate = new Date(Math.min(...chartData.map((t) => t.start.getTime())))
   const maxDate = new Date(Math.max(...chartData.map((t) => t.end.getTime())))
@@ -161,7 +188,7 @@ const RoadmapPage = () => {
     )
   }
   return (
-    <div>
+    <div className="">
       {/* Date Range Slider */}
       <div className="flex gap-10">
         <div className="mb-4 w-96">
@@ -188,205 +215,206 @@ const RoadmapPage = () => {
           </label>
         </div>
       </div>
+      <Ordinal scale={legendColorScale} direction="horizontal" />
 
-      <ScrollArea className="max-w-[calc(100vw)] md:w-[calc(100vw-10rem)] ">
-        <Ordinal
-          scale={scaleOrdinal({
-            domain: ['Main', 'Software', 'Hardware'],
-            range: [mainColor, epicColor, hardwareColor]
-          })}
-          direction="horizontal"
-        />
-        <svg width={totalWidth} height={totalHeight}>
-          <Group top={margin.top} left={margin.left}>
-            {/* Bars */}
-            {filteredTasks.map((task) => {
-              let barX = xScale(task.start)
-              let barWidth = xScale(task.end) - xScale(task.start)
-              const subTasks = task.subTasks
-              const numberOfBars = subTasks.length + 1
-              // Adjust bar position and width if it overflows the left axis
-              if (barX < 0) {
-                barWidth += barX // Reduce width by the overflow amount
-                barX = 0 // Clamp barX to the left axis
-              }
+      <div className="flex">
+        <svg width={margin.left} height={totalHeight}>
+          <AxisLeft
+            scale={yScale}
+            tickFormat={(name) => name}
+            tickLabelProps={{
+              fill: 'hsl(var(--primary))',
+              fontSize: 12
+            }}
+            stroke="hsl(var(--primary))"
+            tickStroke="hsl(var(--primary))"
+            left={margin.left}
+            top={margin.top}
+          />
+        </svg>
+        <ScrollArea className="max-w-[calc(100vw)] md:w-[calc(100vw-10rem)] ">
+          <svg width={totalWidth} height={totalHeight}>
+            <Group top={margin.top} left={0}>
+              {/* Bars */}
+              {filteredTasks.map((task) => {
+                let barX = xScale(task.start)
+                let barWidth = xScale(task.end) - xScale(task.start)
+                const subTasks = task.subTasks
+                const numberOfBars = subTasks?.length + 1 || 1
+                // Adjust bar position and width if it overflows the left axis
+                if (barX < 0) {
+                  barWidth += barX // Reduce width by the overflow amount
+                  barX = 0 // Clamp barX to the left axis
+                }
 
-              // Ensure the bar width is not negative
-              if (barWidth < 0) {
-                barWidth = 0
-              }
+                // Ensure the bar width is not negative
+                if (barWidth < 0) {
+                  barWidth = 0
+                }
 
-              const padding = 8
-              const gap = 2
-              const barY = yScale(task.name) + padding
-              const barHeight = yScale.bandwidth() - padding * 2
+                const padding = 8
+                const gap = 2
+                const barY = yScale(task.name) + padding
+                const barHeight = yScale.bandwidth() - padding * 2
 
-              // TODO: fix errors with NaN values
-              return (
-                <Fragment key={task.id}>
-                  <Bar
-                    x={Math.max(0, barX)}
-                    y={barY}
-                    width={barWidth}
-                    height={barHeight / numberOfBars - gap}
-                    fill={task.fill}
-                    rx={4}
-                  />
-                  <Line
-                    x1={Math.max(0, barX) + barWidth - gap}
-                    x2={Math.max(0, barX) + barWidth - gap}
-                    y1={barY - gap}
-                    y2={barY + barHeight / numberOfBars - gap + gap}
-                    stroke="pink"
-                    strokeWidth={2}
-                  />
-
-                  <Line
-                    x1={barX}
-                    x2={barX}
-                    y1={barY - gap}
-                    y2={barY + barHeight / numberOfBars - gap + gap}
-                    stroke="lightBlue"
-                    strokeWidth={2}
-                  />
-
-                  {subTasks.length > 0 &&
-                    subTasks.map((subTask, index) => {
-                      let subBarWidth = xScale(subTask.end) - xScale(subTask.start)
-                      let subBarX = xScale(subTask.start)
-                      if (subBarX < 0) {
-                        subBarWidth += subBarX
-                        subBarX = 0
-                      }
-
-                      if (subBarWidth < 0) {
-                        subBarWidth = 0
-                      }
-                      return (
-                        <Bar
-                          key={subTask.id + index}
-                          x={Math.max(0, subBarX)}
-                          y={barY + (barHeight / numberOfBars) * (index + 1)}
-                          width={subBarWidth}
-                          height={barHeight / numberOfBars - gap}
-                          fill={subTask.fill}
-                          rx={4}
-                        />
-                      )
-                    })}
-                  <text
-                    // hide if barX is less than 0
-                    x={Math.max(0, barX)}
-                    y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
-                    dx={-10}
-                    dy={-10}
-                    textAnchor="end"
-                    fontSize={12}
-                    fill="lightBlue"
-                  >
-                    MP1: {new Date(task.start).toLocaleString().split(',')[0]}
-                  </text>
-                  <text
-                    x={Math.max(0, barX) + barWidth - gap}
-                    y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
-                    dx={10}
-                    dy={-10}
-                    textAnchor="start"
-                    fontSize={12}
-                    fill="pink"
-                  >
-                    Launch: {new Date(task.end).toLocaleString().split(',')[0]}
-                  </text>
-                </Fragment>
-              )
-            })}
-
-            {/* Axis */}
-
-            <AxisLeft
-              scale={yScale}
-              tickFormat={(name) => name}
-              tickLabelProps={{
-                fill: 'hsl(var(--primary))',
-                fontSize: 12
-              }}
-              stroke="hsl(var(--primary))"
-              tickStroke="hsl(var(--primary))"
-            />
-            <AxisTop
-              top={3}
-              scale={xScale}
-              stroke="hsl(var(--primary))"
-              tickStroke="hsl(var(--primary))"
-              tickLabelProps={{
-                fill: 'hsl(var(--primary))',
-                fontSize: 12,
-                dy: 1
-              }}
-              tickFormat={(date) =>
-                date.toLocaleString(undefined, { month: 'short', year: 'numeric' })
-              }
-            />
-            <AxisBottom
-              top={height}
-              stroke="hsl(var(--primary))"
-              scale={xScale}
-              tickFormat={(date) =>
-                date.toLocaleString(undefined, { month: 'short', year: 'numeric' })
-              }
-              tickLabelProps={{
-                fill: 'hsl(var(--primary))',
-                fontSize: 12
-              }}
-              tickStroke="hsl(var(--primary))"
-            />
-            <text x={xScale(new Date())} y={-10} textAnchor="middle" fill="red" fontSize={12}>
-              Today
-            </text>
-            <Line
-              stroke="red"
-              strokeWidth={1}
-              x1={xScale(new Date())}
-              x2={xScale(new Date())}
-              y1={0}
-              y2={height + 5}
-              strokeDasharray="5 5"
-            />
-            {showMilestones &&
-              milestones
-                ?.filter((milestone) => milestone.due_date)
-                .map((milestone) => (
-                  <Fragment key={milestone.id}>
-                    <Line
-                      stroke="yellow"
-                      opacity={0.7}
-                      strokeWidth={1}
-                      x1={xScale(new Date(milestone.due_date))}
-                      x2={xScale(new Date(milestone.due_date))}
-                      y1={0}
-                      y2={height + 5}
+                // TODO: fix errors with NaN values
+                return (
+                  <Fragment key={task.id}>
+                    <Bar
+                      x={Math.max(0, barX)}
+                      y={barY}
+                      width={barWidth}
+                      height={barHeight / numberOfBars - gap}
+                      fill={task.fill}
+                      rx={4}
                     />
+                    <Line
+                      x1={Math.max(0, barX) + barWidth - gap}
+                      x2={Math.max(0, barX) + barWidth - gap}
+                      y1={barY - gap}
+                      y2={barY + barHeight / numberOfBars - gap + gap}
+                      stroke="pink"
+                      strokeWidth={2}
+                    />
+
+                    <Line
+                      x1={barX}
+                      x2={barX}
+                      y1={barY - gap}
+                      y2={barY + barHeight / numberOfBars - gap + gap}
+                      stroke="lightBlue"
+                      strokeWidth={2}
+                    />
+
+                    {subTasks?.length > 0 &&
+                      subTasks?.map((subTask, index) => {
+                        let subBarWidth = xScale(subTask.end) - xScale(subTask.start)
+                        let subBarX = xScale(subTask.start)
+                        if (subBarX < 0) {
+                          subBarWidth += subBarX
+                          subBarX = 0
+                        }
+
+                        if (subBarWidth < 0) {
+                          subBarWidth = 0
+                        }
+                        return (
+                          <Bar
+                            key={subTask.id + index}
+                            x={Math.max(0, subBarX)}
+                            y={barY + (barHeight / numberOfBars) * (index + 1)}
+                            width={subBarWidth}
+                            height={barHeight / numberOfBars - gap}
+                            fill={subTask.fill}
+                            rx={4}
+                          />
+                        )
+                      })}
                     <text
-                      x={xScale(new Date(milestone.due_date))}
-                      y={20}
-                      textAnchor="middle"
-                      opacity={0.7}
-                      fill="yellow"
+                      // hide if barX is less than 0
+                      x={Math.max(0, barX)}
+                      y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
+                      dx={-10}
+                      dy={-10}
+                      textAnchor="end"
                       fontSize={12}
+                      fill="lightBlue"
                     >
-                      <tspan x={xScale(new Date(milestone.due_date))} dy="0em">
-                        {milestone.title}
-                      </tspan>
-                      <tspan x={xScale(new Date(milestone.due_date))} dy="1em">
-                        {getNameForProject(milestone.project_id)}
-                      </tspan>
+                      MP1: {new Date(task.start).toLocaleString().split(',')[0]}
+                    </text>
+                    <text
+                      x={Math.max(0, barX) + barWidth - gap}
+                      y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
+                      dx={10}
+                      dy={-10}
+                      textAnchor="start"
+                      fontSize={12}
+                      fill="pink"
+                    >
+                      Launch: {new Date(task.end).toLocaleString().split(',')[0]}
                     </text>
                   </Fragment>
-                ))}
-          </Group>
-        </svg>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+                )
+              })}
+
+              {/* Axis */}
+
+              <AxisTop
+                top={3}
+                scale={xScale}
+                stroke="hsl(var(--primary))"
+                tickStroke="hsl(var(--primary))"
+                tickLabelProps={{
+                  fill: 'hsl(var(--primary))',
+                  fontSize: 12,
+                  dy: 1
+                }}
+                tickFormat={(date) =>
+                  date.toLocaleString(undefined, { month: 'short', year: 'numeric' })
+                }
+              />
+              <AxisBottom
+                top={height}
+                stroke="hsl(var(--primary))"
+                scale={xScale}
+                tickFormat={(date) =>
+                  date.toLocaleString(undefined, { month: 'short', year: 'numeric' })
+                }
+                tickLabelProps={{
+                  fill: 'hsl(var(--primary))',
+                  fontSize: 12
+                }}
+                tickStroke="hsl(var(--primary))"
+              />
+              <text x={xScale(new Date())} y={-10} textAnchor="middle" fill="red" fontSize={12}>
+                Today
+              </text>
+              <Line
+                stroke="red"
+                strokeWidth={1}
+                x1={xScale(new Date())}
+                x2={xScale(new Date())}
+                y1={0}
+                y2={height + 5}
+                strokeDasharray="5 5"
+              />
+              {showMilestones &&
+                milestones
+                  ?.filter((milestone) => milestone.due_date)
+                  .map((milestone) => (
+                    <Fragment key={milestone.id}>
+                      <Line
+                        stroke="yellow"
+                        opacity={0.7}
+                        strokeWidth={1}
+                        x1={xScale(new Date(milestone.due_date))}
+                        x2={xScale(new Date(milestone.due_date))}
+                        y1={0}
+                        y2={height + 5}
+                      />
+                      <text
+                        x={xScale(new Date(milestone.due_date))}
+                        y={20}
+                        textAnchor="middle"
+                        opacity={0.7}
+                        fill="yellow"
+                        fontSize={12}
+                      >
+                        <tspan x={xScale(new Date(milestone.due_date))} dy="0em">
+                          {milestone.title}
+                        </tspan>
+                        <tspan x={xScale(new Date(milestone.due_date))} dy="1em">
+                          {getNameForProject(milestone.project_id)}
+                        </tspan>
+                      </text>
+                    </Fragment>
+                  ))}
+            </Group>
+          </svg>
+
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      </div>
     </div>
   )
 }
