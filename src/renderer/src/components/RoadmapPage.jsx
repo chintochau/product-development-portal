@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { scaleTime, scaleBand } from '@visx/scale'
+import { scaleTime, scaleBand, scaleOrdinal } from '@visx/scale'
 import { AxisBottom, AxisLeft, AxisTop } from '@visx/axis'
 import { Group } from '@visx/group'
 import { Bar, Line } from '@visx/shape'
@@ -10,15 +10,23 @@ import dayjs from 'dayjs'
 import { useSingleProduct } from '../contexts/singleProductContext'
 import { getNameForProject } from '../services/gitlabServices'
 import { Checkbox } from '../../../components/ui/checkbox'
+import Ordinal from '@visx/legend/lib/legends/Ordinal'
 
 const height = 800
 const minimumWidth = 1200
 const widthFactor = 5
+const mainColor = '#0070f3'
+const epicColor = '#22c55e'
+const hardwareColor = '#f59e0b'
+
 const RoadmapPage = () => {
   const [chartData, setChartData] = useState([])
   const { products } = useProducts()
   const { epics, milestones } = useSingleProduct()
   const [showMilestones, setShowMilestones] = useState(false)
+  const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
+  console.log(chartData)
+
   useEffect(() => {
     if (products) {
       const newChartData = products.map((product) => {
@@ -29,8 +37,9 @@ const RoadmapPage = () => {
             product.launch === product.mp1Date
               ? new Date(product.mp1Date + 'T23:59:59')
               : new Date(product.launch),
-          fill: 'blue', // primary,
-          epicId: product.epicId
+          fill: mainColor, // blue,
+          epicId: product.epicId,
+          wrikeId: product.wrikeId
         }
       })
       setChartData(
@@ -45,7 +54,7 @@ const RoadmapPage = () => {
                   name: epic?.title,
                   start: new Date(epic?.start_date),
                   end: new Date(epic?.due_date),
-                  fill: 'blue',
+                  fill: epicColor, // green
                   epicId: task.epicId
                 }
               ]
@@ -56,12 +65,60 @@ const RoadmapPage = () => {
       const minDate = new Date(Math.min(...newChartData.map((t) => t.start.getTime())))
       const maxDate = new Date(Math.max(...newChartData.map((t) => t.end.getTime())))
       setRange([Math.max(minDate, dayjs().subtract(1, 'month').valueOf()), maxDate])
+      setShouldLoadWrike(true)
     }
   }, [products, epics])
 
+  const fetchDataFromWrike = async (taskData, taskIndex) => {
+    try {
+      const res = await window.api.wrike(
+        `folders/${taskData.wrikeId}/tasks?fields=[subTaskIds]`,
+        'GET'
+      )
+      const wrikeTask = res.data?.[0]
+      const startDate = wrikeTask?.dates?.start
+      const endDate = wrikeTask?.dates?.due
+      const wrikeTaskId = wrikeTask?.id
+      setChartData((prevData) =>
+        prevData.map((task, index) => {
+          if (index === taskIndex) {
+            return {
+              ...task,
+              subTasks: [
+                ...task.subTasks.filter((subTask) => subTask.wrikeId !== wrikeTaskId),
+                {
+                  id: wrikeTask.id,
+                  name: wrikeTask?.title,
+                  start: new Date(startDate),
+                  end: new Date(endDate),
+                  fill: hardwareColor, // yellow
+                  wrikeId: wrikeTaskId
+                }
+              ]
+            }
+          }
+          return task
+        })
+      )
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    if (chartData && shouldLoadWrike) {
+      setShouldLoadWrike(false)
+      chartData.forEach((task, index) => {
+        const wrikeId = task.wrikeId
+        if (wrikeId) {
+          fetchDataFromWrike(task, index)
+        }
+      })
+    }
+  }, [chartData, shouldLoadWrike])
+
   // Margins
   const margin = { top: 20, right: 200, bottom: 40, left: 100 }
-
   // Initial Date Range
   const minDate = new Date(Math.min(...chartData.map((t) => t.start.getTime())))
   const maxDate = new Date(Math.max(...chartData.map((t) => t.end.getTime())))
@@ -133,6 +190,13 @@ const RoadmapPage = () => {
       </div>
 
       <ScrollArea className="max-w-[calc(100vw)] md:w-[calc(100vw-10rem)] ">
+        <Ordinal
+          scale={scaleOrdinal({
+            domain: ['Main', 'Software', 'Hardware'],
+            range: [mainColor, epicColor, hardwareColor]
+          })}
+          direction="horizontal"
+        />
         <svg width={totalWidth} height={totalHeight}>
           <Group top={margin.top} left={margin.left}>
             {/* Bars */}
@@ -200,12 +264,12 @@ const RoadmapPage = () => {
                       }
                       return (
                         <Bar
-                          key={subTask.name}
+                          key={subTask.id + index}
                           x={Math.max(0, subBarX)}
-                          y={barY + (barHeight / numberOfBars) * (index + 1) + index * 2}
+                          y={barY + (barHeight / numberOfBars) * (index + 1)}
                           width={subBarWidth}
                           height={barHeight / numberOfBars - gap}
-                          fill="purple"
+                          fill={subTask.fill}
                           rx={4}
                         />
                       )

@@ -36,6 +36,7 @@ import {
 } from '../../../../components/ui/collapsible'
 import { cn, isInProgress } from '../../../../lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { updateTicketDescription } from '../../services/gitlabServices'
 
 const HardwareTask = ({ task, className, element }) => {
   const { wrikeWorkflows } = useSingleProduct()
@@ -109,8 +110,7 @@ const HardwareTask = ({ task, className, element }) => {
 }
 
 const HardwareStatusCard = ({ className }) => {
-  const { hardware, setHardware, saveData } = useSingleProduct()
-
+  const { hardware, setHardware, saveData, productData } = useSingleProduct()
   const [folders, setFolders] = useState()
   const [tasks, setTasks] = useState()
 
@@ -149,6 +149,7 @@ const HardwareStatusCard = ({ className }) => {
           <Select
             value={hardware}
             onValueChange={(folderId) => {
+              updateTicketDescription(productData.iid, { ...productData, wrikeId: folderId })
               saveData({
                 type: 'hardware',
                 wrikeId: folderId
