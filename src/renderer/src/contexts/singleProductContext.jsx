@@ -36,7 +36,7 @@ export const SingleProductProvider = ({ children }) => {
   const [wrikeWorkflows, setWrikeWorkflows] = useState()
 
   useEffect(() => {
-    getEpics().then((data) => setEpics(data))
+    getEpics().then((data) => setEpics(data.sort((a, b) => a.title.localeCompare(b.title))))
     getWrikeWorkflows()
   }, [])
 

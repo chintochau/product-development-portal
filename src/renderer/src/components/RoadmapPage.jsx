@@ -1,56 +1,83 @@
-import React, { useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { scaleTime, scaleBand } from '@visx/scale'
-import { AxisBottom } from '@visx/axis'
+import { AxisBottom, AxisLeft, AxisTop } from '@visx/axis'
 import { Group } from '@visx/group'
-import { Bar } from '@visx/shape'
+import { Bar, Line } from '@visx/shape'
 import { ScrollArea, ScrollBar } from '../../../components/ui/scroll-area'
 import { DualRangeSlider } from '../../../components/ui/dual-range-slider'
+import { useProducts } from '../contexts/productsContext'
+import dayjs from 'dayjs'
+import { useSingleProduct } from '../contexts/singleProductContext'
 
-const tasks = [
-  { name: 'Task 1', start: new Date('2024-01-01'), end: new Date('2024-01-10') },
-  { name: 'Task 2', start: new Date('2024-01-05'), end: new Date('2024-01-15') },
-  { name: 'Task 3', start: new Date('2024-01-10'), end: new Date('2024-01-20') },
-  { name: 'Task 4', start: new Date('2024-01-15'), end: new Date('2024-02-01') },
-  { name: 'Task 5', start: new Date('2024-02-05'), end: new Date('2024-02-15') },
-  { name: 'Task 6', start: new Date('2024-02-10'), end: new Date('2024-02-20') },
-  { name: 'Task 7', start: new Date('2024-02-15'), end: new Date('2024-03-01') },
-  { name: 'Task 8', start: new Date('2024-03-05'), end: new Date('2024-03-15') },
-  { name: 'Task 9', start: new Date('2024-03-10'), end: new Date('2024-03-20') },
-  { name: 'Task 10', start: new Date('2024-03-15'), end: new Date('2024-04-01') },
-  { name: 'Task 11', start: new Date('2024-04-05'), end: new Date('2024-04-15') },
-  { name: 'Task 12', start: new Date('2024-04-10'), end: new Date('2024-04-20') },
-  { name: 'Task 13', start: new Date('2024-04-15'), end: new Date('2024-05-01') },
-  { name: 'Task 14', start: new Date('2024-05-05'), end: new Date('2024-05-15') },
-  { name: 'Task 15', start: new Date('2024-05-10'), end: new Date('2024-05-20') },
-  { name: 'Task 16', start: new Date('2024-05-15'), end: new Date('2024-06-01') },
-  { name: 'Task 17', start: new Date('2024-06-05'), end: new Date('2024-06-15') },
-  { name: 'Task 18', start: new Date('2024-06-10'), end: new Date('2024-06-20') },
-  { name: 'Task 19', start: new Date('2024-06-15'), end: new Date('2024-07-01') },
-  { name: 'Task 20', start: new Date('2024-07-05'), end: new Date('2024-07-15') }
-]
-
-const width = 800
-const barPadding = 20 // Padding between bars
-const barWidthFactor = 100 // Width factor for each task
-
+const height = 800
+const minimumWidth = 1200
+const widthFactor = 3
 const RoadmapPage = () => {
+  const [chartData, setChartData] = useState([])
+  const { products } = useProducts()
+  const { epics } = useSingleProduct()
+
+  useEffect(() => {
+    if (products) {
+      const newChartData = products.map((product) => {
+        return {
+          name: product.projectName,
+          start: new Date(product.mp1Date),
+          end:
+            product.launch === product.mp1Date
+              ? new Date(product.mp1Date + 'T23:59:59')
+              : new Date(product.launch),
+          fill: 'lightBlue', // primary,
+          epicId: product.epicId
+        }
+      })
+      setChartData(
+        newChartData
+          .map((task) => {
+            const epic = epics.find((e) => e.iid === task.epicId)
+            return {
+              ...task,
+              subTasks: [
+                {
+                  name: epic?.title,
+                  start: new Date(epic?.start_date),
+                  end: new Date(epic?.due_date),
+                  fill: 'lightBlue',
+                  epicId: task.epicId
+                }
+              ]
+            }
+          })
+          .sort((a, b) => a.start.getTime() - b.start.getTime())
+      )
+      const minDate = new Date(Math.min(...newChartData.map((t) => t.start.getTime())))
+      const maxDate = new Date(Math.max(...newChartData.map((t) => t.end.getTime())))
+      setRange([Math.max(minDate, dayjs().subtract(1, 'month').valueOf()), maxDate])
+    }
+  }, [products])
+
   // Margins
   const margin = { top: 20, right: 20, bottom: 40, left: 100 }
 
   // Initial Date Range
-  const minDate = new Date(Math.min(...tasks.map((t) => t.start.getTime())))
-  const maxDate = new Date(Math.max(...tasks.map((t) => t.end.getTime())))
-  const [range, setRange] = useState([minDate, maxDate])
+  const minDate = new Date(Math.min(...chartData.map((t) => t.start.getTime())))
+  const maxDate = new Date(Math.max(...chartData.map((t) => t.end.getTime())))
+  const [range, setRange] = useState([])
 
   // Filter tasks within the range
-  const filteredTasks = tasks.filter((task) => task.end >= range[0] && task.start <= range[1])
+  const filteredTasks = chartData.filter((task) => task.end >= range[0] && task.start <= range[1])
 
-  // calculate dynamic height
-  const chartHeight = filteredTasks.length * barWidthFactor + barPadding * filteredTasks.length
+  // chartheight equals view height
+  const chartHeight = height
   const totalHeight = chartHeight + margin.top + margin.bottom
 
   // Calculate dynamic width
-  const chartWidth = filteredTasks.length * barWidthFactor + barPadding * filteredTasks.length
+  const chartWidth = Math.max(
+    minimumWidth,
+    ((new Date(range[1]).getTime() - new Date(range[0]).getTime()) / (1000 * 60 * 60 * 24)) *
+      widthFactor
+  )
+
   const totalWidth = chartWidth + margin.left + margin.right
 
   // Scales
@@ -61,10 +88,9 @@ const RoadmapPage = () => {
 
   const yScale = scaleBand({
     domain: filteredTasks.map((t) => t.name),
-    range: [0, chartHeight],
+    range: [0, chartHeight], // set chart height to the view height
     padding: 0.2
   })
-
   // Render
   return (
     <div>
@@ -74,7 +100,7 @@ const RoadmapPage = () => {
         <DualRangeSlider
           min={minDate.getTime()}
           max={maxDate.getTime()}
-          step={24 * 60 * 60 * 1000} // 1 day in milliseconds
+          step={24 * 60 * 60 * 1000 * 30} // 1 week in milliseconds
           value={range}
           onValueChange={setRange}
         />
@@ -89,31 +115,119 @@ const RoadmapPage = () => {
           <Group top={margin.top} left={margin.left}>
             {/* Bars */}
             {filteredTasks.map((task) => {
-              const barWidth = xScale(task.end) - xScale(task.start)
-              const barX = xScale(task.start)
-              const barY = yScale(task.name) ?? 0
-              const barHeight = yScale.bandwidth()
+              let barX = xScale(task.start)
+              let barWidth = xScale(task.end) - xScale(task.start)
+              const subTasks = task.subTasks
+              const numberOfBars = subTasks.length + 1
+              // Adjust bar position and width if it overflows the left axis
+              if (barX < 0) {
+                barWidth += barX // Reduce width by the overflow amount
+                barX = 0 // Clamp barX to the left axis
+              }
 
+              // Ensure the bar width is not negative
+              if (barWidth < 0) {
+                barWidth = 0
+              }
+
+              const padding = 8
+              const gap = 2
+              const barY = yScale(task.name) + padding
+              const barHeight = yScale.bandwidth() - padding * 2
               return (
-                <Bar
-                  key={task.name}
-                  x={barX}
-                  y={barY}
-                  width={barWidth}
-                  height={barHeight}
-                  fill="steelblue"
-                  rx={4} // Rounded corners
-                />
+                <Fragment key={task.name}>
+                  <Bar
+                    x={Math.max(0, barX)}
+                    y={barY}
+                    width={barWidth}
+                    height={barHeight / numberOfBars - gap}
+                    fill={task.fill}
+                    rx={4}
+                  />
+                  {subTasks.length > 0 &&
+                    subTasks.map((subTask,index) => {
+                      let subBarWidth = xScale(subTask.end) - xScale(subTask.start)
+                      let subBarX = xScale(subTask.start)
+                      if (subBarX < 0) {
+                        subBarWidth += subBarX
+                        subBarX = 0
+                      }
+
+                      if (subBarWidth < 0) {
+                        subBarWidth = 0
+                      }
+                      return (
+                        <Bar
+                          key={subTask.name}
+                          x={Math.max(0, subBarX)}
+                          y={barY + (barHeight / numberOfBars) * (index + 1) + index * 2}
+                          width={subBarWidth}
+                          height={barHeight / numberOfBars - gap}
+                          fill="purple"
+                          rx={4}
+                        />
+                      )
+                    })}
+                </Fragment>
               )
             })}
 
             {/* Axis */}
+
+            <AxisLeft
+              scale={yScale}
+              tickFormat={(name) => name}
+              tickLabelProps={{
+                fill: 'hsl(var(--primary))',
+                fontSize: 12
+              }}
+              stroke="hsl(var(--primary))"
+              tickStroke="hsl(var(--primary))"
+            />
+            <AxisTop
+              top={3}
+              scale={xScale}
+              stroke="hsl(var(--primary))"
+              tickStroke="hsl(var(--primary))"
+              tickLabelProps={{
+                fill: 'hsl(var(--primary))',
+                fontSize: 12,
+                dy: 1
+              }}
+              tickFormat={(date) =>
+                date.toLocaleString(undefined, { month: 'short', year: 'numeric' })
+              }
+            />
             <AxisBottom
-              top={chartHeight}
+              top={height}
+              stroke="hsl(var(--primary))"
               scale={xScale}
               tickFormat={(date) =>
-                date.toLocaleString(undefined, { month: 'short', day: 'numeric' })
+                date.toLocaleString(undefined, { month: 'short', year: 'numeric' })
               }
+              tickLabelProps={{
+                fill: 'hsl(var(--primary))',
+                fontSize: 12
+              }}
+              tickStroke="hsl(var(--primary))"
+            />
+            <text
+              x={xScale(new Date())}
+              y={-10}
+              textAnchor="middle"
+              fill="red"
+              fontSize={12}
+            >
+              Today
+            </text>
+            <Line
+              stroke="red"
+              strokeWidth={1}
+              x1={xScale(new Date())}
+              x2={xScale(new Date())}
+              y1={0}
+              y2={height+5}
+              strokeDasharray="5 5"
             />
           </Group>
         </svg>
@@ -122,5 +236,4 @@ const RoadmapPage = () => {
     </div>
   )
 }
-
 export default RoadmapPage
