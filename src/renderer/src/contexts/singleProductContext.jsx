@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useProducts } from './productsContext'
 import {
   getEpics,
+  getMilestones,
   getNotesFromTicket,
   getProductLogWithIID,
   postNotesToTicket,
@@ -17,7 +18,7 @@ export const useSingleProduct = () => {
 
 export const SingleProductProvider = ({ children }) => {
   const { products } = useProducts()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [productLog, setProductLog] = useState(null)
   const [productData, setProductData] = useState(null)
   const [iid, setIid] = useState(null)
@@ -34,9 +35,13 @@ export const SingleProductProvider = ({ children }) => {
   const [epics, setEpics] = useState([])
   const [hardwareTasks, setHardwareTasks] = useState([])
   const [wrikeWorkflows, setWrikeWorkflows] = useState()
+  const [milestones, setMilestones] = useState([])
 
   useEffect(() => {
     getEpics().then((data) => setEpics(data.sort((a, b) => a.title.localeCompare(b.title))))
+    getMilestones().then((data) =>
+      setMilestones(data.sort((a, b) => a.title.localeCompare(b.title)))
+    )
     getWrikeWorkflows()
   }, [])
 
@@ -182,7 +187,8 @@ export const SingleProductProvider = ({ children }) => {
     hardwareTasks,
     setHardwareTasks,
     wrikeWorkflows,
-    saveData
+    saveData,
+    milestones
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>

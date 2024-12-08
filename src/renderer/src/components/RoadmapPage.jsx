@@ -8,15 +8,17 @@ import { DualRangeSlider } from '../../../components/ui/dual-range-slider'
 import { useProducts } from '../contexts/productsContext'
 import dayjs from 'dayjs'
 import { useSingleProduct } from '../contexts/singleProductContext'
+import { getNameForProject } from '../services/gitlabServices'
+import { Checkbox } from '../../../components/ui/checkbox'
 
 const height = 800
 const minimumWidth = 1200
-const widthFactor = 3
+const widthFactor = 5
 const RoadmapPage = () => {
   const [chartData, setChartData] = useState([])
   const { products } = useProducts()
-  const { epics } = useSingleProduct()
-
+  const { epics, milestones } = useSingleProduct()
+  const [showMilestones, setShowMilestones] = useState(false)
   useEffect(() => {
     if (products) {
       const newChartData = products.map((product) => {
@@ -27,7 +29,7 @@ const RoadmapPage = () => {
             product.launch === product.mp1Date
               ? new Date(product.mp1Date + 'T23:59:59')
               : new Date(product.launch),
-          fill: 'lightBlue', // primary,
+          fill: 'blue', // primary,
           epicId: product.epicId
         }
       })
@@ -39,10 +41,11 @@ const RoadmapPage = () => {
               ...task,
               subTasks: [
                 {
+                  id: task.id,
                   name: epic?.title,
                   start: new Date(epic?.start_date),
                   end: new Date(epic?.due_date),
-                  fill: 'lightBlue',
+                  fill: 'blue',
                   epicId: task.epicId
                 }
               ]
@@ -54,10 +57,10 @@ const RoadmapPage = () => {
       const maxDate = new Date(Math.max(...newChartData.map((t) => t.end.getTime())))
       setRange([Math.max(minDate, dayjs().subtract(1, 'month').valueOf()), maxDate])
     }
-  }, [products])
+  }, [products, epics])
 
   // Margins
-  const margin = { top: 20, right: 20, bottom: 40, left: 100 }
+  const margin = { top: 20, right: 200, bottom: 40, left: 100 }
 
   // Initial Date Range
   const minDate = new Date(Math.min(...chartData.map((t) => t.start.getTime())))
@@ -92,21 +95,40 @@ const RoadmapPage = () => {
     padding: 0.2
   })
   // Render
+
+  if (chartData.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-2xl font-semibold">No data available</p>
+      </div>
+    )
+  }
   return (
     <div>
       {/* Date Range Slider */}
-      <div className="mb-4 w-96">
-        <label className="block text-sm font-medium mb-2">Select Date Range</label>
-        <DualRangeSlider
-          min={minDate.getTime()}
-          max={maxDate.getTime()}
-          step={24 * 60 * 60 * 1000 * 30} // 1 week in milliseconds
-          value={range}
-          onValueChange={setRange}
-        />
-        <div className="flex justify-between text-sm mt-2">
-          <span>{new Date(range[0]).toLocaleDateString()}</span>
-          <span>{new Date(range[1]).toLocaleDateString()}</span>
+      <div className="flex gap-10">
+        <div className="mb-4 w-96">
+          <label className="block text-sm font-medium mb-2">Select Date Range</label>
+          <DualRangeSlider
+            min={minDate.getTime()}
+            max={maxDate.getTime()}
+            step={24 * 60 * 60 * 1000 * 30} // 1 week in milliseconds
+            value={range}
+            onValueChange={setRange}
+          />
+          <div className="flex justify-between text-sm mt-2">
+            <span>{new Date(range[0]).toLocaleDateString()}</span>
+            <span>{new Date(range[1]).toLocaleDateString()}</span>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox id="milestones" onCheckedChange={setShowMilestones} checked={showMilestones} />
+          <label
+            htmlFor="milestones"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Milestones
+          </label>
         </div>
       </div>
 
@@ -134,8 +156,10 @@ const RoadmapPage = () => {
               const gap = 2
               const barY = yScale(task.name) + padding
               const barHeight = yScale.bandwidth() - padding * 2
+
+              // TODO: fix errors with NaN values
               return (
-                <Fragment key={task.name}>
+                <Fragment key={task.id}>
                   <Bar
                     x={Math.max(0, barX)}
                     y={barY}
@@ -144,8 +168,26 @@ const RoadmapPage = () => {
                     fill={task.fill}
                     rx={4}
                   />
+                  <Line
+                    x1={Math.max(0, barX) + barWidth - gap}
+                    x2={Math.max(0, barX) + barWidth - gap}
+                    y1={barY - gap}
+                    y2={barY + barHeight / numberOfBars - gap + gap}
+                    stroke="pink"
+                    strokeWidth={2}
+                  />
+
+                  <Line
+                    x1={barX}
+                    x2={barX}
+                    y1={barY - gap}
+                    y2={barY + barHeight / numberOfBars - gap + gap}
+                    stroke="lightBlue"
+                    strokeWidth={2}
+                  />
+
                   {subTasks.length > 0 &&
-                    subTasks.map((subTask,index) => {
+                    subTasks.map((subTask, index) => {
                       let subBarWidth = xScale(subTask.end) - xScale(subTask.start)
                       let subBarX = xScale(subTask.start)
                       if (subBarX < 0) {
@@ -168,6 +210,29 @@ const RoadmapPage = () => {
                         />
                       )
                     })}
+                  <text
+                    // hide if barX is less than 0
+                    x={Math.max(0, barX)}
+                    y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
+                    dx={-10}
+                    dy={-10}
+                    textAnchor="end"
+                    fontSize={12}
+                    fill="lightBlue"
+                  >
+                    MP1: {new Date(task.start).toLocaleString().split(',')[0]}
+                  </text>
+                  <text
+                    x={Math.max(0, barX) + barWidth - gap}
+                    y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
+                    dx={10}
+                    dy={-10}
+                    textAnchor="start"
+                    fontSize={12}
+                    fill="pink"
+                  >
+                    Launch: {new Date(task.end).toLocaleString().split(',')[0]}
+                  </text>
                 </Fragment>
               )
             })}
@@ -211,13 +276,7 @@ const RoadmapPage = () => {
               }}
               tickStroke="hsl(var(--primary))"
             />
-            <text
-              x={xScale(new Date())}
-              y={-10}
-              textAnchor="middle"
-              fill="red"
-              fontSize={12}
-            >
+            <text x={xScale(new Date())} y={-10} textAnchor="middle" fill="red" fontSize={12}>
               Today
             </text>
             <Line
@@ -226,9 +285,40 @@ const RoadmapPage = () => {
               x1={xScale(new Date())}
               x2={xScale(new Date())}
               y1={0}
-              y2={height+5}
+              y2={height + 5}
               strokeDasharray="5 5"
             />
+            {showMilestones &&
+              milestones
+                ?.filter((milestone) => milestone.due_date)
+                .map((milestone) => (
+                  <Fragment key={milestone.id}>
+                    <Line
+                      stroke="yellow"
+                      opacity={0.7}
+                      strokeWidth={1}
+                      x1={xScale(new Date(milestone.due_date))}
+                      x2={xScale(new Date(milestone.due_date))}
+                      y1={0}
+                      y2={height + 5}
+                    />
+                    <text
+                      x={xScale(new Date(milestone.due_date))}
+                      y={20}
+                      textAnchor="middle"
+                      opacity={0.7}
+                      fill="yellow"
+                      fontSize={12}
+                    >
+                      <tspan x={xScale(new Date(milestone.due_date))} dy="0em">
+                        {milestone.title}
+                      </tspan>
+                      <tspan x={xScale(new Date(milestone.due_date))} dy="1em">
+                        {getNameForProject(milestone.project_id)}
+                      </tspan>
+                    </text>
+                  </Fragment>
+                ))}
           </Group>
         </svg>
         <ScrollBar orientation="horizontal" />

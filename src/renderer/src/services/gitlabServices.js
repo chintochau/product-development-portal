@@ -1,6 +1,26 @@
 const PRODUCT_PROJECTID = 61440508 //jasonfortesting
-
 const SOVI_GROUP_ID = 17062603
+const FIRMWARE_PROJECTID = 36518748
+const IOS_PROJECTID = 34489453
+const ANDROID_PROJECTID = 34489306
+const DESKTOP_PROJECTID = 34489352
+
+
+export const getNameForProject = (id) => {
+    switch (id) {
+        case FIRMWARE_PROJECTID:
+            return null
+        case IOS_PROJECTID:
+            return "iOS"
+        case ANDROID_PROJECTID:
+            return "Android"
+        case DESKTOP_PROJECTID:
+            return "Desktop"
+        default:
+            return null
+    }
+}
+
 import yaml from "js-yaml"
 import frontMatter from 'front-matter'
 
@@ -133,5 +153,14 @@ export const getUsers = async () => {
 
 export const getGroupIssuesForDeveloper = async (developerId) => {
     const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/issues?assignee_id=${developerId}&state=opened&per_page=100&labels=workflow:: 2 doing`, "GET");
+    return data
+}
+
+export const getMilestones = async () => {
+    const firmware = await window.api.gitlab(`projects/${FIRMWARE_PROJECTID}/milestones?per_page=100&state=active`, "GET");
+    const ios = await window.api.gitlab(`projects/${IOS_PROJECTID}/milestones?per_page=100&state=active`, "GET");
+    const android = await window.api.gitlab(`projects/${ANDROID_PROJECTID}/milestones?per_page=100&state=active&state=active`, "GET");
+    const desktop = await window.api.gitlab(`projects/${DESKTOP_PROJECTID}/milestones?per_page=100&state=active&state=active`, "GET");
+    const data = [...firmware, ...ios, ...android, ...desktop]
     return data
 }
