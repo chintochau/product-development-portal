@@ -67,7 +67,7 @@ export function AppSidebar() {
                   <SidebarMenuSub>
                     {item.nested.map((nestedItem) => (
                       <SidebarMenuSubItem>
-                        <SidebarMenuSubButton>
+                        <SidebarMenuSubButton asChild>
                           <Link to={nestedItem.url}>{nestedItem.title}</Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>

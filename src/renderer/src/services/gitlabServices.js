@@ -4,6 +4,7 @@ const FIRMWARE_PROJECTID = 36518748
 const IOS_PROJECTID = 34489453
 const ANDROID_PROJECTID = 34489306
 const DESKTOP_PROJECTID = 34489352
+const FEATURES_PROJECTID = 36518895
 
 
 export const getNameForProject = (id) => {
@@ -31,14 +32,14 @@ export const getProductsLog = async () => {
 }
 
 
-export const createNewProductTicket = async (data) => {
-    const response = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/issues`, "POST", convertDataToTicketObject(data));
+export const createGitlabIssue = async (data, projectId = PRODUCT_PROJECTID) => {
+    const response = await window.api.gitlab(`projects/${projectId}/issues`, "POST", convertDataToTicketObject(data));
     return response
 }
 
 
-export const saveTicket = async (iid, data) => {
-    const response = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/issues/${iid}`, "PUT", convertDataToTicketObject(data));
+export const saveGitlabIssue = async (iid, data, projectId = PRODUCT_PROJECTID) => {
+    const response = await window.api.gitlab(`projects/${projectId}/issues/${iid}`, "PUT", convertDataToTicketObject(data));
     return response
 }
 
@@ -52,12 +53,15 @@ export const updateTicketDescription = async (iid, data) => {
 
 // convert data to object for gitlab ticket
 const convertDataToTicketObject = (data) => {
+
+    const { title, projectName } = data
+
     const descriptionData = {
         ...data,
     }
 
     return {
-        title: data.projectName + " Product Initiation",
+        title: projectName ? (data.projectName + " Product Initiation") : title,
         description: jsonToMarkdown(descriptionData),
         confidential: true,
         labels: ["product"]
@@ -163,4 +167,19 @@ export const getMilestones = async () => {
     const desktop = await window.api.gitlab(`projects/${DESKTOP_PROJECTID}/milestones?per_page=100&state=active&state=active`, "GET");
     const data = [...firmware, ...ios, ...android, ...desktop]
     return data
+}
+
+export const getFeaturesRequestsIssues = async () => {
+    const data = await window.api.gitlab(`projects/${FEATURES_PROJECTID}/issues?state=opened`, "GET");
+    return data
+}
+
+export const createFeatureRequestIssue = async (data) => {
+    const response = await createGitlabIssue(data, FEATURES_PROJECTID)
+    return response
+}
+
+export const updateFeatureRequestIssue = async (iid, data) => {
+    const response = await saveGitlabIssue(iid, data, FEATURES_PROJECTID)
+    return response
 }

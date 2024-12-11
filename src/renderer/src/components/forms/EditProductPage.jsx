@@ -24,7 +24,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns'
 import { Calendar } from '@/components/ui/calendar'
 import { CalendarIcon } from 'lucide-react'
-import { createNewProductTicket, saveTicket } from '../../services/gitlabServices'
+import { createGitlabIssue, saveGitlabIssue } from '../../services/gitlabServices'
 import { useSingleProduct } from '../../contexts/singleProductContext'
 import { defaultBrands, defaultStatus } from '../../constant'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -74,11 +74,11 @@ const ProductEditPage = ({ editMode }) => {
   const onSubmit = async (values) => {
     // prevent default
     if (editMode) {
-      await saveTicket(iid, { ...productData, ...values })
+      await saveGitlabIssue(iid, { ...productData, ...values })
       setShouldRefreshProducts(true)
       navigate(`/dashboard/${productData.iid}#${productData.projectName}`)
     } else {
-      const response = await createNewProductTicket(values)
+      const response = await createGitlabIssue(values)
       setShouldRefreshProducts(true)
       navigate(`/dashboard/${response.iid}#${values.projectName}`)
     }

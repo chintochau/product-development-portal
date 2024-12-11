@@ -28,17 +28,15 @@ import ProductEditPage from './components/forms/EditProductPage'
 const Layout = ({ children }) => {
   const location = useLocation()
   const currentPath = location.pathname
-  const {pageTitle} = useBrowsing()
+  const { pageTitle } = useBrowsing()
 
+  const isProductPaht = () => {
+    // check if path is dashbaord/:iid
 
-const isProductPaht = () => {
-  // check if path is dashbaord/:iid
-
-  if (currentPath.startsWith('/dashboard/')) {
-    return true
+    if (currentPath.startsWith('/dashboard/')) {
+      return true
+    }
   }
-
-}
 
   return (
     <ScrollArea className="w-full h-screen relative">
@@ -68,7 +66,7 @@ const isProductPaht = () => {
               ))}
           </BreadcrumbList>
         </Breadcrumb>
-        <p className='ml-1 text-sm text-muted-foreground'>{pageTitle}</p>
+        <p className="ml-1 text-sm text-muted-foreground">{pageTitle}</p>
       </div>
       <Routes>
         {navigationItems.map((item) => (
@@ -92,9 +90,10 @@ const isProductPaht = () => {
           )}
         {otherPages.map((item) => (
           <Route
+            
             key={item.title}
             path={item.url}
-            element={item.element ? <item.element /> : <h1>{item.title}</h1>}
+            element={item.element ? <item.element {...item.pageProps}/> : <h1>{item.title}</h1>}
           />
         ))}
         {/* Default redirect to /dashboard */}

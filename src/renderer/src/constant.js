@@ -1,4 +1,4 @@
-import { BarChart, Calendar, ChevronDown, Edit, Home, Inbox, List, Map, Search, Settings } from "lucide-react"
+import { BarChart, Calendar, ChevronDown, Edit, FileText, Home, Inbox, List, Map, Search, Settings } from "lucide-react"
 import HomePage from "./components/HomePage"
 import SettingsPage from "./components/settings/SettingsPage"
 import Login from "./components/Login"
@@ -6,28 +6,39 @@ import ProductEditPage from "./components/forms/EditProductPage"
 import { FeatureRequestForm } from "./components/forms/FeatureRequestForm"
 import DeveloperPage from "./components/DeveloperPage"
 import RoadmapPage from "./components/RoadmapPage"
+import FeaturesPage from "./components/FeaturesPage"
+import FeatureRequestDetailPage from "./components/FeatureRequestDetailPage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
 export const navigationItems = [
     {
-        title: "Dashboard",
+        title: "Products",
         url: "/dashboard",
         icon: Home,
         element: HomePage
     },
     {
-        title: "Feature Requests",
-        url: "/feature-requests",
-        icon: Edit,
-        element: FeatureRequestForm
+        title: "Features",
+        url: "/features",
+        icon: FileText,
+        element: FeaturesPage,
+        nested: [{
+            title: "New Request",
+            url: "/features/new",
+            icon: Edit,
+            element: FeatureRequestForm,
+        },
+
+        ]
     },
     {
         title: "Developers",
         url: "/developers",
         icon: BarChart,
-        element:DeveloperPage
+        element: DeveloperPage
     },
+
     {
         title: "Ticket Browser",
         url: "/tickets",
@@ -37,7 +48,7 @@ export const navigationItems = [
         title: "Roadmap",
         url: "/roadmap",
         icon: Map,
-        element:RoadmapPage
+        element: RoadmapPage
     },
     {
         title: "Settings",
@@ -59,7 +70,20 @@ export const otherPages = [
         url: "/login",
         icon: Inbox,
         element: Login
+    },
+    {
+        title: "Feature Page",
+        url: "/features/:featureId",
+        // add props edit=true
+        element: FeatureRequestDetailPage,
+    },
+    {
+        title: "Edit Feature",
+        url: "/features/:featureId/edit",
+        element: FeatureRequestForm,
+        pageProps: { editMode: true }
     }
+
 ]
 
 export const defaultBrands = [
@@ -70,6 +94,13 @@ export const defaultBrands = [
     { value: "NAD CI", name: "NAD CI" },
 ]
 
+export const defaultPlatforms = [
+    "BluOS",
+    'Desktop',
+    "iOS",
+    "Android",
+]
+
 export const defaultStatus = [
     { value: "concept", name: "Concept" },
     { value: "concept approved", name: "Concept Approved" },
@@ -77,18 +108,6 @@ export const defaultStatus = [
     { value: "complete", name: "Complete" },
 ]
 
-
-const sampleStepData = {
-    label: "Kick-Off", completed: false, timestamp: "2024-11-15", targetDate: "2024-11-20", milestone: "1.0.0", optional: true, pif: {
-        name: "sample pif",
-        url: "https://gitlab.com",
-        timestamp: "2024-11-15"
-    },
-    subSteps: [
-        { label: "Kick-Off", completed: false, timestamp: "2024-11-15", targetDate: "2024-11-20" },
-        { label: "Kick-Off", completed: false, timestamp: "2024-11-15", targetDate: "2024-11-20" }
-    ]
-}
 
 export const defaultHardwareSteps = [
     { label: "Kick-Off", completed: false, },

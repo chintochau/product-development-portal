@@ -213,6 +213,13 @@ const RoadmapPage = () => {
           >
             Milestones
           </label>
+          <Checkbox id="developers" />
+          <label
+            htmlFor="developers"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Developers
+          </label>
         </div>
       </div>
       <Ordinal scale={legendColorScale} direction="horizontal" />

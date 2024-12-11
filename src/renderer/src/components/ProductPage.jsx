@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { getTicketsFromEpic, saveTicket, updateTicketDescription } from '../services/gitlabServices'
+import { getTicketsFromEpic, saveGitlabIssue, updateTicketDescription } from '../services/gitlabServices'
 import { Label } from '../../../components/ui/label'
 import { cn, daysFromToday, filterTicketInformation } from '../../../lib/utils'
 import TicketsChart from './product-page/TicketsChart'

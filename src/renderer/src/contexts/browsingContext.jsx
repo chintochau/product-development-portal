@@ -19,8 +19,8 @@ export const BrowsingProvider = ({ children }) => {
       setPageTitle("- " + productData.projectName)
     } 
     
-    if (path === '/dashboard') {
-      setPageTitle("")
+    if (path.split("/").length === 2) {
+      setPageTitle(null)
     }
   }, [path])
 

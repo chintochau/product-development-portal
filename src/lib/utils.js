@@ -16,7 +16,7 @@ export const daysFromToday = (dateString) => {
 }
 
 export const filterTicketInformation = (ticket) => {
-  const {iid,state,web_url,title,closed_at,created_at,updated_at,milestone,assignee,labels} = ticket
+  const { iid, state, web_url, title, closed_at, created_at, updated_at, milestone, assignee, labels } = ticket
   return {
     iid,
     state,
@@ -71,9 +71,26 @@ export function timeAgo(dateString) {
   return `${localTime} (${timeAgoString})`;
 }
 
-export const isInProgress = (startDate,endDate) => {
+export const isInProgress = (startDate, endDate) => {
   const now = new Date()
   const start = new Date(startDate)
   const end = new Date(endDate)
   return now >= start && now <= end
+}
+
+export const openPageWithReference = (reference) => {
+  const [] = reference.split("/")
+  switch (reference.split("")[0]) {
+    case "jira":
+      return "https://jira.atlassian.com/browse/"
+    case "trello":
+      return "https://trello.com/c/"
+    case "asana":
+      return "https://app.asana.com/0/"
+    case "github":
+      return "https://github.com/"
+    default:
+      return null
+  }
+  window.open(url, '_blank')
 }

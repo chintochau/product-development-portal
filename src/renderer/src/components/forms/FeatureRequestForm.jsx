@@ -18,6 +18,13 @@ import StarterKit from '@tiptap/starter-kit'
 import { Markdown as MarkdownExtension } from 'tiptap-markdown'
 import { EditorContent, useEditor } from '@tiptap/react'
 import Placeholder from '@tiptap/extension-placeholder'
+import { createFeatureRequestIssue, updateFeatureRequestIssue } from '../../services/gitlabServices'
+import { useNavigate } from 'react-router-dom'
+import { useTickets } from '../../contexts/ticketsContext'
+import { Fragment, useEffect } from 'react'
+import { useUser } from '../../contexts/userContext'
+import { defaultPlatforms } from '../../constant'
+import { Checkbox } from '../../../../components/ui/checkbox'
 
 const extensions = [
   StarterKit.configure({
@@ -29,7 +36,6 @@ const extensions = [
     }
   }),
   Placeholder.configure({
-    // Use a placeholder:
     placeholder: `E.g., 
 Functional Requirements:
 	•	Add a toggle switch in the settings menu for enabling/disabling Dark Mode.
@@ -40,47 +46,46 @@ Non-Functional Requirements:
 	•	Maintain a consistent color contrast ratio of at least 4.5:1 for accessibility.
 	•	Ensure performance impact remains minimal (<5% increase in load time).
 	•	Implement fallback to default Light Mode on unsupported older devices.`
-    // Use different placeholders depending on the node type:
-    // placeholder: ({ node }) => {
-    //   if (node.type.name === 'heading') {
-    //     return 'What’s the title?'
-    //   }
-
-    //   return 'Can you add some further context?'
-    // },
   }),
   MarkdownExtension
 ]
-
-const editor = new Editor({
-  content: '<p>Example Text</p>',
-  extensions: [StarterKit]
-})
-
 const formSchema = z.object({
   title: z.string(),
   overview: z.string(),
   currentProblems: z.string(),
-  requirements: z.string()
+  requirements: z.string(),
+  platforms: z.array(z.string())
 })
 
-export function FeatureRequestForm() {
-  // 1. Define your form.
+export function FeatureRequestForm({ editMode }) {
+  const { setShouldRefresh, selectedTicket, setSelectedTicket } = useTickets()
+  const { user } = useUser()
+
+  const navigate = useNavigate()
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
       overview: '',
       currentProblems: '',
-      requirements: ''
+      requirements: '',
+      platforms: []
     }
   })
 
-  // 2. Define a submit handler.
-  function onSubmit(values) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+  const onSubmit = async (values) => {
+    if (editMode) {
+      const newData = { ...selectedTicket, ...values }
+      await updateFeatureRequestIssue(selectedTicket.iid, newData)
+      setShouldRefresh(true)
+      setSelectedTicket(newData)
+      navigate(`/features/${selectedTicket.iid}`)
+    } else {
+      await createFeatureRequestIssue({ requestor: user.username, ...values })
+      setShouldRefresh(true)
+      navigate('/features')
+    }
   }
 
   const editor = useEditor({
@@ -98,11 +103,52 @@ export function FeatureRequestForm() {
     placeholder: 'Requirements'
   })
 
+  useEffect(() => {
+    if (selectedTicket && editMode) {
+      form.reset((previousValues) => ({
+        ...previousValues,
+        ...selectedTicket
+      }))
+    }
+  }, [selectedTicket, form])
+
   return (
     <div className="px-4">
-      <h1 className="text-2xl">Create a new feature request</h1>
+      <h1 className="text-2xl mb-4">Submit a Feature Request</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="platforms"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Platforms</FormLabel>
+                <div className="flex gap-2 items-center">
+                  {defaultPlatforms.map((platform) => (
+                    <div key={platform} className=" space-x-1">
+                      <Checkbox
+                        value={platform}
+                        id={platform}
+                        checked={field.value.includes(platform)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            field.onChange([...field.value, platform])
+                          } else {
+                            field.onChange(field.value.filter((value) => value !== platform))
+                          }
+                        }}
+                      >
+                        {platform}
+                      </Checkbox>
+                      <label htmlFor={platform}>{platform}</label>
+                    </div>
+                  ))}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="title"
@@ -186,6 +232,7 @@ export function FeatureRequestForm() {
               </FormItem>
             )}
           />
+
           <Button type="submit">Submit</Button>
         </form>
       </Form>
