@@ -36,6 +36,9 @@ export const SingleProductProvider = ({ children }) => {
   const [hardwareTasks, setHardwareTasks] = useState([])
   const [wrikeWorkflows, setWrikeWorkflows] = useState()
   const [milestones, setMilestones] = useState([])
+  const [features, setFeatures] = useState([])
+  const [featuresId, setFeaturesId] = useState(null)
+  const [featuresLoading, setFeaturesLoading] = useState(false)
 
   useEffect(() => {
     getEpics().then((data) => setEpics(data.sort((a, b) => a.title.localeCompare(b.title))))
@@ -69,10 +72,15 @@ export const SingleProductProvider = ({ children }) => {
     setSoftware(
       notesData.filter((item) => item.attributes.type === 'software')?.[0]?.attributes?.software
     )
+    setFeatures(
+      notesData.filter((item) => item.attributes.type === 'features')?.[0]?.attributes?.features
+    )
+    setFeaturesId(notesData.filter((item) => item.attributes.type === 'features')?.[0]?.id)
     setHardwareId(notesData.filter((item) => item.attributes.type === 'hardware')?.[0]?.id)
     setSoftwareId(notesData.filter((item) => item.attributes.type === 'software')?.[0]?.id)
     setSoftwareLoading(false)
     setHardwareLoading(false)
+    setFeaturesLoading(false)
     setLoading(false)
     return notesData
   }
@@ -151,12 +159,30 @@ export const SingleProductProvider = ({ children }) => {
           setShouldReloadNotes(true)
         }
         break
+
+      case 'features':
+        if (featuresId) {
+          const res = await updateNote(featuresId, {
+            type,
+            author: 'admin',
+            features: features
+          })
+        } else {
+          setFeaturesLoading(true)
+          const res = await postNote({
+            type,
+            author: 'admin',
+            features: features
+          })
+          setShouldReloadNotes(true)
+        }
+        break
       default:
         break
     }
   }
 
-  const getFeatureEpics =  () => {
+  const getFeatureEpics = () => {
     return epics.filter((item) => item.labels.includes('type::feature'))
   }
 
@@ -193,7 +219,13 @@ export const SingleProductProvider = ({ children }) => {
     wrikeWorkflows,
     saveData,
     milestones,
-    getFeatureEpics
+    getFeatureEpics,
+    features,
+    featuresId,
+    setFeatures,
+    setFeaturesId,
+    featuresLoading,
+    setFeaturesLoading
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>

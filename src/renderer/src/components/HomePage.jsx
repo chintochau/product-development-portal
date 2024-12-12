@@ -28,8 +28,8 @@ import { columns } from './home/columns'
 import ScheduleChart from './home/ScheduleChart'
 
 const HomePage = () => {
-  const { loading, products, setShouldRefreshProducts } = useProducts()
-  const { setProductLog } = useSingleProduct()
+  const { loading, products, setShouldRefreshProducts } = useProducts() || {}
+  const { setProductLog } = useSingleProduct() || {}
   const navigate = useNavigate()
 
   const handleProductClick = (productLog) => {

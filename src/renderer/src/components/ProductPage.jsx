@@ -11,7 +11,11 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { getTicketsFromEpic, saveGitlabIssue, updateTicketDescription } from '../services/gitlabServices'
+import {
+  getTicketsFromEpic,
+  saveGitlabIssue,
+  updateTicketDescription
+} from '../services/gitlabServices'
 import { Label } from '../../../components/ui/label'
 import { cn, daysFromToday, filterTicketInformation } from '../../../lib/utils'
 import TicketsChart from './product-page/TicketsChart'
@@ -32,6 +36,7 @@ import {
 import TicketSection from './product-page/TicketSection'
 import { useProducts } from '../contexts/productsContext'
 import { Loader2 } from 'lucide-react'
+import FeaturesStatusCard from './product-page/FeaturesStatusCard'
 
 const ProductPage = () => {
   const { productData, setTickets, tickets, loading, epics } = useSingleProduct()
@@ -74,7 +79,7 @@ const ProductPage = () => {
         <h2 className="text-2xl">{projectName}</h2>
       </div>
       <div className="w-full flex gap-4">
-        <div className="relative w-1/3 flex flex-col gap-4">
+        <div className="relative w-4/12 flex flex-col gap-4">
           <div className="absolute top-4 right-4">
             <Link to={`${location.pathname}/edit`}>
               <Button
@@ -89,8 +94,11 @@ const ProductPage = () => {
           <ProductCard />
           <PIFCard />
         </div>
-        <HardwareStatusCard className="w-2/3" />
-        <SoftwareStatusCard className="w-2/3" />
+        <div className="flex flex-col gap-4 w-6/12">
+          <HardwareStatusCard />
+          <SoftwareStatusCard />
+        </div>
+        <FeaturesStatusCard className="w-11/12" />
       </div>
 
       <div className="mt-4 flex gap-4 flex-wrap">

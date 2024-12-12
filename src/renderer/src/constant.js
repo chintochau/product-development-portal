@@ -171,12 +171,8 @@ export const defaultSoftwareSteps = [
         }
     },
     { label: "Requirement Specification", completed: false, },
-    { label: "Design", completed: false, },
-    { label: "Sign-Off", completed: false, },
     { label: "Development", completed: false, },
     { label: "Testing", completed: false, },
-    { label: "Integration", completed: false, },
-    { label: "Sign-Off (Post-Integration)", completed: false, },
     { label: "Release", completed: false, milestone: "-" },
 ];
 
@@ -199,4 +195,5 @@ export const userRoles = [
     "admin",
     "productManager",
     "softwareManager",
-    "hardwareManager"]
+    "hardwareManager"
+]
