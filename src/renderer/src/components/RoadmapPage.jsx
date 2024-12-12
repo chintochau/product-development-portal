@@ -11,6 +11,9 @@ import { useSingleProduct } from '../contexts/singleProductContext'
 import { getNameForProject } from '../services/gitlabServices'
 import { Checkbox } from '../../../components/ui/checkbox'
 import Ordinal from '@visx/legend/lib/legends/Ordinal'
+import { defaultStyles, useTooltip, useTooltipInPortal } from '@visx/tooltip'
+import { localPoint } from '@visx/event'
+import { Label } from '../../../components/ui/label'
 
 const height = 800
 const minimumWidth = 1200
@@ -19,8 +22,6 @@ const mainColor = '#0070f3'
 const epicColor = '#22c55e'
 const hardwareColor = '#f59e0b'
 const featureColor = '#ef4444' // red
-const isProduct = (task) => task.type === 'product'
-
 const legendColorScale = scaleOrdinal({
   domain: ['Main', 'Software', 'Hardware', 'Feature'],
   range: [mainColor, epicColor, hardwareColor, featureColor]
@@ -36,8 +37,49 @@ const RoadmapPage = () => {
   const [showMilestones, setShowMilestones] = useState(false)
   const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
   const [shouldloadFeatures, setShouldloadFeatures] = useState(false)
-  console.log("chartData", chartData);
-  
+  const { tooltipOpen, tooltipData, tooltipLeft, tooltipTop, showTooltip, hideTooltip } =
+    useTooltip()
+  const [pointerX, setPointerX] = useState(null)
+
+  const { containerRef, TooltipInPortal } = useTooltipInPortal({
+    tooltipOpen,
+    tooltipData,
+    tooltipLeft,
+    tooltipTop,
+    onTooltipOpenChange: () => {}
+  })
+
+  const handleMouseEnter = (data) => {
+    console.log(data)
+
+    showTooltip({
+      tooltipData: data,
+      tooltipLeft: 0,
+      tooltipTop: 0
+    })
+  }
+  const handleMouseLeave = () => {
+    hideTooltip()
+  }
+
+  const handleMouseOver = (data) => {
+    console.log(data)
+
+    showTooltip({
+      tooltipData: data,
+      tooltipLeft: 0,
+      tooltipTop: 0
+    })
+  }
+
+  const handleMouseMove = (event) => {
+    const { x, y } = localPoint(event)
+    showTooltip((input) => ({
+      ...input,
+      tooltipLeft: x,
+      tooltipTop: y
+    }))
+  }
   useEffect(() => {
     if (products) {
       const newChartData = products.map((product) => {
@@ -82,24 +124,6 @@ const RoadmapPage = () => {
     }
   }, [products, epics])
 
-  useEffect(() => {
-    if (shouldloadFeatures) {
-      const features = getFeatureEpics()
-        .filter((f) => f.start_date && f.due_date)
-        .map((f) => {
-          return {
-            id: f.id,
-            name: f.title,
-            start: new Date(f.start_date),
-            end: new Date(f.due_date),
-            fill: featureColor
-          }
-        })
-      setChartData((prevData) => [...prevData, ...features])
-      setShouldloadFeatures(false)
-    }
-  }, [epics, shouldloadFeatures])
-
   const fetchDataFromWrike = async (taskData, taskIndex) => {
     try {
       const res = await window.api.wrike(
@@ -133,12 +157,14 @@ const RoadmapPage = () => {
               subTasks: [
                 ...task.subTasks.filter((subTask) => subTask.wrikeId !== wrikeId),
                 ...(shippingDates && shippingDates.length > 0
-                  ? [{
-                      id: wrikeId,
-                      fill: hardwareColor, // yellow
-                      wrikeId: wrikeId,
-                      dates: [...shippingDates]
-                    }]
+                  ? [
+                      {
+                        id: wrikeId,
+                        fill: hardwareColor, // yellow
+                        wrikeId: wrikeId,
+                        dates: [...shippingDates]
+                      }
+                    ]
                   : [])
               ]
             }
@@ -150,6 +176,24 @@ const RoadmapPage = () => {
       console.error(error)
     }
   }
+
+  useEffect(() => {
+    if (shouldloadFeatures) {
+      const features = getFeatureEpics()
+        .filter((f) => f.start_date && f.due_date)
+        .map((f) => {
+          return {
+            id: f.id,
+            name: f.title,
+            start: new Date(f.start_date),
+            end: new Date(f.due_date),
+            fill: featureColor
+          }
+        })
+      setChartData((prevData) => [...prevData, ...features])
+      setShouldloadFeatures(false)
+    }
+  }, [epics, shouldloadFeatures])
 
   useEffect(() => {
     if (chartData && shouldLoadWrike) {
@@ -205,7 +249,7 @@ const RoadmapPage = () => {
     )
   }
   return (
-    <div className="">
+    <div>
       {/* Date Range Slider */}
       <div className="flex gap-10">
         <div className="mb-4 w-96">
@@ -242,7 +286,7 @@ const RoadmapPage = () => {
       <Ordinal scale={legendColorScale} direction="horizontal" />
 
       <div className="flex">
-        <svg width={margin.left} height={totalHeight}>
+        <svg width={margin.left} height={totalHeight} ref={containerRef}>
           <AxisLeft
             scale={yScale}
             tickFormat={(name) => name}
@@ -257,8 +301,45 @@ const RoadmapPage = () => {
           />
         </svg>
         <ScrollArea className="max-w-[calc(100vw)] md:w-[calc(100vw-10rem)] ">
-          <svg width={totalWidth} height={totalHeight}>
+          <svg
+            width={totalWidth}
+            height={totalHeight}
+            onPointerMove={(e) => {
+              // Calculate the mouse position based on the svg coordinates
+              const { x, y } = localPoint(e)
+              setPointerX(x)
+            }}
+          >
             <Group top={margin.top} left={0}>
+
+            {pointerX && (
+                <Fragment>
+                  <Line
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={1}
+                    x1={pointerX}
+                    x2={pointerX}
+                    y1={0}
+                    y2={height + 5}
+                  />
+                  <text
+                    x={pointerX}
+                    y={20}
+                    textAnchor="middle"
+                    fill="hsl(var(--primary))"
+                    fontSize={12}
+                  >
+                    {
+                      // get date from pointerX
+                      new Date(xScale.invert(pointerX)).toLocaleString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })
+                    }
+                  </text>
+                </Fragment>
+              )}
               {/* Bars */}
               {filteredTasks.map((task) => {
                 let barX = xScale(task.start)
@@ -291,6 +372,9 @@ const RoadmapPage = () => {
                       height={barHeight / numberOfBars - gap}
                       fill={task.fill}
                       rx={4}
+                      onMouseMove={handleMouseMove}
+                      onMouseLeave={handleMouseLeave}
+                      onMouseOver={() => handleMouseOver({ task })}
                     />
                     <Line
                       x1={Math.max(0, barX) + barWidth - gap}
@@ -333,8 +417,8 @@ const RoadmapPage = () => {
                               fill={subTask.fill}
                               rx={4}
                             />
-                            {
-                              subTask.dates && subTask.dates.map((date) => {
+                            {subTask.dates &&
+                              subTask.dates.map((date) => {
                                 return (
                                   <Fragment key={date.id}>
                                     <Bar
@@ -343,22 +427,23 @@ const RoadmapPage = () => {
                                       width={xScale(date.end) - xScale(date.start)}
                                       height={barHeight / numberOfBars - gap}
                                       fill={subTask.fill}
-                                      rx={4}  
+                                      rx={4}
                                     />
                                     <foreignObject
                                       x={xScale(date.start)}
-                                      y={barY + (barHeight / numberOfBars) * (index + 1) + (barHeight / numberOfBars - gap)}
+                                      y={
+                                        barY +
+                                        (barHeight / numberOfBars) * (index + 1) +
+                                        (barHeight / numberOfBars - gap)
+                                      }
                                       width={180}
                                       height={30}
                                     >
-                                      <div className='text-xs'>
-                                        {date.title}
-                                      </div>
+                                      <div className="text-xs">{date.title}</div>
                                     </foreignObject>
                                   </Fragment>
                                 )
-                              })
-                            }
+                              })}
                           </Fragment>
                         )
                       })}
@@ -463,6 +548,28 @@ const RoadmapPage = () => {
                   ))}
             </Group>
           </svg>
+          {tooltipOpen && (
+            <TooltipInPortal
+              // set this to random so it correctly updates with parent bounds
+              key={Math.random()}
+              top={tooltipTop}
+              left={tooltipLeft}
+              style={{
+                ...defaultStyles,
+                backgroundColor: 'hsl(var(--accent))',
+                color: 'hsl(var(--accent-foreground))'
+              }}
+              className="flex flex-col"
+            >
+              <h3 className="text-sm font-semibold">{tooltipData.task.name}</h3>
+              <Label className="text-xs">
+                Start: {new Date(tooltipData.task.start).toLocaleString().split(',')[0]}
+              </Label>
+              <Label className="text-xs">
+                End: {new Date(tooltipData.task.end).toLocaleString().split(',')[0]}
+              </Label>
+            </TooltipInPortal>
+          )}
 
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
