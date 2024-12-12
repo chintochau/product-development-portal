@@ -36,6 +36,8 @@ const RoadmapPage = () => {
   const [showMilestones, setShowMilestones] = useState(false)
   const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
   const [shouldloadFeatures, setShouldloadFeatures] = useState(false)
+  console.log("chartData", chartData);
+  
   useEffect(() => {
     if (products) {
       const newChartData = products.map((product) => {
@@ -101,28 +103,43 @@ const RoadmapPage = () => {
   const fetchDataFromWrike = async (taskData, taskIndex) => {
     try {
       const res = await window.api.wrike(
-        `folders/${taskData.wrikeId}/tasks?fields=[subTaskIds]`,
+        `folders/${taskData.wrikeId}/tasks?fields=[subTaskIds]&subTasks=true&title=ship`,
         'GET'
       )
-      const wrikeTask = res.data?.[0]
-      const startDate = wrikeTask?.dates?.start
-      const endDate = wrikeTask?.dates?.due
-      const wrikeTaskId = wrikeTask?.id
+      const res2 = await window.api.wrike(
+        `folders/${taskData.wrikeId}/tasks?fields=[subTaskIds]&subTasks=true&title=pif`,
+        'GET'
+      )
+      const wrikeTasks = [...res?.data, ...res2?.data]
+
+      if (!wrikeTasks || !wrikeTasks.length) return
+
+      const wrikeId = wrikeTasks[0].id
+
+      const shippingDates = wrikeTasks.map((wrikeTask) => {
+        return {
+          id: wrikeTask.id,
+          title: wrikeTask.title,
+          start: new Date(wrikeTask.dates?.start),
+          end: new Date(wrikeTask.dates?.due)
+        }
+      })
+
       setChartData((prevData) =>
         prevData.map((task, index) => {
           if (index === taskIndex) {
             return {
               ...task,
               subTasks: [
-                ...task.subTasks.filter((subTask) => subTask.wrikeId !== wrikeTaskId),
-                {
-                  id: wrikeTask.id,
-                  name: wrikeTask?.title,
-                  start: new Date(startDate),
-                  end: new Date(endDate),
-                  fill: hardwareColor, // yellow
-                  wrikeId: wrikeTaskId
-                }
+                ...task.subTasks.filter((subTask) => subTask.wrikeId !== wrikeId),
+                ...(shippingDates && shippingDates.length > 0
+                  ? [{
+                      id: wrikeId,
+                      fill: hardwareColor, // yellow
+                      wrikeId: wrikeId,
+                      dates: [...shippingDates]
+                    }]
+                  : [])
               ]
             }
           }
@@ -306,15 +323,43 @@ const RoadmapPage = () => {
                           subBarWidth = 0
                         }
                         return (
-                          <Bar
-                            key={subTask.id + index}
-                            x={Math.max(0, subBarX)}
-                            y={barY + (barHeight / numberOfBars) * (index + 1)}
-                            width={subBarWidth}
-                            height={barHeight / numberOfBars - gap}
-                            fill={subTask.fill}
-                            rx={4}
-                          />
+                          <Fragment key={subTask.id}>
+                            <Bar
+                              key={subTask.id + index}
+                              x={Math.max(0, subBarX)}
+                              y={barY + (barHeight / numberOfBars) * (index + 1)}
+                              width={subBarWidth}
+                              height={barHeight / numberOfBars - gap}
+                              fill={subTask.fill}
+                              rx={4}
+                            />
+                            {
+                              subTask.dates && subTask.dates.map((date) => {
+                                return (
+                                  <Fragment key={date.id}>
+                                    <Bar
+                                      x={xScale(date.start)}
+                                      y={barY + (barHeight / numberOfBars) * (index + 1)}
+                                      width={xScale(date.end) - xScale(date.start)}
+                                      height={barHeight / numberOfBars - gap}
+                                      fill={subTask.fill}
+                                      rx={4}  
+                                    />
+                                    <foreignObject
+                                      x={xScale(date.start)}
+                                      y={barY + (barHeight / numberOfBars) * (index + 1) + (barHeight / numberOfBars - gap)}
+                                      width={180}
+                                      height={30}
+                                    >
+                                      <div className='text-xs'>
+                                        {date.title}
+                                      </div>
+                                    </foreignObject>
+                                  </Fragment>
+                                )
+                              })
+                            }
+                          </Fragment>
                         )
                       })}
                     <text
