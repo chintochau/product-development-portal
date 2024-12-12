@@ -439,7 +439,7 @@ const RoadmapPage = () => {
                                       width={180}
                                       height={30}
                                     >
-                                      <div className="text-xs">{date.title}</div>
+                                      <div className="text-xs" style={{ pointerEvents: 'none' }}>{date.title}</div>
                                     </foreignObject>
                                   </Fragment>
                                 )
