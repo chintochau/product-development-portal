@@ -13,10 +13,15 @@ import {
   TableBody,
   TableCaption,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { Button } from '../../../../components/ui/button'
+import { Input } from '../../../../components/ui/input'
+import { Checkbox } from '../../../../components/ui/checkbox'
+import { Textarea } from '../../../../components/ui/textarea'
 
 const fields = [
   'id',
@@ -30,6 +35,10 @@ const fields = [
 
 const FeaturesStatusCard = ({ className }) => {
   const { features, featuresLoading, featuresId } = useSingleProduct()
+
+  const addFeature = (e) => {
+    e.preventDefault()
+  }
   return (
     <Card className={cn('h-fit', className)}>
       <CardHeader>
@@ -47,7 +56,26 @@ const FeaturesStatusCard = ({ className }) => {
               ))}
             </TableRow>
           </TableHeader>
+          <TableBody>
+            {features &&
+              features.map((invoice) => (
+                <TableRow key={invoice.invoice}>
+                  <TableCell className="font-medium">{invoice.invoice}</TableCell>
+                  <TableCell>{invoice.paymentStatus}</TableCell>
+                  <TableCell>{invoice.paymentMethod}</TableCell>
+                  <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
         </Table>
+
+        <form onSubmit={addFeature} id={featuresId} className="flex w-full flex-col gap-2 pt-4">
+          <Input placeholder="Title" className="w-full" />
+          <Textarea placeholder="Description" className="w-full" />
+          <div>
+            <Button variant="outline">Create</Button>
+          </div>
+        </form>
       </CardContent>
     </Card>
   )

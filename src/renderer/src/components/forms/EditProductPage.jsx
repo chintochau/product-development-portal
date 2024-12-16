@@ -35,11 +35,11 @@ import { useNavigate } from 'react-router-dom'
 
 const formSchema = z.object({
   useLookup: z.boolean(),
-  brand: z.string().min(2).max(50),
-  projectName: z.string().min(2).max(50),
+  lookup: z.string(), // integer
+  brand: z.string(),
+  projectName: z.string(),
   mp1Date: z.string(),
   launch: z.string(),
-  lookup: z.string(),
   status: z.string(),
   description: z.string(),
   model: z.string()

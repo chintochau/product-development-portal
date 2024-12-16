@@ -50,8 +50,6 @@ const RoadmapPage = () => {
   })
 
   const handleMouseEnter = (data) => {
-    console.log(data)
-
     showTooltip({
       tooltipData: data,
       tooltipLeft: 0,
@@ -63,8 +61,6 @@ const RoadmapPage = () => {
   }
 
   const handleMouseOver = (data) => {
-    console.log(data)
-
     showTooltip({
       tooltipData: data,
       tooltipLeft: 0,
@@ -85,11 +81,8 @@ const RoadmapPage = () => {
       const newChartData = products.map((product) => {
         return {
           name: product.projectName,
-          start: new Date(product.mp1Date),
-          end:
-            product.launch === product.mp1Date
-              ? new Date(product.mp1Date + 'T23:59:59')
-              : new Date(product.launch),
+          start: new Date(product.mp1Date || product.created_at),
+          end: product.launch ? new Date(product.launch) : new Date(),
           fill: mainColor, // blue,
           epicId: product.epicId,
           wrikeId: product.wrikeId,
@@ -190,7 +183,17 @@ const RoadmapPage = () => {
             fill: featureColor
           }
         })
-      setChartData((prevData) => [...prevData, ...features])
+      setChartData((prevData) => [
+        ...prevData,
+        ...features,
+        {
+          name: 'Alan',
+          start: new Date(),
+          end: new Date(),
+          fill: mainColor,
+          subTasks: [...features]
+        }
+      ])
       setShouldloadFeatures(false)
     }
   }, [epics, shouldloadFeatures])
@@ -311,8 +314,7 @@ const RoadmapPage = () => {
             }}
           >
             <Group top={margin.top} left={0}>
-
-            {pointerX && (
+              {pointerX && (
                 <Fragment>
                   <Line
                     stroke="hsl(var(--primary))"
@@ -439,7 +441,9 @@ const RoadmapPage = () => {
                                       width={180}
                                       height={30}
                                     >
-                                      <div className="text-xs" style={{ pointerEvents: 'none' }}>{date.title}</div>
+                                      <div className="text-xs" style={{ pointerEvents: 'none' }}>
+                                        {date.title}
+                                      </div>
                                     </foreignObject>
                                   </Fragment>
                                 )
@@ -447,29 +451,33 @@ const RoadmapPage = () => {
                           </Fragment>
                         )
                       })}
-                    <text
-                      // hide if barX is less than 0
-                      x={Math.max(0, barX)}
-                      y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
-                      dx={-10}
-                      dy={-10}
-                      textAnchor="end"
-                      fontSize={12}
-                      fill="lightBlue"
-                    >
-                      MP1: {new Date(task.start).toLocaleString().split(',')[0]}
-                    </text>
-                    <text
-                      x={Math.max(0, barX) + barWidth - gap}
-                      y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
-                      dx={10}
-                      dy={-10}
-                      textAnchor="start"
-                      fontSize={12}
-                      fill="pink"
-                    >
-                      Launch: {new Date(task.end).toLocaleString().split(',')[0]}
-                    </text>
+                    {task.type === 'product' && (
+                      <>
+                        <text
+                          // hide if barX is less than 0
+                          x={Math.max(0, barX)}
+                          y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
+                          dx={-10}
+                          dy={-10}
+                          textAnchor="end"
+                          fontSize={12}
+                          fill="lightBlue"
+                        >
+                          MP1: {new Date(task.start).toLocaleString().split(',')[0]}
+                        </text>
+                        <text
+                          x={Math.max(0, barX) + barWidth - gap}
+                          y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
+                          dx={10}
+                          dy={-10}
+                          textAnchor="start"
+                          fontSize={12}
+                          fill="pink"
+                        >
+                          Launch: {new Date(task.end).toLocaleString().split(',')[0]}
+                        </text>
+                      </>
+                    )}
                   </Fragment>
                 )
               })}

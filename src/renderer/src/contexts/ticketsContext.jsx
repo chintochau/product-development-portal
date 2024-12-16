@@ -17,8 +17,6 @@ export const TicketsProvider = ({ children }) => {
   const getFeatureRequests = async () => {
     setLoading(true)
     const data = await getFeaturesRequestsIssues()
-    console.log(data)
-
     setFeatures(
       data.map((item) => {
         const attributes = frontMatter(item.description).attributes

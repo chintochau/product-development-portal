@@ -183,7 +183,7 @@ export const SingleProductProvider = ({ children }) => {
   }
 
   const getFeatureEpics = () => {
-    return epics.filter((item) => item.labels.includes('type::feature'))
+    return epics.filter((item) => item.labels.includes('type::feature')).sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
   }
 
   const value = {

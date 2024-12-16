@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { gitlab, gitlabGet } from './gitlabAPI'
 import fs from 'fs'
 import { wrike } from './wrikeAPI'
+import { readFromExcel } from './excelAPI'
 
 function createWindow() {
   // Create the browser window.
@@ -104,3 +105,7 @@ ipcMain.handle('save-file', async (event, data) => {
 ipcMain.handle('get-app-version', () => {
   return app.getVersion();
 });
+
+ipcMain.handle("read-excel-file", async () => {
+  return await readFromExcel();
+})

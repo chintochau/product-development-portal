@@ -27,7 +27,7 @@ import frontMatter from 'front-matter'
 
 
 export const getProductsLog = async () => {
-    const data = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/issues?labels=product&state=opened`, "GET");
+    const data = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/issues?labels=product&state=opened&per_page=100`, "GET");
     return data
 }
 

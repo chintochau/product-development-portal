@@ -8,6 +8,7 @@ const api = {
   wrike:(path,type,data) => ipcRenderer.invoke('wrike',path,type,data),
   saveFile: (data) => ipcRenderer.invoke('save-file', data),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  readExcelFile: () => ipcRenderer.invoke('read-excel-file'),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
