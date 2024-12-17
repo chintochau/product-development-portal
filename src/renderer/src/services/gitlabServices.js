@@ -53,18 +53,16 @@ export const updateTicketDescription = async (iid, data) => {
 
 // convert data to object for gitlab ticket
 const convertDataToTicketObject = (data) => {
-
-    const { title, projectName } = data
-
+    const { title, projectName, useLookup } = data
+    const isProduct = useLookup || projectName
     const descriptionData = {
         ...data,
     }
-
     return {
-        title: projectName ? (data.projectName + " Product Initiation") : title,
+        title: isProduct ? ("Product Initiation") : title,
         description: jsonToMarkdown(descriptionData),
         confidential: true,
-        labels: ["product"]
+        labels: [isProduct ? "product" : "type::feature"]
     }
 }
 

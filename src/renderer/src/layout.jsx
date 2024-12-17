@@ -30,6 +30,8 @@ const Layout = ({ children }) => {
   const currentPath = location.pathname
   const { pageTitle } = useBrowsing()
 
+  const [scrollTop, setScrollTop] = React.useState(0)
+
   const isProductPaht = () => {
     // check if path is dashbaord/:iid
 
@@ -39,7 +41,9 @@ const Layout = ({ children }) => {
   }
 
   return (
-    <ScrollArea className="w-full h-screen relative">
+    <ScrollArea className="w-full h-screen relative" onScrollCapture={(e) => {
+      setScrollTop(e.target.scrollTop)
+    }}>
       <div className="flex items-center sticky top-0 z-50 bg-background border-b ">
         <SidebarTrigger />
         <Breadcrumb>
@@ -73,7 +77,7 @@ const Layout = ({ children }) => {
           <Route
             key={item.title}
             path={item.url}
-            element={item.element ? <item.element /> : <h1>{item.title}</h1>}
+            element={item.element ? <item.element scrollTop={scrollTop}/> : <h1>{item.title}</h1>}
           />
         ))}
         {/* Handle nested routes explicitly */}
@@ -90,10 +94,9 @@ const Layout = ({ children }) => {
           )}
         {otherPages.map((item) => (
           <Route
-            
             key={item.title}
             path={item.url}
-            element={item.element ? <item.element {...item.pageProps}/> : <h1>{item.title}</h1>}
+            element={item.element ? <item.element {...item.pageProps} /> : <h1>{item.title}</h1>}
           />
         ))}
         {/* Default redirect to /dashboard */}

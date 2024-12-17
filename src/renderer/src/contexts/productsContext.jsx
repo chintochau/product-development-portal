@@ -24,8 +24,6 @@ export const ProductsProvider = ({ children }) => {
         const attributes = ticketToJSON(item)
         if (attributes.useLookup) {
           const lookupData = readDataUsingLookupId(toInteger(attributes.lookup), excelData)
-          console.log('lookupData', lookupData)
-          console.log(attributes)
 
           const {
             Description,
@@ -34,14 +32,14 @@ export const ProductsProvider = ({ children }) => {
             Note,
             Show,
             ['Project Name']: projectName,
-            ["Model #"]: model,
+            ['Model #']: model,
             Launch,
             MP1,
-            ["PIF Date\nSubmitted"]: pifDate,
-            ["PIF Date\nAccepted"]: pifDateAccepted,
-            ["MP1 Date\nActual"]: mp1DateActual,
-            ["Greenlight\nDate"]: greenlightDate,
-            ["Greenlight\nTarget PM1"]: greenlightTargetMPDate,
+            ['PIF Date\nSubmitted']: pifDate,
+            ['PIF Date\nAccepted']: pifDateAccepted,
+            ['MP1 Date\nActual']: mp1DateActual,
+            ['Greenlight\nDate']: greenlightDate,
+            ['Greenlight\nTarget PM1']: greenlightTargetMPDate
           } = lookupData || {}
           return {
             ...attributes,
@@ -50,16 +48,23 @@ export const ProductsProvider = ({ children }) => {
             brand: Brand,
             projectName,
             model,
-            note:Note,
-            show:Show,
-            launch: dayjs(Launch).format('YYYY-MM-DD'),
-            mp1Date: dayjs(MP1).format('YYYY-MM-DD'),
-            mp1DateActual: dayjs(mp1DateActual).format('YYYY-MM-DD'),
-            pifDate: dayjs(pifDate).format('YYYY-MM-DD'),
-            pifDateAccepted: dayjs(pifDateAccepted).format('YYYY-MM-DD'),
-            greenlightDate: dayjs(greenlightDate).format('YYYY-MM-DD'),
-            greenlightTargetMP: dayjs(greenlightTargetMPDate).format('YYYY-MM-DD'),
-
+            note: Note,
+            show: Show,
+            launch: dayjs(Launch).isValid() ? dayjs(Launch).format('YYYY-MM-DD') : null,
+            mp1Date: dayjs(MP1).isValid() ? dayjs(MP1).format('YYYY-MM-DD') : null,
+            mp1DateActual: dayjs(mp1DateActual).isValid()
+              ? dayjs(mp1DateActual).format('YYYY-MM-DD')
+              : null,
+            pifDate: dayjs(pifDate).isValid() ? dayjs(pifDate).format('YYYY-MM-DD') : null,
+            pifDateAccepted: dayjs(pifDateAccepted).isValid()
+              ? dayjs(pifDateAccepted).format('YYYY-MM-DD')
+              : null,
+            greenlightDate: dayjs(greenlightDate).isValid()
+              ? dayjs(greenlightDate).format('YYYY-MM-DD')
+              : null,
+            greenlightTargetMP: dayjs(greenlightTargetMPDate).isValid()
+              ? dayjs(greenlightTargetMPDate).format('YYYY-MM-DD')
+              : null
           }
         } else {
           return attributes

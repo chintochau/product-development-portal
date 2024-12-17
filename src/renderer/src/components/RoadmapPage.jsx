@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { scaleTime, scaleBand, scaleOrdinal } from '@visx/scale'
 import { AxisBottom, AxisLeft, AxisTop } from '@visx/axis'
 import { Group } from '@visx/group'
@@ -16,21 +16,22 @@ import { localPoint } from '@visx/event'
 import { Label } from '../../../components/ui/label'
 
 const height = 800
+const heightFactor = 65
 const minimumWidth = 1200
 const widthFactor = 5
-const mainColor = '#0070f3'
+const mainColor = '#0070f3' 
 const epicColor = '#22c55e'
 const hardwareColor = '#f59e0b'
 const featureColor = '#ef4444' // red
 const legendColorScale = scaleOrdinal({
-  domain: ['Main', 'Software', 'Hardware', 'Feature'],
+  domain: ['Planned', 'Software', 'Hardware', 'Feature'],
   range: [mainColor, epicColor, hardwareColor, featureColor]
 })
 
 // Margins
 const margin = { top: 20, right: 200, bottom: 40, left: 150 }
 
-const RoadmapPage = () => {
+const RoadmapPage = ({ scrollTop }) => {
   const [chartData, setChartData] = useState([])
   const { products } = useProducts()
   const { epics, milestones, getFeatureEpics } = useSingleProduct()
@@ -41,6 +42,9 @@ const RoadmapPage = () => {
     useTooltip()
   const [pointerX, setPointerX] = useState(null)
 
+  const [scrollOffset, setScrollOffset] = useState(0)
+  const [hoverBar, setHoverBar] = useState(null)
+
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     tooltipOpen,
     tooltipData,
@@ -49,22 +53,13 @@ const RoadmapPage = () => {
     onTooltipOpenChange: () => {}
   })
 
-  const handleMouseEnter = (data) => {
-    showTooltip({
-      tooltipData: data,
-      tooltipLeft: 0,
-      tooltipTop: 0
-    })
-  }
   const handleMouseLeave = () => {
     hideTooltip()
   }
 
   const handleMouseOver = (data) => {
     showTooltip({
-      tooltipData: data,
-      tooltipLeft: 0,
-      tooltipTop: 0
+      tooltipData: data
     })
   }
 
@@ -72,21 +67,68 @@ const RoadmapPage = () => {
     const { x, y } = localPoint(event)
     showTooltip((input) => ({
       ...input,
-      tooltipLeft: x,
-      tooltipTop: y
+      tooltipLeft: x - scrollOffset,
+      tooltipTop: y - scrollTop
     }))
   }
+
   useEffect(() => {
     if (products) {
-      const newChartData = products.map((product) => {
+      const newChartData = products.map((product, index) => {
+        // launch: dayjs(Launch).format('YYYY-MM-DD'),
+        // mp1Date: dayjs(MP1).format('YYYY-MM-DD'),
+        // mp1DateActual: dayjs(mp1DateActual).format('YYYY-MM-DD'),
+        // pifDate: dayjs(pifDate).format('YYYY-MM-DD'),
+        // pifDateAccepted: dayjs(pifDateAccepted).format('YYYY-MM-DD'),
+        // greenlightDate: dayjs(greenlightDate).format('YYYY-MM-DD'),
+        // greenlightTargetMP: dayjs(greenlightTargetMPDate).format('YYYY-MM-DD'),
+
+        const {
+          launch,
+          mp1Date,
+          mp1DateActual,
+          pifDate,
+          pifDateAccepted,
+          greenlightDate,
+          greenlightTargetMP
+        } = product || {}
+
+        const milestoneDates = {
+          launch,
+          mp1Date,
+          mp1DateActual,
+          pifDate,
+          pifDateAccepted,
+          greenlightDate,
+          greenlightTargetMP
+        }
+
+        // turn object into array
+        const dates = Object.values(milestoneDates)
+        const keys = Object.keys(milestoneDates)
+
+        const earliestDate = dates
+          .filter((date) => date)
+          .sort((a, b) => new Date(a) - new Date(b))[0]
+
+        const singleDates = keys
+          .map((key, index) => {
+            return {
+              name: key,
+              date: milestoneDates[key] && new Date(milestoneDates[key])
+            }
+          })
+          .filter((date) => date.date)
         return {
           name: product.projectName,
-          start: new Date(product.mp1Date || product.created_at),
+          start: new Date(earliestDate),
           end: product.launch ? new Date(product.launch) : new Date(),
           fill: mainColor, // blue,
           epicId: product.epicId,
           wrikeId: product.wrikeId,
-          type: 'product'
+          type: 'product',
+          opacity: 0.3,
+          singleDates: singleDates
         }
       })
       setChartData(
@@ -219,7 +261,7 @@ const RoadmapPage = () => {
   const filteredTasks = chartData.filter((task) => task.end >= range[0] && task.start <= range[1])
 
   // chartheight equals view height
-  const chartHeight = height
+  const chartHeight = Math.max(height, filteredTasks.length * heightFactor)
   const totalHeight = chartHeight + margin.top + margin.bottom
 
   // Calculate dynamic width
@@ -258,8 +300,8 @@ const RoadmapPage = () => {
         <div className="mb-4 w-96">
           <label className="block text-sm font-medium mb-2">Select Date Range</label>
           <DualRangeSlider
-            min={minDate.getTime()}
-            max={maxDate.getTime()}
+            min={dayjs(minDate).subtract(2, 'month').toDate().getTime()}
+            max={dayjs(maxDate).add(2, 'month').toDate().getTime()}
             step={24 * 60 * 60 * 1000 * 30} // 1 week in milliseconds
             value={range}
             onValueChange={setRange}
@@ -301,9 +343,15 @@ const RoadmapPage = () => {
             tickStroke="hsl(var(--primary))"
             left={margin.left}
             top={margin.top}
+            tickValues={filteredTasks.map((t) => t.name)}
           />
         </svg>
-        <ScrollArea className="max-w-[calc(100vw)] md:w-[calc(100vw-10rem)] ">
+        <ScrollArea
+          className="max-w-[calc(100vw)] md:w-[calc(100vw-10rem)] "
+          onScrollCapture={(event) => {
+            setScrollOffset(event.target.scrollLeft)
+          }}
+        >
           <svg
             width={totalWidth}
             height={totalHeight}
@@ -322,7 +370,7 @@ const RoadmapPage = () => {
                     x1={pointerX}
                     x2={pointerX}
                     y1={0}
-                    y2={height + 5}
+                    y2={chartHeight + 5}
                   />
                   <text
                     x={pointerX}
@@ -343,7 +391,7 @@ const RoadmapPage = () => {
                 </Fragment>
               )}
               {/* Bars */}
-              {filteredTasks.map((task) => {
+              {filteredTasks.map((task, taskIndex) => {
                 let barX = xScale(task.start)
                 let barWidth = xScale(task.end) - xScale(task.start)
                 const subTasks = task.subTasks
@@ -353,20 +401,31 @@ const RoadmapPage = () => {
                   barWidth += barX // Reduce width by the overflow amount
                   barX = 0 // Clamp barX to the left axis
                 }
-
                 // Ensure the bar width is not negative
                 if (barWidth < 0) {
                   barWidth = 0
                 }
-
                 const padding = 8
                 const gap = 2
                 const barY = yScale(task.name) + padding
                 const barHeight = yScale.bandwidth() - padding * 2
-
                 // TODO: fix errors with NaN values
                 return (
-                  <Fragment key={task.id}>
+                  <g
+                    key={task.id}
+                    onMouseEnter={(e) => {
+                      setHoverBar(taskIndex)
+                    }}
+                  >
+                    <rect
+                      x={0}
+                      y={barY - padding}
+                      width={totalWidth} //full graph width
+                      height={barHeight + 2*padding}
+                      fill={hoverBar === taskIndex ? 'hsl(var(--accent))' : "transparent"}
+                      rx={4}
+                      opacity={0.2}
+                    />
                     <Bar
                       x={Math.max(0, barX)}
                       y={barY}
@@ -377,25 +436,8 @@ const RoadmapPage = () => {
                       onMouseMove={handleMouseMove}
                       onMouseLeave={handleMouseLeave}
                       onMouseOver={() => handleMouseOver({ task })}
+                      opacity={task.opacity}
                     />
-                    <Line
-                      x1={Math.max(0, barX) + barWidth - gap}
-                      x2={Math.max(0, barX) + barWidth - gap}
-                      y1={barY - gap}
-                      y2={barY + barHeight / numberOfBars - gap + gap}
-                      stroke="pink"
-                      strokeWidth={2}
-                    />
-
-                    <Line
-                      x1={barX}
-                      x2={barX}
-                      y1={barY - gap}
-                      y2={barY + barHeight / numberOfBars - gap + gap}
-                      stroke="lightBlue"
-                      strokeWidth={2}
-                    />
-
                     {subTasks?.length > 0 &&
                       subTasks?.map((subTask, index) => {
                         let subBarWidth = xScale(subTask.end) - xScale(subTask.start)
@@ -404,7 +446,6 @@ const RoadmapPage = () => {
                           subBarWidth += subBarX
                           subBarX = 0
                         }
-
                         if (subBarWidth < 0) {
                           subBarWidth = 0
                         }
@@ -451,34 +492,41 @@ const RoadmapPage = () => {
                           </Fragment>
                         )
                       })}
-                    {task.type === 'product' && (
-                      <>
-                        <text
-                          // hide if barX is less than 0
-                          x={Math.max(0, barX)}
-                          y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
-                          dx={-10}
-                          dy={-10}
-                          textAnchor="end"
-                          fontSize={12}
-                          fill="lightBlue"
-                        >
-                          MP1: {new Date(task.start).toLocaleString().split(',')[0]}
-                        </text>
-                        <text
-                          x={Math.max(0, barX) + barWidth - gap}
-                          y={barY + (barHeight / numberOfBars) * (numberOfBars / 2)}
-                          dx={10}
-                          dy={-10}
-                          textAnchor="start"
-                          fontSize={12}
-                          fill="pink"
-                        >
-                          Launch: {new Date(task.end).toLocaleString().split(',')[0]}
-                        </text>
-                      </>
-                    )}
-                  </Fragment>
+                    {task.singleDates &&
+                      task.singleDates.map((singleDateObject, INDEX) => {
+                        const { name, date } = singleDateObject || {}
+                        return (
+                          <Fragment key={task.projectName}>
+                            {date && (
+                              <>
+                                <Line
+                                  x1={xScale(date)}
+                                  x2={xScale(date)}
+                                  y1={barY - gap}
+                                  y2={barY + barHeight / numberOfBars - gap + gap}
+                                  stroke="lightBlue"
+                                  strokeWidth={2}
+                                  opacity={0.5}
+                                />
+                                <text
+                                  x={xScale(date)}
+                                  y={
+                                    INDEX % 2 === 0
+                                      ? barY + barHeight / numberOfBars + 2 * gap
+                                      : barY - gap
+                                  }
+                                  textAnchor="middle"
+                                  fill="hsl(var(--muted-foreground))"
+                                  fontSize={12}
+                                >
+                                  {name}
+                                </text>
+                              </>
+                            )}
+                          </Fragment>
+                        )
+                      })}
+                  </g>
                 )
               })}
 
@@ -499,7 +547,7 @@ const RoadmapPage = () => {
                 }
               />
               <AxisBottom
-                top={height}
+                top={chartHeight}
                 stroke="hsl(var(--primary))"
                 scale={xScale}
                 tickFormat={(date) =>
@@ -520,7 +568,7 @@ const RoadmapPage = () => {
                 x1={xScale(new Date())}
                 x2={xScale(new Date())}
                 y1={0}
-                y2={height + 5}
+                y2={chartHeight + 5}
                 strokeDasharray="5 5"
               />
               {showMilestones &&
@@ -535,7 +583,7 @@ const RoadmapPage = () => {
                         x1={xScale(new Date(milestone.due_date))}
                         x2={xScale(new Date(milestone.due_date))}
                         y1={0}
-                        y2={height + 5}
+                        y2={chartHeight + 5}
                       />
                       <text
                         x={xScale(new Date(milestone.due_date))}
@@ -571,11 +619,16 @@ const RoadmapPage = () => {
             >
               <h3 className="text-sm font-semibold">{tooltipData.task.name}</h3>
               <Label className="text-xs">
-                Start: {new Date(tooltipData.task.start).toLocaleString().split(',')[0]}
+                Start: {dayjs(tooltipData.task.start).format('MMM D, YYYY')}
               </Label>
               <Label className="text-xs">
-                End: {new Date(tooltipData.task.end).toLocaleString().split(',')[0]}
+                End: {dayjs(tooltipData.task.end).format('MMM D, YYYY')}
               </Label>
+              {tooltipData.task.singleDates?.map((date) => (
+                <Label key={date.id} className="text-xs">
+                  {date.name} : {dayjs(date.date).format('MMM D, YYYY')}
+                </Label>
+              ))}
             </TooltipInPortal>
           )}
 
