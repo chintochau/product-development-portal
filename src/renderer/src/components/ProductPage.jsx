@@ -74,7 +74,7 @@ const ProductPage = () => {
     )
   }
   return (
-    <div className="px-4">
+    <div className="px-4 pb-4">
       <div className="w-full flex items-center ">
         <h2 className="text-2xl">{projectName}</h2>
       </div>

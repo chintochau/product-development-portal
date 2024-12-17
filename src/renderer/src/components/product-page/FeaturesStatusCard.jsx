@@ -33,6 +33,8 @@ const fields = [
   'done'
 ]
 
+const types = ['must have', 'nice to have']
+
 const FeaturesStatusCard = ({ className }) => {
   const { features, featuresLoading, featuresId } = useSingleProduct()
 

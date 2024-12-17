@@ -59,3 +59,27 @@ export const gitlab = async (path, type, data) => {
     const res = response?.data
     return res;
 }
+
+export const gitlabWithHeaders = async (path, type, data) => {
+    let response
+    switch (type) {
+        case "GET":
+            response = await gitlabAPI.get(path);
+            break;
+        case "POST":
+            response = await gitlabAPI.post(path, data);
+            break;
+        case "DELETE":
+            response = await gitlabAPI.delete(path);
+            break
+        case "PUT":
+            response = await gitlabAPI.put(path, data);
+            break
+        default:
+            break;
+    }
+    return {
+        data: response?.data,
+        headers: response?.headers
+    };
+}

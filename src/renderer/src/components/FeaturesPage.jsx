@@ -3,6 +3,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow
@@ -37,17 +38,23 @@ const chartConfig = {
     color: 'hsl(var(--background))'
   }
 }
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination'
+
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
+import { Loader2, ThumbsUp } from 'lucide-react'
+import { toInteger } from 'lodash'
+
 const FeaturesPage = () => {
-  const navigate = useNavigate()
   const { setSelectedTicket, features } = useTickets()
   const { getFeatureEpics } = useSingleProduct()
-  // a table showing features requests
-
-  const selectTicket = (ticket) => {
-    const { iid } = ticket
-    setSelectedTicket(ticket)
-    navigate(`/features/${iid}`)
-  }
 
   const chartData = getFeatureEpics()
     .filter((item) => dayjs(item.due_date).isAfter(dayjs()))
@@ -58,8 +65,7 @@ const FeaturesPage = () => {
       }
     })
   return (
-    <div className="px-4 flex flex-col gap-4">
-      {renderUpvoteTable(features)}
+    <div className="px-4 flex flex-col gap-6 pb-4">
       <div className="flex items-center">
         <h2 className="text-2xl">Planned Features</h2>
         <Button
@@ -103,6 +109,7 @@ const FeaturesPage = () => {
         </TableBody>
       </Table>
       {renderChart(chartData)}
+      {renderUpvoteTable(features)}
     </div>
   )
 }
@@ -122,27 +129,34 @@ const ToolTipConpoment = ({ active, payload, label }) => {
 export default FeaturesPage
 function renderUpvoteTable(features) {
   const navigate = useNavigate()
-  console.log(features[0]);
-  
+  const { totalPages, currentPage, getFeatureRequests, loading } = useTickets()
+
+  const handlePageChange = (page) => {
+    getFeatureRequests(page)
+  }
+
   return (
     <>
-      <div className="flex items-center">
-        <h2 className="text-2xl">Upvote Requests</h2>
-        <Button
-          variant="link"
-          size="sm"
-          className="text-muted-foreground"
-          onClick={() => navigate('/features/new')}
-        >
-          Create
-        </Button>
+      <div className="flex flex-col">
+        <div className="flex items-center">
+          <h2 className="text-2xl">All Requests</h2>
+          <Button
+            variant="link"
+            size="sm"
+            className="text-muted-foreground"
+            onClick={() => navigate('/features/new')}
+          >
+            Create
+          </Button>
+        </div>
+        <CardDescription>Data from Gitlab</CardDescription>
       </div>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
+            <TableHead className=" w-52">ID</TableHead>
             <TableHead>Title</TableHead>
-            <TableHead>Upvote</TableHead>
+            <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -154,13 +168,109 @@ function renderUpvoteTable(features) {
                 window.open(ticket.web_url)
               }}
             >
-              <TableCell className="font-medium">{ticket.iid}</TableCell>
+              <TableHead className="font-medium">{ticket.references?.relative}</TableHead>
               <TableCell className="font-medium">{ticket.title}</TableCell>
-              <TableCell className="font-medium">{ticket.upvotes}</TableCell>
+              <TableCell className="font-medium">
+                <ThumbsUp
+                  onClick={(e) => {
+                    e.stopPropagation()
+                  }}
+                  className="w-4 h-4 hover:cursor-pointer text-muted-foreground hover:text-foreground"
+                />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      {loading ? (
+        <div className='w-full py-4 flex items-center justify-center'><Loader2 className='animate-spin' /></div>
+      ) : (
+        <Pagination>
+          <PaginationContent>
+            {currentPage !== 1 && (
+              <PaginationItem>
+                <PaginationPrevious
+                  className="cursor-pointer"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                />
+              </PaginationItem>
+            )}
+            {currentPage !== 1 && (
+              <PaginationItem key={1}>
+                <PaginationLink
+                  className="cursor-pointer"
+                  onClick={() => {
+                    handlePageChange(1)
+                  }}
+                >
+                  1
+                </PaginationLink>
+              </PaginationItem>
+            )}
+            {currentPage > 3 && (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            )}
+            {totalPages > 5 ? (
+              <>
+                {Array.from(
+                  { length: Math.min(3, totalPages - currentPage) },
+                  (_, index) => currentPage + index
+                ).map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      isActive={page === currentPage}
+                      onClick={() => {
+                        handlePageChange(page)
+                      }}
+                      className="cursor-pointer"
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+                <PaginationItem key={totalPages}>
+                  <PaginationLink
+                    className="cursor-pointer"
+                    onClick={() => {
+                      handlePageChange(totalPages)
+                    }}
+                    isActive={totalPages === currentPage}
+                  >
+                    {totalPages}
+                  </PaginationLink>
+                </PaginationItem>
+              </>
+            ) : (
+              Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => {
+                      handlePageChange(page)
+                    }}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))
+            )}
+            {currentPage < totalPages && (
+              <PaginationItem>
+                <PaginationNext
+                  className="cursor-pointer"
+                  onClick={() => {
+                    handlePageChange(currentPage + 1)
+                  }}
+                />
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </Pagination>
+      )}
     </>
   )
 }

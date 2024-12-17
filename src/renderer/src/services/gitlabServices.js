@@ -167,8 +167,8 @@ export const getMilestones = async () => {
     return data
 }
 
-export const getFeaturesRequestsIssues = async () => {
-    const data = await window.api.gitlab(`projects/${FIRMWARE_PROJECTID}/issues?state=opened&labels=type::feature`, "GET");
+export const getFeaturesRequestsIssues = async (currentPage=0, per_page=20) => {
+    const data = await window.api.gitlabWithHeaders(`projects/${FIRMWARE_PROJECTID}/issues?state=opened&labels=type::feature&page=${currentPage}&per_page=${per_page}`, "GET");
     return data
 }
 

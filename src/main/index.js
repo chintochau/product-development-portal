@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { gitlab, gitlabGet } from './gitlabAPI'
+import { gitlab, gitlabGet, gitlabWithHeaders } from './gitlabAPI'
 import fs from 'fs'
 import { wrike } from './wrikeAPI'
 import { readFromExcel } from './excelAPI'
@@ -82,6 +82,10 @@ ipcMain.handle("gitlab-get", async (event, path) => {
 
 ipcMain.handle("gitlab", async (event, path, type, data) => {
   return gitlab(path, type, data);
+})
+
+ipcMain.handle("gitlab-with-headers", async (event, path, type, data) => {
+  return gitlabWithHeaders(path, type, data);
 })
 
 ipcMain.handle("wrike", async (event, path, type, data) => {

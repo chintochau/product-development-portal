@@ -1,14 +1,16 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { gitlabWithHeaders } from '../main/gitlabAPI'
 
 // Custom APIs for renderer
 const api = {
-  getGitlab: (path) => ipcRenderer.invoke('gitlab-get',path),
-  gitlab:(path,type,data) => ipcRenderer.invoke('gitlab',path,type,data),
-  wrike:(path,type,data) => ipcRenderer.invoke('wrike',path,type,data),
+  getGitlab: (path) => ipcRenderer.invoke('gitlab-get', path),
+  gitlab: (path, type, data) => ipcRenderer.invoke('gitlab', path, type, data),
+  wrike: (path, type, data) => ipcRenderer.invoke('wrike', path, type, data),
   saveFile: (data) => ipcRenderer.invoke('save-file', data),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   readExcelFile: () => ipcRenderer.invoke('read-excel-file'),
+  gitlabWithHeaders: (path, type, data) => ipcRenderer.invoke('gitlab-with-headers', path, type, data),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

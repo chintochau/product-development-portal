@@ -37,6 +37,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avat
 import { ScrollArea, ScrollBar } from '../../../components/ui/scroll-area'
 import { Badge } from '../../../components/ui/badge'
 import { cn } from '../../../lib/utils'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../../components/ui/hover-card'
 
 const DeveloperPage = () => {
   const {
@@ -52,7 +53,7 @@ const DeveloperPage = () => {
   console.log(tickets)
 
   return (
-    <div className='flex flex-col px-4 gap-4 pb-4'>
+    <div className="flex flex-col px-4 gap-4 pb-4">
       <DropdownMenu open={showStatusBar} onOpenChange={setShowStatusBar}>
         <DropdownMenuTrigger asChild>
           <div className="flex flex-col">
@@ -126,13 +127,31 @@ const DeveloperPage = () => {
               <TableCell className="font-medium relative">
                 <div className="min-h-8"></div>
                 {ticket.assignees?.map((dev, index) => (
-                  <Avatar
-                    key={dev.id + index}
-                    className={cn(`absolute top-1 bg-background left-${index * 2}`)}
-                  >
-                    <AvatarImage src={dev.avatar_url} />
-                    <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>
-                  </Avatar>
+                  <HoverCard key={dev.id + index}>
+                    <HoverCardTrigger>
+                      <Avatar
+                        key={dev.id + index}
+                        className={cn(`absolute top-1 bg-background`)}
+                        style={{
+                          left: index * 20
+                        }}
+                      >
+                        <AvatarImage src={dev.avatar_url} />
+                        <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>
+                      </Avatar>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="rounded-xl flex flex-col gap-2">
+                      {ticket.assignees?.map((dev) => (
+                        <div className="flex items-center gap-1" key={dev.id + index + dev.name}>
+                          <Avatar>
+                            <AvatarImage src={dev.avatar_url} />
+                            <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>
+                          </Avatar>
+                          <div>{dev.name}</div>
+                        </div>
+                      ))}
+                    </HoverCardContent>
+                  </HoverCard>
                 ))}
               </TableCell>
             </TableRow>
