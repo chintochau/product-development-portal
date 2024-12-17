@@ -52,11 +52,11 @@ const DeveloperPage = () => {
   console.log(tickets)
 
   return (
-    <div>
+    <div className='flex flex-col px-4 gap-4 pb-4'>
       <DropdownMenu open={showStatusBar} onOpenChange={setShowStatusBar}>
         <DropdownMenuTrigger asChild>
           <div className="flex flex-col">
-            <h1 className="px-4 text-2xl">Developers</h1>
+            <h1 className="text-2xl">Developers</h1>
             <div className="flex items-center">
               <div className="flex flex-col justify-start items-start">
                 <Button variant="link">

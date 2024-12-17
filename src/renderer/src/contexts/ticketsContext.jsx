@@ -20,7 +20,7 @@ export const TicketsProvider = ({ children }) => {
     setFeatures(
       data.map((item) => {
         const attributes = frontMatter(item.description).attributes
-        return { ...attributes, iid: item.iid, url: item.web_url }
+        return {...item, ...attributes, iid: item.iid, url: item.web_url }
       })
     )
     setLoading(false)

@@ -1,4 +1,4 @@
-import { BarChart, Calendar, ChevronDown, Edit, FileText, Home, Inbox, List, Map, Search, Settings } from "lucide-react"
+import { BarChart, Calendar, ChevronDown, Edit, FileText, Home, Inbox, List, Map, Search, Settings, User } from "lucide-react"
 import HomePage from "./components/HomePage"
 import SettingsPage from "./components/settings/SettingsPage"
 import Login from "./components/Login"
@@ -35,7 +35,7 @@ export const navigationItems = [
     {
         title: "Developers",
         url: "/developers",
-        icon: BarChart,
+        icon: User,
         element: DeveloperPage
     },
 

@@ -44,7 +44,7 @@ const HomePage = () => {
   return (
     <div className="px-4 flex flex-col">
       <div className="flex items-center">
-        <h1 className="text-2xl">Dashboard</h1>
+        <h1 className="text-2xl">Products</h1>
         <Link to={CREATE_NEW_PRODUCT_ROUTE}>
           <Button variant="link" size="sm" className="text-muted-foreground">Add new product</Button>
         </Link>

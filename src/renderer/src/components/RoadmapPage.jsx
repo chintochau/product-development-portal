@@ -424,7 +424,7 @@ const RoadmapPage = ({ scrollTop }) => {
                       height={barHeight + 2*padding}
                       fill={hoverBar === taskIndex ? 'hsl(var(--accent))' : "transparent"}
                       rx={4}
-                      opacity={0.2}
+                      opacity={0.4}
                     />
                     <Bar
                       x={Math.max(0, barX)}
