@@ -76,17 +76,17 @@ const ProductEditPage = ({ editMode }) => {
     if (editMode) {
       await saveGitlabIssue(iid, { ...productData, ...values })
       setShouldRefreshProducts(true)
-      navigate(`/dashboard/${productData.iid}#${productData.projectName}`)
+      navigate(`/dashboard/${productData.iid}`)
     } else {
       const response = await createGitlabIssue(values)
       setShouldRefreshProducts(true)
-      navigate(`/dashboard/${response.iid}#${values.projectName}`)
+      navigate(`/dashboard/${response.iid}`)
     }
   }
 
   // Use the reset method to update form values when data is loaded
   useEffect(() => {
-    if (productData) {
+    if (productData && editMode) {
       form.reset((previousValues) => ({
         ...previousValues,
         ...productData

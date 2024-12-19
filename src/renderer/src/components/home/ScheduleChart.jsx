@@ -83,10 +83,11 @@ const ScheduleChart = () => {
         <CardDescription>From MP1 to Launch Dates</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer
+          config={chartConfig}
+          style={{ height: Math.min(chartData.length * 40,550), width: '100%' }}
+        >
           <BarChart
-            width={730}
-            height={250}
             data={chartData}
             margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
             layout="vertical"

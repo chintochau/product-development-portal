@@ -46,17 +46,15 @@ const HomePage = () => {
       <div className="flex items-center">
         <h1 className="text-2xl">Products</h1>
         <Link to={CREATE_NEW_PRODUCT_ROUTE}>
-          <Button variant="link" size="sm" className="text-muted-foreground">Add new product</Button>
+          <Button variant="link" size="sm" className="text-muted-foreground">
+            Add new product
+          </Button>
         </Link>
       </div>
       <div className="w-full rounded-xl py-4 ">
         <DataTable columns={columns} data={products} />
       </div>
-      <div className="w-full rounded-xl py-4">
-        <div className='relative h-[calc(50vh)] bottom-0'>
-          <ScheduleChart />
-        </div>
-      </div>
+      <ScheduleChart />
     </div>
   )
 }

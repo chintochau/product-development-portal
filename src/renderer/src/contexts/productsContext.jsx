@@ -75,6 +75,8 @@ export const ProductsProvider = ({ children }) => {
   }
 
   const readDataUsingLookupId = (id, excelData = productDataFromExcel) => {
+    console.log(excelData);
+    
     return excelData?.find((item) => item['Lookup#'] === id && item.Status !== 'Concept')
   }
 
