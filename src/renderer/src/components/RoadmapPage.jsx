@@ -19,7 +19,7 @@ const height = 800
 const heightFactor = 65
 const minimumWidth = 1200
 const widthFactor = 5
-const mainColor = '#0070f3' 
+const mainColor = '#0070f3'
 const epicColor = '#22c55e'
 const hardwareColor = '#f59e0b'
 const featureColor = '#ef4444' // red
@@ -128,12 +128,16 @@ const RoadmapPage = ({ scrollTop }) => {
           wrikeId: product.wrikeId,
           type: 'product',
           opacity: 0.3,
-          singleDates: singleDates
+          singleDates: singleDates,
+          mp1: mp1Date,
+          launch: launch
+
         }
       })
       setChartData(
         newChartData
           .map((task) => {
+
             const epic = epics.find((e) => e.iid === task.epicId)
             return {
               ...task,
@@ -144,12 +148,20 @@ const RoadmapPage = ({ scrollTop }) => {
                   start: new Date(epic?.start_date),
                   end: new Date(epic?.due_date),
                   fill: epicColor, // green
-                  epicId: task.epicId
+                  epicId: task.epicId,
+
                 }
               ]
             }
           })
-          .sort((a, b) => a.start.getTime() - b.start.getTime())
+          .sort((a, b) => {
+            
+            if (a.mp1 && b.mp1) {
+              return a.mp1 - b.mp1
+            } else {
+              return a.start.getTime() - b.start.getTime()
+            }
+          })
       )
       const minDate = new Date(Math.min(...newChartData.map((t) => t.start.getTime())))
       const maxDate = new Date(Math.max(...newChartData.map((t) => t.end.getTime())))
@@ -421,8 +433,8 @@ const RoadmapPage = ({ scrollTop }) => {
                       x={0}
                       y={barY - padding}
                       width={totalWidth} //full graph width
-                      height={barHeight + 2*padding}
-                      fill={hoverBar === taskIndex ? 'hsl(var(--accent))' : "transparent"}
+                      height={barHeight + 2 * padding}
+                      fill={hoverBar === taskIndex ? 'hsl(var(--accent))' : 'transparent'}
                       rx={4}
                       opacity={0.4}
                     />

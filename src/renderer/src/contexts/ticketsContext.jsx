@@ -49,7 +49,6 @@ export const TicketsProvider = ({ children }) => {
     currentPage,
     setCurrentPage,
     totalPages,
-    currentPage,
     getFeatureRequests
   }
 
