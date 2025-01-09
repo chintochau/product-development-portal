@@ -192,8 +192,29 @@ export const productInformation = {
 
 
 export const userRoles = [
-    "admin",
-    "productManager",
-    "softwareManager",
-    "hardwareManager"
+    { role: "admin", access: 0 },
+    { role: "BluOS Platform Manager", access: 0 },
+    { role: "Software Manager", access: 1 },
+    { role: "Hardware Manager", access: 2 },
+    { role: "Bluesound Product Manager", access: 3 },
+    { role: "Bluesound Pro Product Manager", access: 4 },
+    { role: "NAD Product Manager", access: 5 },
+    { role: "PSB Product Manager", access: 6 }
 ]
+
+// 0: Admin
+// 1: Software Manager
+// 2: Hardware Manager
+// 3: Bluesound
+// 4: Bluesound Pro
+// 5: NAD
+// 6: PSB
+
+export const checkRights = (role) => {
+    const rights = userRoles.find((userRole) => userRole.role === role)
+    if (rights) {
+        return rights.access
+    } else {
+        return 0
+    }
+}

@@ -6,6 +6,7 @@ import { gitlab, gitlabGet, gitlabWithHeaders } from './gitlabAPI'
 import fs from 'fs'
 import { wrike } from './wrikeAPI'
 import { readFromExcel } from './excelAPI'
+import { checkSignInStatus, createNewUser, getAllUsersFromFirestore, signinWithFirebaseEmail, signOut, updateUserInformation } from './firebaseAPI'
 
 function createWindow() {
   // Create the browser window.
@@ -112,4 +113,26 @@ ipcMain.handle('get-app-version', () => {
 
 ipcMain.handle("read-excel-file", async () => {
   return await readFromExcel();
+})
+
+ipcMain.handle("check-signin", async () => {
+  return await checkSignInStatus();
+})
+
+ipcMain.handle("sign-out", async () => {
+  return await signOut();
+})
+
+ipcMain.handle("sign-in", async (event,emailAndPassword) => {
+  return await signinWithFirebaseEmail(emailAndPassword);
+})
+
+ipcMain.handle("get-all-users", async () => {
+  return await getAllUsersFromFirestore();
+})
+ipcMain.handle("create-new-user", async (event,email,password,role) => {
+  return await createNewUser(email,password,role);
+})
+ipcMain.handle("update-role", async (event,email,role) => {
+  return await updateUserInformation(email,role);
 })

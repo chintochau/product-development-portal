@@ -24,6 +24,8 @@ import ProductPage from './components/ProductPage'
 import { useBrowsing } from './contexts/browsingContext'
 import { ScrollArea } from '../../components/ui/scroll-area'
 import ProductEditPage from './components/forms/EditProductPage'
+import { useUser } from './contexts/userContext'
+import Login from './components/Login'
 
 const Layout = ({ children }) => {
   const location = useLocation()
@@ -32,14 +34,11 @@ const Layout = ({ children }) => {
 
   const [scrollTop, setScrollTop] = React.useState(0)
 
-  const isProductPaht = () => {
-    // check if path is dashbaord/:iid
+  const {user} = useUser()
 
-    if (currentPath.startsWith('/dashboard/')) {
-      return true
-    }
+  if (!user) {
+    return <Login />
   }
-
   return (
     <ScrollArea className="w-full h-screen relative" onScrollCapture={(e) => {
       setScrollTop(e.target.scrollTop)

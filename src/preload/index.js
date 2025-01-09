@@ -11,6 +11,12 @@ const api = {
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   readExcelFile: () => ipcRenderer.invoke('read-excel-file'),
   gitlabWithHeaders: (path, type, data) => ipcRenderer.invoke('gitlab-with-headers', path, type, data),
+  checkSignIn: () => ipcRenderer.invoke('check-signin'),
+  signOut: () => ipcRenderer.invoke('sign-out'),
+  signinWithFirebaseEmail: (email,password) => ipcRenderer.invoke('sign-in', {email,password}),
+  getAllUsers: () => ipcRenderer.invoke('get-all-users'),
+  createNewUser: (email,password,role) => ipcRenderer.invoke('create-new-user', {email,password,role}),
+  updateUserInformation: (email,role) => ipcRenderer.invoke('update-role', {email,role}),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

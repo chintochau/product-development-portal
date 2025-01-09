@@ -59,6 +59,7 @@
     "electron-updater": "^6.1.7",
     "exceljs": "^4.4.0",
     "firebase": "^11.1.0",
+    "firebase-admin": "^13.0.2",
     "form-data": "^4.0.1",
     "front-matter": "^4.0.2",
     "gray-matter": "^4.0.3",

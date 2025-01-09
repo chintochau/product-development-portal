@@ -42,7 +42,11 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton>
-              B<span>v{version}</span>
+              <Avatar className="size-6">
+                <AvatarImage  src="https://play-lh.googleusercontent.com/SuraPSeMbu8gmxbWqZ_W7NngmyvDgfpg4pq856Yz9StH6EccGMMVxyrqc5feFxKmLQ=w480-h960"  />
+                <AvatarFallback>B</AvatarFallback>
+              </Avatar>
+              <span>v{version}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -84,15 +88,14 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Link to="/login" className="flex items-center space-x-2">
-                <Avatar className="size-6">
-                  <AvatarImage src="https://play-lh.googleusercontent.com/SuraPSeMbu8gmxbWqZ_W7NngmyvDgfpg4pq856Yz9StH6EccGMMVxyrqc5feFxKmLQ=w480-h960" />
-                  <AvatarFallback>B</AvatarFallback>
-                </Avatar>
+                {user && <p className="size-6 bg-primary text-background rounded-full flex items-center justify-center">
+                  {user.email?.substring(0, 1).toUpperCase()}
+                </p>}
                 <span>
-                  {user && user.username ? (
-                    <div className="flex flex-col">
-                      <span className="text-sm text-primary">{user.username}</span>
-                      <span className="text-xs">{user.role}</span>
+                  {user && user.email ? (
+                    <div className="flex flex-col ">
+                      <span className="text-xs text-primary">{user.email}</span>
+                      <span className="text-xs text-muted-foreground">{user.role}</span>
                     </div>
                   ) : (
                     <span>Login</span>
