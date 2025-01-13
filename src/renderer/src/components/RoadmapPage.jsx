@@ -15,6 +15,8 @@ import { defaultStyles, useTooltip, useTooltipInPortal } from '@visx/tooltip'
 import { localPoint } from '@visx/event'
 import { Label } from '../../../components/ui/label'
 
+import { defaultBrands, getBrandName } from '../constant'
+
 const height = 800
 const heightFactor = 65
 const minimumWidth = 1200
@@ -38,12 +40,36 @@ const RoadmapPage = ({ scrollTop }) => {
   const [showMilestones, setShowMilestones] = useState(false)
   const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
   const [shouldloadFeatures, setShouldloadFeatures] = useState(false)
+  const [selectedBrands, setSelectedBrands] = useState(defaultBrands.map((item) => item.value))
   const { tooltipOpen, tooltipData, tooltipLeft, tooltipTop, showTooltip, hideTooltip } =
     useTooltip()
   const [pointerX, setPointerX] = useState(null)
 
   const [scrollOffset, setScrollOffset] = useState(0)
   const [hoverBar, setHoverBar] = useState(null)
+
+  // select a brand and add to the display array
+  const handleBrandSelect = (brand) => {
+    if (brand === 'all') {
+      if (isBrandSelected('all')) {
+        setSelectedBrands([])
+      } else {
+        setSelectedBrands(defaultBrands.map((item) => item.value))
+      }
+
+      return
+    }
+
+    if (selectedBrands.includes(brand)) {
+      setSelectedBrands(selectedBrands.filter((item) => item !== brand))
+    } else {
+      setSelectedBrands([...selectedBrands, brand])
+    }
+  }
+  const isBrandSelected = (brand) => {
+    if (brand === 'all') return selectedBrands.length === defaultBrands.length
+    return selectedBrands.includes(brand)
+  }
 
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     tooltipOpen,
@@ -121,6 +147,7 @@ const RoadmapPage = ({ scrollTop }) => {
           .filter((date) => date.date)
         return {
           name: product.projectName,
+          brand: product.brand,
           start: new Date(earliestDate),
           end: product.launch ? new Date(product.launch) : new Date(),
           fill: mainColor, // blue,
@@ -131,13 +158,12 @@ const RoadmapPage = ({ scrollTop }) => {
           singleDates: singleDates,
           mp1: mp1Date,
           launch: launch
-
         }
       })
       setChartData(
         newChartData
+          .filter((item) => selectedBrands.includes(item.brand))
           .map((task) => {
-
             const epic = epics.find((e) => e.iid === task.epicId)
             return {
               ...task,
@@ -148,14 +174,12 @@ const RoadmapPage = ({ scrollTop }) => {
                   start: new Date(epic?.start_date),
                   end: new Date(epic?.due_date),
                   fill: epicColor, // green
-                  epicId: task.epicId,
-
+                  epicId: task.epicId
                 }
               ]
             }
           })
           .sort((a, b) => {
-            
             if (a.mp1 && b.mp1) {
               return a.mp1 - b.mp1
             } else {
@@ -169,7 +193,7 @@ const RoadmapPage = ({ scrollTop }) => {
       setShouldLoadWrike(true)
       setShouldloadFeatures(true)
     }
-  }, [products, epics])
+  }, [products, epics, selectedBrands])
 
   const fetchDataFromWrike = async (taskData, taskIndex) => {
     try {
@@ -323,21 +347,57 @@ const RoadmapPage = ({ scrollTop }) => {
             <span>{new Date(range[1]).toLocaleDateString()}</span>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox id="milestones" onCheckedChange={setShowMilestones} checked={showMilestones} />
-          <label
-            htmlFor="milestones"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Milestones
-          </label>
-          <Checkbox id="developers" />
-          <label
-            htmlFor="developers"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Developers
-          </label>
+        <div className="flex flex-col justify-center gap-2">
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="all"
+                onCheckedChange={(checked) => handleBrandSelect('all')}
+                checked={isBrandSelected('all')}
+              />
+              <label
+                htmlFor="all"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                All
+              </label>
+            </div>
+            {defaultBrands.map((brand) => (
+              <Fragment key={brand.value}>
+                <Checkbox
+                  id={brand.value}
+                  onCheckedChange={(checked) => handleBrandSelect(brand.value)}
+                  checked={isBrandSelected(brand.value)}
+                />
+                <label
+                  htmlFor={brand.value}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {brand.name}
+                </label>
+              </Fragment>
+            ))}
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="milestones"
+              onCheckedChange={setShowMilestones}
+              checked={showMilestones}
+            />
+            <label
+              htmlFor="milestones"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Milestones
+            </label>
+            <Checkbox id="developers" />
+            <label
+              htmlFor="developers"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Developers
+            </label>
+          </div>
         </div>
       </div>
       <Ordinal scale={legendColorScale} direction="horizontal" />
@@ -630,12 +690,14 @@ const RoadmapPage = ({ scrollTop }) => {
               className="flex flex-col"
             >
               <h3 className="text-sm font-semibold">{tooltipData.task.name}</h3>
+              <Label className="text-sm text-primary/80">{getBrandName(tooltipData.task.brand)}</Label>
               <Label className="text-xs">
                 Start: {dayjs(tooltipData.task.start).format('MMM D, YYYY')}
               </Label>
               <Label className="text-xs">
                 End: {dayjs(tooltipData.task.end).format('MMM D, YYYY')}
               </Label>
+              
               {tooltipData.task.singleDates?.map((date) => (
                 <Label key={date.id} className="text-xs">
                   {date.name} : {dayjs(date.date).format('MMM D, YYYY')}

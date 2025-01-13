@@ -94,6 +94,15 @@ export const defaultBrands = [
     { value: "NAD CI", name: "NAD CI" },
 ]
 
+export const getBrandName = (brand) => {
+    const brandItem = defaultBrands.find((item) => item.value === brand)
+    if (brandItem) {
+        return brandItem.name
+    } else {
+        return brand
+    }
+}
+
 export const defaultPlatforms = [
     "BluOS",
     'Desktop',
