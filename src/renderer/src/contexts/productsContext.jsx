@@ -50,21 +50,13 @@ export const ProductsProvider = ({ children }) => {
             model,
             note: Note,
             show: Show,
-            launch: dayjs(Launch).isValid() ? dayjs(Launch).format('YYYY-MM-DD') : null,
-            mp1Date: dayjs(MP1).isValid() ? dayjs(MP1).format('YYYY-MM-DD') : null,
-            mp1DateActual: dayjs(mp1DateActual).isValid()
-              ? dayjs(mp1DateActual).format('YYYY-MM-DD')
-              : null,
-            pifDate: dayjs(pifDate).isValid() ? dayjs(pifDate).format('YYYY-MM-DD') : null,
-            pifDateAccepted: dayjs(pifDateAccepted).isValid()
-              ? dayjs(pifDateAccepted).format('YYYY-MM-DD')
-              : null,
-            greenlightDate: dayjs(greenlightDate).isValid()
-              ? dayjs(greenlightDate).format('YYYY-MM-DD')
-              : null,
-            greenlightTargetMP: dayjs(greenlightTargetMPDate).isValid()
-              ? dayjs(greenlightTargetMPDate).format('YYYY-MM-DD')
-              : null
+            launch: Launch ? (dayjs(Launch).isValid() ? dayjs(Launch).format('YYYY-MM-DD') : null) : null,
+            mp1Date: MP1 ? (dayjs(MP1).isValid() ? dayjs(MP1).format('YYYY-MM-DD') : null) : null,
+            mp1DateActual: mp1DateActual ? (dayjs(mp1DateActual).isValid() ? dayjs(mp1DateActual).format('YYYY-MM-DD') : null) : null,
+            pifDate: pifDate ? (dayjs(pifDate).isValid() ? dayjs(pifDate).format('YYYY-MM-DD') : null) : null,
+            pifDateAccepted: pifDateAccepted ? (dayjs(pifDateAccepted).isValid() ? dayjs(pifDateAccepted).format('YYYY-MM-DD') : null) : null,
+            greenlightDate: greenlightDate ? (dayjs(greenlightDate).isValid() ? dayjs(greenlightDate).format('YYYY-MM-DD') : null) : null,
+            greenlightTargetMP: greenlightTargetMPDate ? (dayjs(greenlightTargetMPDate).isValid() ? dayjs(greenlightTargetMPDate).format('YYYY-MM-DD') : null) : null
           }
         } else {
           return attributes
