@@ -108,6 +108,7 @@ const RoadmapPage = ({ scrollTop }) => {
         // pifDateAccepted: dayjs(pifDateAccepted).format('YYYY-MM-DD'),
         // greenlightDate: dayjs(greenlightDate).format('YYYY-MM-DD'),
         // greenlightTargetMP: dayjs(greenlightTargetMPDate).format('YYYY-MM-DD'),
+        console.log(product)
 
         const {
           launch,
@@ -258,20 +259,11 @@ const RoadmapPage = ({ scrollTop }) => {
             name: f.title,
             start: new Date(f.start_date),
             end: new Date(f.due_date),
-            fill: featureColor
+            fill: featureColor,
+            url: f.web_url
           }
         })
-      setChartData((prevData) => [
-        ...prevData,
-        ...features,
-        {
-          name: 'Alan',
-          start: new Date(),
-          end: new Date(),
-          fill: mainColor,
-          subTasks: [...features]
-        }
-      ])
+      setChartData((prevData) => [...prevData, ...features])
       setShouldloadFeatures(false)
     }
   }, [epics, shouldloadFeatures])
@@ -509,6 +501,12 @@ const RoadmapPage = ({ scrollTop }) => {
                       onMouseLeave={handleMouseLeave}
                       onMouseOver={() => handleMouseOver({ task })}
                       opacity={task.opacity}
+                      // click to oopen link
+                      onClick={() => {
+                        if (task.url) {
+                          window.open(task.url, '_blank')
+                        }
+                      }}
                     />
                     {subTasks?.length > 0 &&
                       subTasks?.map((subTask, index) => {
@@ -690,14 +688,16 @@ const RoadmapPage = ({ scrollTop }) => {
               className="flex flex-col"
             >
               <h3 className="text-sm font-semibold">{tooltipData.task.name}</h3>
-              <Label className="text-sm text-primary/80">{getBrandName(tooltipData.task.brand)}</Label>
+              <Label className="text-sm text-primary/80">
+                {getBrandName(tooltipData.task.brand)}
+              </Label>
               <Label className="text-xs">
                 Start: {dayjs(tooltipData.task.start).format('MMM D, YYYY')}
               </Label>
               <Label className="text-xs">
                 End: {dayjs(tooltipData.task.end).format('MMM D, YYYY')}
               </Label>
-              
+
               {tooltipData.task.singleDates?.map((date) => (
                 <Label key={date.id} className="text-xs">
                   {date.name} : {dayjs(date.date).format('MMM D, YYYY')}
