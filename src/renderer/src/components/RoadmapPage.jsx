@@ -56,7 +56,6 @@ const RoadmapPage = ({ scrollTop }) => {
       } else {
         setSelectedBrands(defaultBrands.map((item) => item.value))
       }
-
       return
     }
 
@@ -117,7 +116,8 @@ const RoadmapPage = ({ scrollTop }) => {
           pifDate,
           pifDateAccepted,
           greenlightDate,
-          greenlightTargetMP
+          greenlightTargetMP,
+          bluos
         } = product || {}
 
         const milestoneDates = {
@@ -149,6 +149,8 @@ const RoadmapPage = ({ scrollTop }) => {
         return {
           name: product.projectName,
           brand: product.brand,
+          description: product.description,
+          bluos: bluos,
           start: new Date(earliestDate),
           end: product.launch ? new Date(product.launch) : new Date(),
           fill: mainColor, // blue,
@@ -163,7 +165,8 @@ const RoadmapPage = ({ scrollTop }) => {
       })
       setChartData(
         newChartData
-          .filter((item) => selectedBrands.includes(item.brand))
+          .filter((item) => selectedBrands.includes(item.brand) && item.bluos)
+          .sort((a, b) => new Date(a.mp1) - new Date(b.mp1))
           .map((task) => {
             const epic = epics.find((e) => e.iid === task.epicId)
             return {
@@ -180,13 +183,7 @@ const RoadmapPage = ({ scrollTop }) => {
               ]
             }
           })
-          .sort((a, b) => {
-            if (a.mp1 && b.mp1) {
-              return a.mp1 - b.mp1
-            } else {
-              return a.start.getTime() - b.start.getTime()
-            }
-          })
+
       )
       const minDate = new Date(Math.min(...newChartData.map((t) => t.start.getTime())))
       const maxDate = new Date(Math.max(...newChartData.map((t) => t.end.getTime())))
@@ -691,6 +688,8 @@ const RoadmapPage = ({ scrollTop }) => {
               <Label className="text-sm text-primary/80">
                 {getBrandName(tooltipData.task.brand)}
               </Label>
+              <p className='text-xs text-muted-foreground max-w-80'>{tooltipData.task.description}</p>
+              <div className='border-t border-primary/50 my-2' />
               <Label className="text-xs">
                 Start: {dayjs(tooltipData.task.start).format('MMM D, YYYY')}
               </Label>

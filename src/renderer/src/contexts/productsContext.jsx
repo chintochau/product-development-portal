@@ -35,17 +35,21 @@ export const ProductsProvider = ({ children }) => {
             ['Model #']: model,
             Launch,
             MP1,
+            BluOS,
             ['PIF Date\nSubmitted']: pifDate,
             ['PIF Date\nAccepted']: pifDateAccepted,
             ['MP1 Date\nActual']: mp1DateActual,
             ['Greenlight\nDate']: greenlightDate,
             ['Greenlight\nTarget PM1']: greenlightTargetMPDate
           } = lookupData || {}
+
+          const isBluOS = BluOS === 'Yes'
           return {
             ...attributes,
-            description: Description,
+            description: isBluOS? Description : "Non BluOS Product",
             status: Status,
             brand: Brand,
+            bluos: isBluOS,
             projectName,
             model,
             note: Note,
