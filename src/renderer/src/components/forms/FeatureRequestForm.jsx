@@ -82,7 +82,7 @@ export function FeatureRequestForm({ editMode }) {
       setSelectedTicket(newData)
       navigate(`/features/${selectedTicket.iid}`)
     } else {
-      await createFeatureRequestIssue({ requestor: user.username, ...values })
+      await createFeatureRequestIssue({ requestor: user.email, ...values })
       setShouldRefresh(true)
       navigate('/features')
     }

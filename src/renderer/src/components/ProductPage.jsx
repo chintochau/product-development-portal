@@ -37,6 +37,8 @@ import TicketSection from './product-page/TicketSection'
 import { useProducts } from '../contexts/productsContext'
 import { Loader2 } from 'lucide-react'
 import FeaturesStatusCard from './product-page/FeaturesStatusCard'
+import AllFeatures from './feature-page-components/AllFeatures'
+import { useTickets } from '../contexts/ticketsContext'
 
 const ProductPage = () => {
   const { productData, setTickets, tickets, loading, epics } = useSingleProduct()
@@ -44,6 +46,10 @@ const ProductPage = () => {
   const { setShouldRefreshProducts } = useProducts()
   const location = useLocation()
   const { projectName, softwareSignoffDate } = productData || {}
+  const {features} = useTickets()
+
+  const featuresFilteredByIID = features.filter(feature => feature.product === productData?.iid)
+
   const loadTickets = async (epicId) => {
     const data = await getTicketsFromEpic(epicId)
     if (data) {
@@ -98,7 +104,7 @@ const ProductPage = () => {
           <HardwareStatusCard />
           <SoftwareStatusCard />
         </div>
-        <FeaturesStatusCard className="w-11/12" />
+        <AllFeatures features={featuresFilteredByIID} />
       </div>
 
       <div className="mt-4 flex gap-4 flex-wrap">

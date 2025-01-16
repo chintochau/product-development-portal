@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -38,78 +38,95 @@ import { ScrollArea, ScrollBar } from '../../../components/ui/scroll-area'
 import { Badge } from '../../../components/ui/badge'
 import { cn } from '../../../lib/utils'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../../components/ui/hover-card'
+import { useTickets } from '../contexts/ticketsContext'
+import { useProducts } from '../contexts/productsContext'
 
 const DeveloperPage = () => {
   const {
-    developers,
     isSelected,
     selectDeveloper,
     selectedDevelopers,
     tickets,
     getTicketsForSelectedDevelopers,
-    loading
+    loading,
+    developers
   } = useDevelopers()
+  const { features, featuersByDevelopers } = useTickets()
   const [showStatusBar, setShowStatusBar] = React.useState(false)
-  console.log(tickets)
-
+  const { findProductsById } = useProducts()
   return (
     <div className="flex flex-col px-4 gap-4 pb-4">
-      <DropdownMenu open={showStatusBar} onOpenChange={setShowStatusBar}>
-        <DropdownMenuTrigger asChild>
-          <div className="flex flex-col">
-            <h1 className="text-2xl">Developers</h1>
-            <div className="flex items-center">
-              <div className="flex flex-col justify-start items-start">
-                <Button variant="link">
-                  select {selectedDevelopers.length ? selectedDevelopers.length : null}
-                </Button>
-                <Badge className="bg-blue-500 text-white w-fit ml-4 mr-2">Workflow::Doing</Badge>
-              </div>
-              {selectedDevelopers.length !== 0 && (
-                <ScrollArea className="w-fit max-w-96 whitespace-nowrap rounded-md border">
-                  <div className="flex w-max space-x-2 py-1 px-2">
-                    {selectedDevelopers.length !== 0 &&
-                      selectedDevelopers.map((dev) => (
-                        <Avatar key={dev.id}>
-                          <AvatarImage src={dev.avatar_url} />
-                          <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>
-                        </Avatar>
-                      ))}
-                  </div>
-                  <ScrollBar orientation="horizontal" />
-                </ScrollArea>
-              )}
+      <h1 className="text-2xl">Developers</h1>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-96">Developer</TableHead>
+            <TableHead>Counts</TableHead>
+            <TableHead>Feature</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {featuersByDevelopers?.map((developer) => (
+            <TableRow key={developer.developer?.id}>
+              <TableCell className="font-medium align-top flex items-center gap-2">
+                <img src={developer.developer?.avatar_url} className="w-8 h-8 rounded-full" />
+                {developer.developer?.name}
+              </TableCell>
+              <TableCell className="font-medium w-[100px] align-top">
+                {developer.features?.length}
+              </TableCell>
+              <TableCell className="font-medium align-top">
+                {developer.features?.length > 0 && (
+                  <>
+                    {developer.features?.map((feature) => (
+                      <div className="flex gap-2">
+                        <p>{findProductsById(feature.product)}</p>
+                        <p> {feature.title}</p>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <DeveloperDropdown
+        showStatusBar={showStatusBar}
+        setShowStatusBar={setShowStatusBar}
+        selectedDevelopers={selectedDevelopers}
+        selectDeveloper={selectDeveloper}
+        isSelected={isSelected}
+        onClick={getTicketsForSelectedDevelopers}
+        loading={loading}
+      >
+        <div className="flex flex-col">
+          <h1 className="text-2xl">Gitlab Tickets</h1>
+          <div className="flex items-center">
+            <div className="flex flex-col justify-start items-start">
+              <Button variant="link">
+                select {selectedDevelopers.length ? selectedDevelopers.length : null}
+              </Button>
+              <Badge className="bg-blue-500 text-white w-fit ml-4 mr-2">Workflow::Doing</Badge>
             </div>
+            {selectedDevelopers.length !== 0 && (
+              <ScrollArea className="w-fit max-w-96 whitespace-nowrap rounded-md border">
+                <div className="flex w-max space-x-2 py-1 px-2">
+                  {selectedDevelopers.length !== 0 &&
+                    selectedDevelopers.map((dev) => (
+                      <Avatar key={dev.id}>
+                        <AvatarImage src={dev.avatar_url} />
+                        <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>
+                      </Avatar>
+                    ))}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+            )}
           </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
-          <Command>
-            <CommandInput placeholder="Type a name or search..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup heading="Developers">
-                {developers?.map((developer) => (
-                  <CommandItem
-                    key={developer.id}
-                    onSelect={() => {
-                      selectDeveloper(developer.id)
-                    }}
-                  >
-                    <Checkbox
-                      checked={isSelected(developer.id)}
-                      onCheckedChange={() => selectDeveloper(developer.id)}
-                    />
-                    {developer.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-          <Button onClick={() => getTicketsForSelectedDevelopers()} disabled={loading}>
-            Submit {loading && <Loader2 className="animate-spin" />}
-          </Button>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </div>
+      </DeveloperDropdown>
 
       <Table>
         <TableHeader>
@@ -162,4 +179,49 @@ const DeveloperPage = () => {
   )
 }
 
+function DeveloperDropdown({
+  showStatusBar,
+  setShowStatusBar,
+  selectDeveloper,
+  isSelected,
+  onClick,
+  loading,
+  children
+}) {
+  const { developers } = useDevelopers()
+  return (
+    <DropdownMenu open={showStatusBar} onOpenChange={setShowStatusBar}>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        <Command>
+          <CommandInput placeholder="Type a name or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Developers">
+              {developers?.map((developer) => (
+                <CommandItem
+                  key={developer.id}
+                  onSelect={() => {
+                    selectDeveloper(developer.id)
+                  }}
+                >
+                  <Checkbox
+                    checked={isSelected(developer.id)}
+                    onCheckedChange={() => selectDeveloper(developer.id)}
+                  />
+                  {developer.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+        <Button onClick={onClick} disabled={loading}>
+          Submit {loading && <Loader2 className="animate-spin" />}
+        </Button>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 export default DeveloperPage
+export { DeveloperDropdown }

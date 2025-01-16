@@ -91,6 +91,17 @@ export const ProductsProvider = ({ children }) => {
     deleteTicket(iid)
   }
 
+  const findProductsById = (id) => {
+    if (!id) {
+      return null
+    }
+    const product = products.find((product) => product.iid === id)
+    if (product) {
+      return product.projectName
+    }
+    return null
+  }
+
   const value = {
     loading,
     setLoading,
@@ -99,7 +110,8 @@ export const ProductsProvider = ({ children }) => {
     deleteProductLog,
     shouldRefreshProducts,
     setShouldRefreshProducts,
-    readDataUsingLookupId
+    readDataUsingLookupId,
+    findProductsById
   }
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>

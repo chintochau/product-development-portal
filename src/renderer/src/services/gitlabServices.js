@@ -103,29 +103,34 @@ export const getTicketsFromEpic = async (epicId) => {
     return data
 }
 
-export const postNotesToTicket = async (iid, data, message) => {
+export const postNotesToTicket = async (iid, data, message, project = PRODUCT_PROJECTID) => {
     const {
         type, // type of comment,
         author, // author of comment
     } = data || {}
     const noteData = jsonToMarkdown(data, message)
-    const response = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/issues/${iid}/notes`, "POST", { body: noteData });
+    const response = await window.api.gitlab(`projects/${project}/issues/${iid}/notes`, "POST", { body: noteData });
     return response
 }
 
-export const updateNotesToTicket = async (iid, noteId, data, message) => {
+export const updateNotesToTicket = async (iid, noteId, data, message, project = PRODUCT_PROJECTID) => {
     const {
         type, // type of comment,
         author, // author of comment
     } = data || {}
     const noteData = jsonToMarkdown(data, message)
-    const response = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/issues/${iid}/notes/${noteId}`, "PUT", { body: noteData });
+    const response = await window.api.gitlab(`projects/${project}/issues/${iid}/notes/${noteId}`, "PUT", { body: noteData });
     return response
 }
 
-export const getNotesFromTicket = async (iid) => {
-    const data = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/issues/${iid}/notes?page=1&per_page=100`, "GET");
+export const getNotesFromTicket = async (iid, project = PRODUCT_PROJECTID, page=1) => {
+    const data = await window.api.gitlab(`projects/${project}/issues/${iid}/notes?page=${page}&per_page=100`, "GET");
     return data
+}
+
+export const deleteNoteFromTicket = async (iid,noteId, project = PRODUCT_PROJECTID) => {
+    const response = await window.api.gitlab(`projects/${project}/issues/${iid}/notes/${noteId}`, "DELETE");
+    return response
 }
 
 export const uploadPIFFile = async (iid, file) => {
@@ -167,17 +172,24 @@ export const getMilestones = async () => {
     return data
 }
 
-export const getFeaturesRequestsIssues = async (currentPage=0, per_page=20, projectId) => {
-    const data = await window.api.gitlabWithHeaders(`projects/${FIRMWARE_PROJECTID}/issues?state=opened&labels=type::feature&page=${currentPage}&per_page=${per_page}`, "GET");
-    return data
+export const getFeaturesRequestsIssues = async (page=1) => {
+    const data = await getNotesFromTicket(1, FEATURES_PROJECTID, page)
+// return ohnly itesm in the array with system=false
+    const filteredData = data.filter(item => !item.system)
+    return filteredData
 }
 
 export const createFeatureRequestIssue = async (data) => {
-    const response = await createGitlabIssue(data, FEATURES_PROJECTID)
+    const response = await postNotesToTicket(1, data, null, FEATURES_PROJECTID)
     return response
 }
 
-export const updateFeatureRequestIssue = async (iid, data) => {
-    const response = await saveGitlabIssue(iid, data, FEATURES_PROJECTID)
+export const updateFeatureRequestIssue = async (noteId, data) => {
+    const response = await updateNotesToTicket(1, noteId, data, null, FEATURES_PROJECTID)
+    return response
+}
+
+export const deleteFeatureRequestIssue = async (noteId) => {
+    const response = await deleteNoteFromTicket(1, noteId, FEATURES_PROJECTID)
     return response
 }

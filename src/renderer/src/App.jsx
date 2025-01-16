@@ -25,20 +25,20 @@ function App() {
       <Router>
         <ThemeProvider>
           <UserProvider>
+                      <DeveloperProvider>
             <TicketsProvider>
               <ProductsProvider>
                 <SingleProductProvider>
                   <BrowsingProvider>
                     <SidebarProvider>
-                      <DeveloperProvider>
                         <AppSidebar />
                         <Layout />
-                      </DeveloperProvider>
                     </SidebarProvider>
                   </BrowsingProvider>
                 </SingleProductProvider>
               </ProductsProvider>
             </TicketsProvider>
+                      </DeveloperProvider>
           </UserProvider>
         </ThemeProvider>
       </Router>

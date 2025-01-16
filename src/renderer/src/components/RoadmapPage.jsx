@@ -16,6 +16,7 @@ import { localPoint } from '@visx/event'
 import { Label } from '../../../components/ui/label'
 
 import { defaultBrands, getBrandName } from '../constant'
+import { useTickets } from '../contexts/ticketsContext'
 
 const height = 800
 const heightFactor = 65
@@ -36,6 +37,7 @@ const margin = { top: 20, right: 200, bottom: 40, left: 150 }
 const RoadmapPage = ({ scrollTop }) => {
   const [chartData, setChartData] = useState([])
   const { products } = useProducts()
+  const { featuersByDevelopers, features } = useTickets()
   const { epics, milestones, getFeatureEpics } = useSingleProduct()
   const [showMilestones, setShowMilestones] = useState(false)
   const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
@@ -107,7 +109,6 @@ const RoadmapPage = ({ scrollTop }) => {
         // pifDateAccepted: dayjs(pifDateAccepted).format('YYYY-MM-DD'),
         // greenlightDate: dayjs(greenlightDate).format('YYYY-MM-DD'),
         // greenlightTargetMP: dayjs(greenlightTargetMPDate).format('YYYY-MM-DD'),
-        console.log(product)
 
         const {
           launch,
@@ -163,8 +164,36 @@ const RoadmapPage = ({ scrollTop }) => {
           launch: launch
         }
       })
-      setChartData(
-        newChartData
+
+      console.log(featuersByDevelopers);
+      
+
+      const developersData = featuersByDevelopers.map((item) => {
+        const minDate = Math.min(...item.features.map((feature) => new Date(feature.startDate)))
+        let startDate = minDate ? new Date(minDate) : new Date()
+        let longestEstimate = Math.max(...item.features.map((feature) => feature.estimate))
+
+        return {
+          name: item.developer?.name,
+          start: startDate,
+          end: dayjs(startDate).add(longestEstimate, 'day').toDate(), // Date()
+          fill: '#713000', // dark yellow color
+          subTasks: item.features.map((feature) => {
+            return {
+              id: feature.id,
+              name: feature.title,
+              start: new Date(feature.startDate),
+              end: dayjs(feature.startDate)
+                .add(feature.estimate ? feature.estimate : 1, 'day')
+                .toDate(),
+              fill: ['#FFA500', '#FF4500', '#32CD32', '#00CED1', '#FFD700'][Math.floor(Math.random() * 5)]
+            }
+          })
+        }
+      })
+
+      setChartData([
+        ...newChartData
           .filter((item) => selectedBrands.includes(item.brand) && item.bluos)
           .sort((a, b) => new Date(a.mp1) - new Date(b.mp1))
           .map((task) => {
@@ -182,16 +211,16 @@ const RoadmapPage = ({ scrollTop }) => {
                 }
               ]
             }
-          })
-
-      )
+          }),
+        ...developersData
+      ])
       const minDate = new Date(Math.min(...newChartData.map((t) => t.start.getTime())))
       const maxDate = new Date(Math.max(...newChartData.map((t) => t.end.getTime())))
       setRange([Math.max(minDate, dayjs().subtract(1, 'month').valueOf()), maxDate])
       setShouldLoadWrike(true)
       setShouldloadFeatures(true)
     }
-  }, [products, epics, selectedBrands])
+  }, [products, epics, selectedBrands, featuersByDevelopers])
 
   const fetchDataFromWrike = async (taskData, taskIndex) => {
     try {
@@ -688,8 +717,10 @@ const RoadmapPage = ({ scrollTop }) => {
               <Label className="text-sm text-primary/80">
                 {getBrandName(tooltipData.task.brand)}
               </Label>
-              <p className='text-xs text-muted-foreground max-w-80'>{tooltipData.task.description}</p>
-              <div className='border-t border-primary/50 my-2' />
+              <p className="text-xs text-muted-foreground max-w-80">
+                {tooltipData.task.description}
+              </p>
+              <div className="border-t border-primary/50 my-2" />
               <Label className="text-xs">
                 Start: {dayjs(tooltipData.task.start).format('MMM D, YYYY')}
               </Label>
