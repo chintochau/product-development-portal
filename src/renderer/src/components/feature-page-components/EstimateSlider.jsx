@@ -28,6 +28,8 @@ const EstimateSlider = ({ days = 1, setDays, startDate, setStartDate }) => {
 
 
   const handleSliderChange = (value) => {
+    console.log(value);
+    
     const estimateText = getEstimateFromSlider(value[0])
     setEstimate(estimateText)
     setEstimateDays(value[0])
@@ -44,7 +46,7 @@ const EstimateSlider = ({ days = 1, setDays, startDate, setStartDate }) => {
         <Slider
           defaultValue={[days]}
           max={100} // 0–100% for slider
-          min={7}
+          min={1}
           step={1}
           onValueChange={handleSliderChange}
           onValueCommit={handleSliderCommit}

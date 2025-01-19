@@ -39,10 +39,13 @@ const chartConfig = {
 }
 import AllFeatures from './feature-page-components/AllFeatures'
 import NewFeatureRequest from './feature-page-components/NewFeatureRequest'
+import BarChartComponent from './BarChartComponent'
+import { useRoadmap } from '../contexts/roadmapConetxt'
  
 const FeaturesPage = () => {
   const {  features } = useTickets()
   const { getFeatureEpics } = useSingleProduct()
+  const {featureChartData} = useRoadmap()
 
   const chartData = getFeatureEpics()
     .filter((item) => dayjs(item.due_date).isAfter(dayjs()))
@@ -99,6 +102,7 @@ const FeaturesPage = () => {
       </Table>
       {renderChart(chartData)}
       <NewFeatureRequest/>
+      <BarChartComponent chartData={featureChartData}/>
       <AllFeatures features={features}/>
     </div>
   )

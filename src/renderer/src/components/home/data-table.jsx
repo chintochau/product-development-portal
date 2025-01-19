@@ -15,6 +15,7 @@ import {
 import { useProducts } from "../../contexts/productsContext"
 import { useSingleProduct } from "../../contexts/singleProductContext"
 import { useNavigate } from "react-router-dom"
+import { cn } from "../../../../lib/utils"
 
 export function DataTable({
     columns,
@@ -31,6 +32,7 @@ export function DataTable({
     const navigate = useNavigate()
 
     const handleProductClick = (productLog) => {
+        if (!productLog?.iid) return
         setProductLog(productLog)
         navigate(`/dashboard/${productLog.iid}#${productLog.name}`)
     }
@@ -43,7 +45,7 @@ export function DataTable({
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => {
                                 return (
-                                    <TableHead key={header.id}>
+                                    <TableHead key={header.id} style={{ width: header.column.columnDef.size }}>
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
@@ -63,7 +65,7 @@ export function DataTable({
                                 key={row.id}
                                 data-state={row.getIsSelected() && "selected"}
                                 onClick={() => handleProductClick(row.original)}
-                                className="cursor-pointer"
+                                className={cn(row.original?.iid && "cursor-pointer")}
                             >
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>

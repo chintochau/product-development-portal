@@ -17,6 +17,7 @@ import { Label } from '../../../components/ui/label'
 
 import { defaultBrands, getBrandName } from '../constant'
 import { useTickets } from '../contexts/ticketsContext'
+import { legendColorScale, useRoadmap } from '../contexts/roadmapConetxt'
 
 const height = 800
 const heightFactor = 65
@@ -26,29 +27,25 @@ const mainColor = '#0070f3'
 const epicColor = '#22c55e'
 const hardwareColor = '#f59e0b'
 const featureColor = '#ef4444' // red
-const legendColorScale = scaleOrdinal({
-  domain: ['Planned', 'Software', 'Hardware', 'Feature'],
-  range: [mainColor, epicColor, hardwareColor, featureColor]
-})
+
 
 // Margins
 const margin = { top: 20, right: 200, bottom: 40, left: 150 }
 
 const RoadmapPage = ({ scrollTop }) => {
-  const [chartData, setChartData] = useState([])
   const { products } = useProducts()
-  const { featuersByDevelopers, features } = useTickets()
   const { epics, milestones, getFeatureEpics } = useSingleProduct()
   const [showMilestones, setShowMilestones] = useState(false)
   const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
   const [shouldloadFeatures, setShouldloadFeatures] = useState(false)
-  const [selectedBrands, setSelectedBrands] = useState(defaultBrands.map((item) => item.value))
   const { tooltipOpen, tooltipData, tooltipLeft, tooltipTop, showTooltip, hideTooltip } =
     useTooltip()
   const [pointerX, setPointerX] = useState(null)
 
   const [scrollOffset, setScrollOffset] = useState(0)
   const [hoverBar, setHoverBar] = useState(null)
+  
+  const {featuersByDevelopers,range,setRange, chartData,selectedBrands, setSelectedBrands,setChartData} = useRoadmap()
 
   // select a brand and add to the display array
   const handleBrandSelect = (brand) => {
@@ -99,128 +96,6 @@ const RoadmapPage = ({ scrollTop }) => {
     }))
   }
 
-  useEffect(() => {
-    if (products) {
-      const newChartData = products.map((product, index) => {
-        // launch: dayjs(Launch).format('YYYY-MM-DD'),
-        // mp1Date: dayjs(MP1).format('YYYY-MM-DD'),
-        // mp1DateActual: dayjs(mp1DateActual).format('YYYY-MM-DD'),
-        // pifDate: dayjs(pifDate).format('YYYY-MM-DD'),
-        // pifDateAccepted: dayjs(pifDateAccepted).format('YYYY-MM-DD'),
-        // greenlightDate: dayjs(greenlightDate).format('YYYY-MM-DD'),
-        // greenlightTargetMP: dayjs(greenlightTargetMPDate).format('YYYY-MM-DD'),
-
-        const {
-          launch,
-          mp1Date,
-          mp1DateActual,
-          pifDate,
-          pifDateAccepted,
-          greenlightDate,
-          greenlightTargetMP,
-          bluos
-        } = product || {}
-
-        const milestoneDates = {
-          launch,
-          mp1Date,
-          mp1DateActual,
-          pifDate,
-          pifDateAccepted,
-          greenlightDate,
-          greenlightTargetMP
-        }
-
-        // turn object into array
-        const dates = Object.values(milestoneDates)
-        const keys = Object.keys(milestoneDates)
-
-        const earliestDate = dates
-          .filter((date) => date)
-          .sort((a, b) => new Date(a) - new Date(b))[0]
-
-        const singleDates = keys
-          .map((key, index) => {
-            return {
-              name: key,
-              date: milestoneDates[key] && new Date(milestoneDates[key])
-            }
-          })
-          .filter((date) => date.date)
-        return {
-          name: product.projectName,
-          brand: product.brand,
-          description: product.description,
-          bluos: bluos,
-          start: new Date(earliestDate),
-          end: product.launch ? new Date(product.launch) : new Date(),
-          fill: mainColor, // blue,
-          epicId: product.epicId,
-          wrikeId: product.wrikeId,
-          type: 'product',
-          opacity: 0.3,
-          singleDates: singleDates,
-          mp1: mp1Date,
-          launch: launch
-        }
-      })
-
-      console.log(featuersByDevelopers);
-      
-
-      const developersData = featuersByDevelopers.map((item) => {
-        const minDate = Math.min(...item.features.map((feature) => new Date(feature.startDate)))
-        let startDate = minDate ? new Date(minDate) : new Date()
-        let longestEstimate = Math.max(...item.features.map((feature) => feature.estimate))
-
-        return {
-          name: item.developer?.name,
-          start: startDate,
-          end: dayjs(startDate).add(longestEstimate, 'day').toDate(), // Date()
-          fill: '#713000', // dark yellow color
-          subTasks: item.features.map((feature) => {
-            return {
-              id: feature.id,
-              name: feature.title,
-              start: new Date(feature.startDate),
-              end: dayjs(feature.startDate)
-                .add(feature.estimate ? feature.estimate : 1, 'day')
-                .toDate(),
-              fill: ['#FFA500', '#FF4500', '#32CD32', '#00CED1', '#FFD700'][Math.floor(Math.random() * 5)]
-            }
-          })
-        }
-      })
-
-      setChartData([
-        ...newChartData
-          .filter((item) => selectedBrands.includes(item.brand) && item.bluos)
-          .sort((a, b) => new Date(a.mp1) - new Date(b.mp1))
-          .map((task) => {
-            const epic = epics.find((e) => e.iid === task.epicId)
-            return {
-              ...task,
-              subTasks: [
-                {
-                  id: task.id,
-                  name: epic?.title,
-                  start: new Date(epic?.start_date),
-                  end: new Date(epic?.due_date),
-                  fill: epicColor, // green
-                  epicId: task.epicId
-                }
-              ]
-            }
-          }),
-        ...developersData
-      ])
-      const minDate = new Date(Math.min(...newChartData.map((t) => t.start.getTime())))
-      const maxDate = new Date(Math.max(...newChartData.map((t) => t.end.getTime())))
-      setRange([Math.max(minDate, dayjs().subtract(1, 'month').valueOf()), maxDate])
-      setShouldLoadWrike(true)
-      setShouldloadFeatures(true)
-    }
-  }, [products, epics, selectedBrands, featuersByDevelopers])
 
   const fetchDataFromWrike = async (taskData, taskIndex) => {
     try {
@@ -309,7 +184,7 @@ const RoadmapPage = ({ scrollTop }) => {
   // Initial Date Range
   const minDate = new Date(Math.min(...chartData.map((t) => t.start.getTime())))
   const maxDate = new Date(Math.max(...chartData.map((t) => t.end.getTime())))
-  const [range, setRange] = useState([])
+
 
   // Filter tasks within the range
   const filteredTasks = chartData.filter((task) => task.end >= range[0] && task.start <= range[1])
@@ -697,7 +572,8 @@ const RoadmapPage = ({ scrollTop }) => {
                         </tspan>
                       </text>
                     </Fragment>
-                  ))}
+                  ))
+                  }
             </Group>
           </svg>
           {tooltipOpen && (

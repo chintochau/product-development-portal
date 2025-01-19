@@ -18,6 +18,7 @@ import { UserProvider } from './contexts/userContext'
 import { BrowsingProvider } from './contexts/browsingContext'
 import { ThemeProvider } from '../../components/theme-provider'
 import { DeveloperProvider } from './contexts/developerContext'
+import { RoadmapProvider } from './contexts/roadmapConetxt'
 
 function App() {
   return (
@@ -25,20 +26,22 @@ function App() {
       <Router>
         <ThemeProvider>
           <UserProvider>
-                      <DeveloperProvider>
-            <TicketsProvider>
-              <ProductsProvider>
-                <SingleProductProvider>
-                  <BrowsingProvider>
-                    <SidebarProvider>
-                        <AppSidebar />
-                        <Layout />
-                    </SidebarProvider>
-                  </BrowsingProvider>
-                </SingleProductProvider>
-              </ProductsProvider>
-            </TicketsProvider>
-                      </DeveloperProvider>
+            <DeveloperProvider>
+              <TicketsProvider>
+                <ProductsProvider>
+                  <SingleProductProvider>
+                    <BrowsingProvider>
+                      <SidebarProvider>
+                       <RoadmapProvider>
+                          <AppSidebar />
+                          <Layout />
+                       </RoadmapProvider>
+                      </SidebarProvider>
+                    </BrowsingProvider>
+                  </SingleProductProvider>
+                </ProductsProvider>
+              </TicketsProvider>
+            </DeveloperProvider>
           </UserProvider>
         </ThemeProvider>
       </Router>

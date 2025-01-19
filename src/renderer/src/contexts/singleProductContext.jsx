@@ -220,6 +220,7 @@ export const SingleProductProvider = ({ children }) => {
     saveData,
     milestones,
     getFeatureEpics,
+    featureEpics: getFeatureEpics(),
     features,
     featuresId,
     setFeatures,

@@ -40,6 +40,7 @@ import { cn } from '../../../lib/utils'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../../components/ui/hover-card'
 import { useTickets } from '../contexts/ticketsContext'
 import { useProducts } from '../contexts/productsContext'
+import BarChartComponent from './BarChartComponent'
 
 const DeveloperPage = () => {
   const {
@@ -51,12 +52,13 @@ const DeveloperPage = () => {
     loading,
     developers
   } = useDevelopers()
-  const { features, featuersByDevelopers } = useTickets()
+  const { featuersByDevelopers } = useTickets()
   const [showStatusBar, setShowStatusBar] = React.useState(false)
   const { findProductsById } = useProducts()
   return (
     <div className="flex flex-col px-4 gap-4 pb-4">
       <h1 className="text-2xl">Developers</h1>
+      <BarChartComponent chartData={featuersByDevelopers} />
       <Table>
         <TableHeader>
           <TableRow>

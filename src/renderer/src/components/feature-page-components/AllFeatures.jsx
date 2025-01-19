@@ -49,6 +49,8 @@ import { DeveloperDropdown } from '../DeveloperPage'
 import { deleteFeatureRequestIssue, updateFeatureRequestIssue } from '../../services/gitlabServices'
 import ProductDropdown from './ProductDropdown'
 import EstimateSlider from './EstimateSlider'
+import { DataTable } from '../home/data-table'
+import { featureColumns } from './feature-columns'
 
 const AllFeatures = ({ features }) => {
   const navigate = useNavigate()
@@ -64,6 +66,7 @@ const AllFeatures = ({ features }) => {
         <CardTitle>Feature Requests</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* <DataTable columns={featureColumns} data={features} /> */}
         <Table>
           <TableHeader>
             <TableRow>
@@ -190,7 +193,6 @@ function FeatureRow({ feature }) {
     return selectedDevelopers.findIndex((dev) => dev.id === id) !== -1
   }
 
-  console.log(feature);
   
   const updateAssignees = async () => {
     const response = await updateFeatureRequestIssue(id, {
