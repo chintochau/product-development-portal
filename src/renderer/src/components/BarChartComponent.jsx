@@ -12,17 +12,13 @@ import { BarChart, Bar, XAxis, YAxis, ReferenceLine } from 'recharts'
 import dayjs from 'dayjs'
 
 const chartConfig = {
-  mp1Date: {
-    label: 'mp1Date',
+  developer: {
+    label: 'developer',
     color: 'hsl(var(--chart-1))'
   },
-  launchDate: {
-    label: 'launchDate',
+  feature: {
+    label: 'feature',
     color: 'hsl(var(--chart-2))'
-  },
-  createdAt: {
-    label: 'today',
-    color: 'hsl(var(--background))'
   }
 }
 
@@ -38,10 +34,10 @@ const ToolTipConpoment = ({ active, payload, label }) => {
   return null
 }
 
-const BarChartComponent = ({ chartData }) => {
+const BarChartComponent = ({ chartData, developerChart }) => {
   console.log('chartData', chartData)
 
-  const data = chartData
+  let data = chartData
     .sort((a, b) => a.start - b.start)
     .map((item) => {
       return {
@@ -54,6 +50,106 @@ const BarChartComponent = ({ chartData }) => {
       ? dayjs(data[0].period1[0]).subtract(14, 'day').valueOf()
       : dayjs().subtract(14, 'day').valueOf()
   const maxDate = dayjs().add(120, 'day').valueOf()
+
+  if (developerChart) {
+    data = chartData.flatMap((item) => {
+      // Find the minimum start date across all features
+      const developerStart = item.features.reduce((acc, feature) => {
+        return Math.min(acc, feature.startDate ? feature.startDate : Infinity)
+      }, Infinity)
+
+      //Fine the max end date across all features
+      const developerEnd = item.features.reduce((acc, feature) => {
+        if (feature.startDate && feature.estimate) {
+          return Math.max(acc, dayjs(feature.startDate).add(feature.estimate, 'day').valueOf())
+        }
+        return acc
+      }, 0)
+      const features = item.features
+        .filter((feature) => feature.startDate && feature.estimate)
+        .map((item) => {
+          const endDate = item.startDate
+            ? dayjs(item.startDate).add(item.estimate, 'day').valueOf()
+            : null
+          return {
+            name: item.title,
+            period1: [item.startDate, endDate],
+            type: 'feature'
+          }
+        })
+      console.log(features)
+
+      return [
+        {
+          name: item.developer?.name,
+          period1: [developerStart, developerEnd],
+          type: 'developer'
+        },
+        ...features
+      ]
+    })
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Bar Chart</CardTitle>
+          <CardDescription>Features Planned</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer
+            config={chartConfig}
+            style={{ height: chartData.length * 120, width: '100%' }}
+          >
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 20, bottom: 20, left: 0 }}
+              layout="vertical"
+            >
+              <YAxis dataKey="name" type="category" interval={0} width={250}
+
+              />
+              <XAxis
+                type="number"
+                domain={[minDate, maxDate]}
+                tickFormatter={(day) => dayjs(day).format('MM-YYYY')}
+              />
+
+              <ChartTooltip
+                content={<ToolTipConpoment />}
+                formatter={(_, __, item) =>
+                  `${dayjs(item.value[1]).format('MM-YYYY')} to ${dayjs(item.value[0]).format('MM-YYYY')}`
+                }
+              />
+              <Bar dataKey="period1" layout="vertical" radius={5} shape={
+                (props) => {
+                  const { x, y, width, height, type,name } = props;
+                  console.log('props', props);
+                  
+                  return type === 'developer' ? (
+                    <text x={x} y={y} width={width} height={height} dy={25} fill="hsl(var(--chart-1))" fontWeight={'bold'} fontSize={19}>{name}</text>
+                  ) : (
+                    <rect x={x} y={y} width={width} height={height} rx={20} fill="hsl(var(--chart-2))" />
+                  )
+                }
+              } />
+              <ReferenceLine
+                x={dayjs().valueOf()} // Today's timestamp
+                stroke="hsl(var(--primary))" // Line color
+                strokeDasharray="3 3" // Optional: dashed line style
+                label={{
+                  value: `Today: ${dayjs().format('D-MM-YYYY')}`,
+                  position: 'top',
+                  fill: 'hsl(var(--primary))',
+                  fontSize: 12
+                }}
+              />
+            </BarChart>
+          </ChartContainer>
+        </CardContent>
+        <CardFooter className="flex-col items-start gap-2 text-sm"></CardFooter>
+      </Card>
+    )
+  }
 
   return (
     <Card>
@@ -71,12 +167,7 @@ const BarChartComponent = ({ chartData }) => {
             margin={{ top: 20, right: 20, bottom: 20, left: 0 }}
             layout="vertical"
           >
-            <YAxis
-              dataKey="name"
-              type="category"
-              interval={0}
-              width={250}
-            />
+            <YAxis dataKey="name" type="category" interval={0} width={250} />
             <XAxis
               type="number"
               domain={[minDate, maxDate]}

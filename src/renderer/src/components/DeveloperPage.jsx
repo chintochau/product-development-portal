@@ -58,7 +58,7 @@ const DeveloperPage = () => {
   return (
     <div className="flex flex-col px-4 gap-4 pb-4">
       <h1 className="text-2xl">Developers</h1>
-      <BarChartComponent chartData={featuersByDevelopers} />
+      <BarChartComponent chartData={featuersByDevelopers} developerChart />
       <Table>
         <TableHeader>
           <TableRow>

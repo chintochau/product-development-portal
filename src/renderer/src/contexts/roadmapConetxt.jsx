@@ -14,7 +14,7 @@ export const hardwareColor = '#f59e0b'
 export const featureColor = '#ef4444' // red
 export const bluosFeatureColor = '#3b82f6' // blue
 export const legendColorScale = scaleOrdinal({
-  domain: ['Planned', 'Software', 'Hardware', 'App Features', "BluOS Features"],
+  domain: ['Planned', 'Software', 'Hardware', 'App Features', 'BluOS Features'],
   range: [mainColor, epicColor, hardwareColor, featureColor, bluosFeatureColor]
 })
 
@@ -40,8 +40,7 @@ export const RoadmapProvider = ({ children }) => {
   const [developersChartData, setDevelopersChartData] = useState([])
   const [chartData, setChartData] = useState([])
 
-    const [range, setRange] = useState([])
-  
+  const [range, setRange] = useState([])
 
   // product data
   useEffect(() => {
@@ -111,32 +110,6 @@ export const RoadmapProvider = ({ children }) => {
           }
         })
 
-        const developersData = featuersByDevelopers.map((item) => {
-          const minDate = Math.min(...item.features.map((feature) => new Date(feature.startDate)))
-          let startDate = minDate ? new Date(minDate) : new Date()
-          let longestEstimate = Math.max(...item.features.map((feature) => feature.estimate))
-
-          return {
-            name: item.developer?.name,
-            start: startDate,
-            end: dayjs(startDate).add(longestEstimate, 'day').toDate(), // Date()
-            fill: '#713000', // dark yellow color
-            subTasks: item.features.map((feature) => {
-              return {
-                id: feature.id,
-                name: feature.title,
-                start: new Date(feature.startDate),
-                end: dayjs(feature.startDate)
-                  .add(feature.estimate ? feature.estimate : 1, 'day')
-                  .toDate(),
-                fill: ['#FFA500', '#FF4500', '#32CD32', '#00CED1', '#FFD700'][
-                  Math.floor(Math.random() * 5)
-                ]
-              }
-            })
-          }
-        })
-
         setProductChartData([
           ...newChartData
             .filter((item) => selectedBrands.includes(item.brand) && item.bluos)
@@ -156,8 +129,7 @@ export const RoadmapProvider = ({ children }) => {
                   }
                 ]
               }
-            }),
-          ...developersData
+            })
         ])
         const minDate = new Date(Math.min(...newChartData.map((t) => t.start.getTime())))
         const maxDate = new Date(Math.max(...newChartData.map((t) => t.end.getTime())))
@@ -178,14 +150,26 @@ export const RoadmapProvider = ({ children }) => {
   useEffect(() => {
     if (featuersByDevelopers.length > 0) {
       const developersData = featuersByDevelopers.map((item) => {
-        const minDate = Math.min(...item.features.map((feature) => new Date(feature.startDate)))
+        const minDate = Math.min(
+          ...item.features.map((feature) =>
+            feature.startDate ? new Date(feature.startDate) : Infinity
+          )
+        )
         let startDate = minDate ? new Date(minDate) : new Date()
-        let longestEstimate = Math.max(...item.features.map((feature) => feature.estimate))
 
+        const maxDate = Math.max(
+          ...item.features.map((feature) =>
+            feature.startDate && feature.estimate
+              ? dayjs(feature.startDate).add(feature.estimate, 'day')
+              : -Infinity
+          )
+        )
+        let endDate = maxDate ? new Date(maxDate) : new Date()
         return {
+          id: item.developer?.id,
           name: item.developer?.name,
           start: startDate,
-          end: dayjs(startDate).add(longestEstimate, 'day').toDate(), // Date()
+          end: endDate, // Date()
           fill: '#713000', // dark yellow color
           subTasks: item.features.map((feature) => {
             return {
@@ -230,22 +214,24 @@ export const RoadmapProvider = ({ children }) => {
     console.log(features)
 
     setFeatureChartData(
-      features.filter((f) => f.startDate).map((f) => {
-        return {
-          id: f.id,
-          name: f.title,
-          start: new Date(f.startDate ? f.startDate : f.created_at),
-          end: new Date(
-            f.startDate && f.estimate
-              ? dayjs(f.startDate)
-                  .add(f.estimate || 30, 'day')
-                  .toDate()
-              : dayjs().add(30, 'day').toDate()
-          ),
-          fill: bluosFeatureColor,
-          url: f.web_url
-        }
-      })
+      features
+        .filter((f) => f.startDate)
+        .map((f) => {
+          return {
+            id: f.id,
+            name: f.title,
+            start: new Date(f.startDate ? f.startDate : f.created_at),
+            end: new Date(
+              f.startDate && f.estimate
+                ? dayjs(f.startDate)
+                    .add(f.estimate || 30, 'day')
+                    .toDate()
+                : dayjs().add(30, 'day').toDate()
+            ),
+            fill: bluosFeatureColor,
+            url: f.web_url
+          }
+        })
     )
   }, [features])
 
@@ -279,6 +265,71 @@ export const RoadmapProvider = ({ children }) => {
     // Transform the grouped data into the desired output format
     setFeaturesByDevelopers(groupedFeatures)
   }
+
+  const fetchDataFromWrike = async (taskData, taskIndex) => {
+    try {
+      const res = await window.api.wrike(
+        `folders/${taskData.wrikeId}/tasks?fields=[subTaskIds]&subTasks=true&title=ship`,
+        'GET'
+      )
+      const res2 = await window.api.wrike(
+        `folders/${taskData.wrikeId}/tasks?fields=[subTaskIds]&subTasks=true&title=pif`,
+        'GET'
+      )
+      const wrikeTasks = [...res?.data, ...res2?.data]
+
+      if (!wrikeTasks || !wrikeTasks.length) return
+
+      const wrikeId = wrikeTasks[0].id
+
+      const shippingDates = wrikeTasks.map((wrikeTask) => {
+        return {
+          id: wrikeTask.id,
+          title: wrikeTask.title,
+          start: new Date(wrikeTask.dates?.start),
+          end: new Date(wrikeTask.dates?.due)
+        }
+      })
+
+      setChartData((prevData) =>
+        prevData.map((task, index) => {
+          if (index === taskIndex) {
+            return {
+              ...task,
+              subTasks: [
+                ...task.subTasks.filter((subTask) => subTask.wrikeId !== wrikeId),
+                ...(shippingDates && shippingDates.length > 0
+                  ? [
+                      {
+                        id: wrikeId,
+                        fill: hardwareColor, // yellow
+                        wrikeId: wrikeId,
+                        dates: [...shippingDates]
+                      }
+                    ]
+                  : [])
+              ]
+            }
+          }
+          return task
+        })
+      )
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    if (chartData && shouldLoadWrike) {
+      setShouldLoadWrike(false)
+      chartData.forEach((task, index) => {
+        const wrikeId = task.wrikeId
+        if (wrikeId) {
+          fetchDataFromWrike(task, index)
+        }
+      })
+    }
+  }, [chartData, shouldLoadWrike])
 
   const value = {
     chartData,

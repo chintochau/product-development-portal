@@ -23,29 +23,18 @@ const height = 800
 const heightFactor = 65
 const minimumWidth = 1200
 const widthFactor = 5
-const mainColor = '#0070f3'
-const epicColor = '#22c55e'
-const hardwareColor = '#f59e0b'
-const featureColor = '#ef4444' // red
-
-
 // Margins
 const margin = { top: 20, right: 200, bottom: 40, left: 150 }
 
 const RoadmapPage = ({ scrollTop }) => {
-  const { products } = useProducts()
-  const { epics, milestones, getFeatureEpics } = useSingleProduct()
+  const {  milestones } = useSingleProduct()
   const [showMilestones, setShowMilestones] = useState(false)
-  const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
-  const [shouldloadFeatures, setShouldloadFeatures] = useState(false)
   const { tooltipOpen, tooltipData, tooltipLeft, tooltipTop, showTooltip, hideTooltip } =
     useTooltip()
   const [pointerX, setPointerX] = useState(null)
-
   const [scrollOffset, setScrollOffset] = useState(0)
   const [hoverBar, setHoverBar] = useState(null)
-  
-  const {featuersByDevelopers,range,setRange, chartData,selectedBrands, setSelectedBrands,setChartData} = useRoadmap()
+  const {range,setRange, chartData,selectedBrands, setSelectedBrands} = useRoadmap()
 
   // select a brand and add to the display array
   const handleBrandSelect = (brand) => {
@@ -97,90 +86,6 @@ const RoadmapPage = ({ scrollTop }) => {
   }
 
 
-  const fetchDataFromWrike = async (taskData, taskIndex) => {
-    try {
-      const res = await window.api.wrike(
-        `folders/${taskData.wrikeId}/tasks?fields=[subTaskIds]&subTasks=true&title=ship`,
-        'GET'
-      )
-      const res2 = await window.api.wrike(
-        `folders/${taskData.wrikeId}/tasks?fields=[subTaskIds]&subTasks=true&title=pif`,
-        'GET'
-      )
-      const wrikeTasks = [...res?.data, ...res2?.data]
-
-      if (!wrikeTasks || !wrikeTasks.length) return
-
-      const wrikeId = wrikeTasks[0].id
-
-      const shippingDates = wrikeTasks.map((wrikeTask) => {
-        return {
-          id: wrikeTask.id,
-          title: wrikeTask.title,
-          start: new Date(wrikeTask.dates?.start),
-          end: new Date(wrikeTask.dates?.due)
-        }
-      })
-
-      setChartData((prevData) =>
-        prevData.map((task, index) => {
-          if (index === taskIndex) {
-            return {
-              ...task,
-              subTasks: [
-                ...task.subTasks.filter((subTask) => subTask.wrikeId !== wrikeId),
-                ...(shippingDates && shippingDates.length > 0
-                  ? [
-                      {
-                        id: wrikeId,
-                        fill: hardwareColor, // yellow
-                        wrikeId: wrikeId,
-                        dates: [...shippingDates]
-                      }
-                    ]
-                  : [])
-              ]
-            }
-          }
-          return task
-        })
-      )
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  useEffect(() => {
-    if (shouldloadFeatures) {
-      const features = getFeatureEpics()
-        .filter((f) => f.start_date && f.due_date)
-        .map((f) => {
-          return {
-            id: f.id,
-            name: f.title,
-            start: new Date(f.start_date),
-            end: new Date(f.due_date),
-            fill: featureColor,
-            url: f.web_url
-          }
-        })
-      setChartData((prevData) => [...prevData, ...features])
-      setShouldloadFeatures(false)
-    }
-  }, [epics, shouldloadFeatures])
-
-  useEffect(() => {
-    if (chartData && shouldLoadWrike) {
-      setShouldLoadWrike(false)
-      chartData.forEach((task, index) => {
-        const wrikeId = task.wrikeId
-        if (wrikeId) {
-          fetchDataFromWrike(task, index)
-        }
-      })
-    }
-  }, [chartData, shouldLoadWrike])
-
   // Initial Date Range
   const minDate = new Date(Math.min(...chartData.map((t) => t.start.getTime())))
   const maxDate = new Date(Math.max(...chartData.map((t) => t.end.getTime())))
@@ -189,6 +94,8 @@ const RoadmapPage = ({ scrollTop }) => {
   // Filter tasks within the range
   const filteredTasks = chartData.filter((task) => task.end >= range[0] && task.start <= range[1])
 
+  console.log(filteredTasks);
+  
   // chartheight equals view height
   const chartHeight = Math.max(height, filteredTasks.length * heightFactor)
   const totalHeight = chartHeight + margin.top + margin.bottom
@@ -375,6 +282,9 @@ const RoadmapPage = ({ scrollTop }) => {
                 const barY = yScale(task.name) + padding
                 const barHeight = yScale.bandwidth() - padding * 2
                 // TODO: fix errors with NaN values
+
+
+                
                 return (
                   <g
                     key={task.id}
