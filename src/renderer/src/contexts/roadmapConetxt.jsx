@@ -54,7 +54,6 @@ export const RoadmapProvider = ({ children }) => {
           // pifDateAccepted: dayjs(pifDateAccepted).format('YYYY-MM-DD'),
           // greenlightDate: dayjs(greenlightDate).format('YYYY-MM-DD'),
           // greenlightTargetMP: dayjs(greenlightTargetMPDate).format('YYYY-MM-DD'),
-
           const {
             launch,
             mp1Date,
@@ -93,6 +92,7 @@ export const RoadmapProvider = ({ children }) => {
             })
             .filter((date) => date.date)
           return {
+            id: product.iid,
             name: product.projectName,
             brand: product.brand,
             description: product.description,
@@ -175,6 +175,7 @@ export const RoadmapProvider = ({ children }) => {
             return {
               id: feature.id,
               name: feature.title,
+              developer: feature.assignee_ids.map((id) => developers.find((d) => d.id === id)?.name),
               start: new Date(feature.startDate),
               end: dayjs(feature.startDate)
                 .add(feature.estimate ? feature.estimate : 1, 'day')
@@ -220,6 +221,7 @@ export const RoadmapProvider = ({ children }) => {
           return {
             id: f.id,
             name: f.title,
+            developer: f.assignee_ids?.map((id) => developers.find((d) => d.id === id)?.name),
             start: new Date(f.startDate ? f.startDate : f.created_at),
             end: new Date(
               f.startDate && f.estimate

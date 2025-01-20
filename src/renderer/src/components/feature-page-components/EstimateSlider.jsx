@@ -40,9 +40,9 @@ const EstimateSlider = ({ days = 1, setDays, startDate, setStartDate }) => {
   }
 
   return (
-    <div className="w-60 p-4 flex  flex-col gap-2">
-      <div className="flex flex-col py-2">
-        <p className="text-lg">Estimate: {estimate}</p>
+    <div className="flex gap-3 items-center">
+      <div className="flex flex-col w-40 gap-2">
+        <p className='text-muted-foreground'>Estimate: <span className='font-bold text-primary'>{estimate}</span></p>
         <Slider
           defaultValue={[days]}
           max={100} // 0–100% for slider
@@ -52,17 +52,11 @@ const EstimateSlider = ({ days = 1, setDays, startDate, setStartDate }) => {
           onValueCommit={handleSliderCommit}
           className="w-full"
         />
-        <div className="flex justify-between w-full mt-2 text-sm text-gray-500">
-          <span>1 day</span>
-          <span>2 weeks</span>
-          <span>3 months</span>
-          <span>1 year</span>
-        </div>
       </div>
 
       <div>
-        <div>
-          <Label>Start Date: </Label>
+        <div className='flex flex-col'>
+          <Label className="text-muted-foreground/70">Start Date: </Label>
           <DatePicker
             className="bg-background hover:underline hover:cursor-pointer"
             selected={startDate}
@@ -71,8 +65,8 @@ const EstimateSlider = ({ days = 1, setDays, startDate, setStartDate }) => {
             placeholderText="Select a date"
           />
         </div>
-        <div>
-          <Label>Estimated End Date:</Label>
+        <div className='flex flex-col'>
+          <Label className="text-muted-foreground/70">Estimated End Date:</Label>
           <p className=" cursor-not-allowed text-muted-foreground">
             {startDate && dayjs(startDate).add(calculateDaysFromPercentage(estimateDays), 'day').format('YYYY-MM-DD')}
           </p>

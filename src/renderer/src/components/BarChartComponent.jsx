@@ -95,7 +95,7 @@ const BarChartComponent = ({ chartData, developerChart }) => {
           <CardTitle>Bar Chart</CardTitle>
           <CardDescription>Features Planned</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent >
           <ChartContainer
             config={chartConfig}
             style={{ height: chartData.length * 120, width: '100%' }}
@@ -146,7 +146,6 @@ const BarChartComponent = ({ chartData, developerChart }) => {
             </BarChart>
           </ChartContainer>
         </CardContent>
-        <CardFooter className="flex-col items-start gap-2 text-sm"></CardFooter>
       </Card>
     )
   }
@@ -196,7 +195,6 @@ const BarChartComponent = ({ chartData, developerChart }) => {
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm"></CardFooter>
     </Card>
   )
 }

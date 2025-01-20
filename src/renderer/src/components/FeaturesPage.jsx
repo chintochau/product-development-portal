@@ -41,11 +41,12 @@ import AllFeatures from './feature-page-components/AllFeatures'
 import NewFeatureRequest from './feature-page-components/NewFeatureRequest'
 import BarChartComponent from './BarChartComponent'
 import { useRoadmap } from '../contexts/roadmapConetxt'
- 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
 const FeaturesPage = () => {
-  const {  features } = useTickets()
+  const { features } = useTickets()
   const { getFeatureEpics } = useSingleProduct()
-  const {featureChartData} = useRoadmap()
+  const { featureChartData, featuersByDevelopers  } = useRoadmap()
 
   const chartData = getFeatureEpics()
     .filter((item) => dayjs(item.due_date).isAfter(dayjs()))
@@ -101,9 +102,20 @@ const FeaturesPage = () => {
         </TableBody>
       </Table>
       {renderChart(chartData)}
-      <NewFeatureRequest/>
-      <BarChartComponent chartData={featureChartData}/>
-      <AllFeatures features={features}/>
+      <NewFeatureRequest />
+      <div className='sticky top-5  z-50'>
+        <Tabs defaultValue="features" >
+          <TabsList>
+            <TabsTrigger value="features">Features</TabsTrigger>
+            <TabsTrigger value="developers">Developers</TabsTrigger>
+          </TabsList>
+          <TabsContent value="developers"><BarChartComponent chartData={featuersByDevelopers} developerChart/></TabsContent>
+          <TabsContent value="features"><BarChartComponent chartData={featureChartData} /></TabsContent>
+        </Tabs>
+      </div>
+
+      
+      <AllFeatures features={features} />
     </div>
   )
 }
@@ -122,13 +134,11 @@ const ToolTipConpoment = ({ active, payload, label }) => {
 
 export default FeaturesPage
 
-
-
 function renderChart(chartData) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart</CardTitle>
+        <CardTitle>App Planning</CardTitle>
         <CardDescription>Features Planned</CardDescription>
       </CardHeader>
       <CardContent>

@@ -42,7 +42,7 @@ import {
   PaginationPrevious
 } from '@/components/ui/pagination'
 
-import { Loader2, ThumbsUp, Trash2 } from 'lucide-react'
+import { Check, Cross, Edit, Loader2, ThumbsUp, Trash2, X } from 'lucide-react'
 import { useDevelopers } from '../../contexts/developerContext'
 import { useTickets } from '../../contexts/ticketsContext'
 import { DeveloperDropdown } from '../DeveloperPage'
@@ -51,6 +51,8 @@ import ProductDropdown from './ProductDropdown'
 import EstimateSlider from './EstimateSlider'
 import { DataTable } from '../home/data-table'
 import { featureColumns } from './feature-columns'
+import { Input } from '../../../../components/ui/input'
+import { Textarea } from '../../../../components/ui/textarea'
 
 const AllFeatures = ({ features }) => {
   const navigate = useNavigate()
@@ -189,11 +191,12 @@ function FeatureRow({ feature }) {
   const [showStatusBar, setShowStatusBar] = useState(false)
   const [selectedDevelopers, setSelectedDevelopers] = useState([])
 
+  const [isEditing, setIsEditing] = useState(false)
+
   const isSelected = (id) => {
     return selectedDevelopers.findIndex((dev) => dev.id === id) !== -1
   }
 
-  
   const updateAssignees = async () => {
     const response = await updateFeatureRequestIssue(id, {
       ...feature,
@@ -202,7 +205,10 @@ function FeatureRow({ feature }) {
     setShouldRefresh(true)
   }
 
-  const { assignee_ids, title, description, id } = feature || {}
+  const { assignee_ids, id } = feature || {}
+
+  const [title, setTitle] = useState(feature?.title)
+  const [description, setDescription] = useState(feature?.description)
 
   const [product, setProduct] = useState(feature?.product)
 
@@ -234,14 +240,83 @@ function FeatureRow({ feature }) {
     setShouldRefresh(true)
   }
 
+  const saveEditing = async () => {
+    setIsEditing(!isEditing)
+    setLoading(true)
+    const response = await updateFeatureRequestIssue(id, {
+      ...feature,
+      title,
+      description
+    })
+    setLoading(false)
+  }
+
+  const cancelEditing = () => {
+    setIsEditing(!isEditing)
+    setTitle(feature?.title)
+    setDescription(feature?.description)
+  }
+
   return (
     <TableRow
       onClick={async (e) => {
         e.stopPropagation()
       }}
     >
-      <TableHead className="font-medium">{title}</TableHead>
-      <TableCell className="font-medium">{description}</TableCell>
+      <TableHead className="font-medium">
+        <div className="flex items-center justify-between">
+          {isEditing ? (
+            <Textarea
+              defaultValue={title}
+              className="min-h-40"
+              onChange={(e) => {
+                e.target.style.height = '1em'
+                e.target.style.height = e.target.scrollHeight + 'px'
+                setTitle(e.target.value)
+              }}
+            />
+          ) : (
+            <p>{title}</p>
+          )}
+          <>
+            {isEditing ? (
+              <div className="flex gap-2 px-2">
+                <div className="">
+                  <Check
+                    className="size-8 cursor-pointer hover:text-green-500 duration-300 transition-all"
+                    onClick={saveEditing}
+                  />
+                </div>
+                <div className="">
+                  <X
+                    className="size-8 cursor-pointer hover:text-red-500 duration-300 transition-all"
+                    onClick={() => cancelEditing()}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="size-5">
+                <Edit className="cursor-pointer" onClick={() => setIsEditing(!isEditing)} />
+              </div>
+            )}
+          </>
+        </div>
+      </TableHead>
+      <TableCell className="font-medium">
+        {isEditing ? (
+          <Textarea
+            className="min-h-40"
+            defaultValue={description}
+            onChange={(e) => {
+              e.target.style.height = '1em'
+              e.target.style.height = e.target.scrollHeight + 'px'
+              setDescription(e.target.value)
+            }}
+          />
+        ) : (
+          description
+        )}
+      </TableCell>
       <TableCell className="font-medium">
         <ProductDropdown product={product} setProduct={setProduct} />
       </TableCell>
@@ -270,9 +345,7 @@ function FeatureRow({ feature }) {
         >
           <div className="cursor-pointer hover:underline flex-col flex">
             {assignee_ids && assignee_ids.length ? (
-              developersList.map((dev) => 
-                <p key={dev.id}>{dev.name}</p>
-            )
+              developersList.map((dev) => <p key={dev.id}>{dev.name}</p>)
             ) : (
               <p className="text-gray-500">Select</p>
             )}
@@ -280,7 +353,12 @@ function FeatureRow({ feature }) {
         </DeveloperDropdown>
       </TableCell>
       <TableCell className="font-medium">
-        <EstimateSlider days={feature?.estimate} setDays={handleEstimateChange} startDate={feature?.startDate} setStartDate={handleDateChange} />
+        <EstimateSlider
+          days={feature?.estimate}
+          setDays={handleEstimateChange}
+          startDate={feature?.startDate}
+          setStartDate={handleDateChange}
+        />
       </TableCell>
       <TableCell className="font-medium"></TableCell>
       <TableCell className="font-medium"></TableCell>

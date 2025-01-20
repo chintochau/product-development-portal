@@ -18,23 +18,26 @@ import { Label } from '../../../components/ui/label'
 import { defaultBrands, getBrandName } from '../constant'
 import { useTickets } from '../contexts/ticketsContext'
 import { legendColorScale, useRoadmap } from '../contexts/roadmapConetxt'
+import { Slider } from '../../../components/ui/slider'
 
-const height = 800
-const heightFactor = 65
+const defaultHeight = 800
+const heightFactor = 60
 const minimumWidth = 1200
 const widthFactor = 5
 // Margins
 const margin = { top: 20, right: 200, bottom: 40, left: 150 }
 
 const RoadmapPage = ({ scrollTop }) => {
-  const {  milestones } = useSingleProduct()
+  const { milestones } = useSingleProduct()
   const [showMilestones, setShowMilestones] = useState(false)
   const { tooltipOpen, tooltipData, tooltipLeft, tooltipTop, showTooltip, hideTooltip } =
     useTooltip()
   const [pointerX, setPointerX] = useState(null)
   const [scrollOffset, setScrollOffset] = useState(0)
   const [hoverBar, setHoverBar] = useState(null)
-  const {range,setRange, chartData,selectedBrands, setSelectedBrands} = useRoadmap()
+  const { range, setRange, chartData, selectedBrands, setSelectedBrands } = useRoadmap()
+
+  const [height, setHeight] = useState(defaultHeight)
 
   // select a brand and add to the display array
   const handleBrandSelect = (brand) => {
@@ -71,6 +74,8 @@ const RoadmapPage = ({ scrollTop }) => {
   }
 
   const handleMouseOver = (data) => {
+    console.log("Data", data);
+    
     showTooltip({
       tooltipData: data
     })
@@ -85,17 +90,13 @@ const RoadmapPage = ({ scrollTop }) => {
     }))
   }
 
-
   // Initial Date Range
   const minDate = new Date(Math.min(...chartData.map((t) => t.start.getTime())))
   const maxDate = new Date(Math.max(...chartData.map((t) => t.end.getTime())))
 
-
   // Filter tasks within the range
   const filteredTasks = chartData.filter((task) => task.end >= range[0] && task.start <= range[1])
 
-  console.log(filteredTasks);
-  
   // chartheight equals view height
   const chartHeight = Math.max(height, filteredTasks.length * heightFactor)
   const totalHeight = chartHeight + margin.top + margin.bottom
@@ -130,7 +131,7 @@ const RoadmapPage = ({ scrollTop }) => {
     )
   }
   return (
-    <div>
+    <div className="px-4">
       {/* Date Range Slider */}
       <div className="flex gap-10">
         <div className="mb-4 w-96">
@@ -202,6 +203,17 @@ const RoadmapPage = ({ scrollTop }) => {
       </div>
       <Ordinal scale={legendColorScale} direction="horizontal" />
 
+      <div className="fixed left-30 top-40">
+        <Slider
+          orientation="vertical"
+          min={0}
+          max={defaultHeight*5}
+          className="w-4 h-40"
+          sliderClassName="h-full"
+          value={[height]}
+          onValueChange={(value) => setHeight(value[0])}
+        />
+      </div>
       <div className="flex">
         <svg width={margin.left} height={totalHeight} ref={containerRef}>
           <AxisLeft
@@ -283,11 +295,9 @@ const RoadmapPage = ({ scrollTop }) => {
                 const barHeight = yScale.bandwidth() - padding * 2
                 // TODO: fix errors with NaN values
 
-
-                
                 return (
                   <g
-                    key={task.id}
+                    key={task.id || task.name || taskIndex}
                     onMouseEnter={(e) => {
                       setHoverBar(taskIndex)
                     }}
@@ -339,6 +349,9 @@ const RoadmapPage = ({ scrollTop }) => {
                               width={subBarWidth}
                               height={barHeight / numberOfBars - gap}
                               fill={subTask.fill}
+                              onMouseMove={handleMouseMove}
+                              onMouseLeave={handleMouseLeave}
+                              onMouseOver={() => handleMouseOver({ task: subTask })}
                               rx={4}
                             />
                             {subTask.dates &&
@@ -482,8 +495,7 @@ const RoadmapPage = ({ scrollTop }) => {
                         </tspan>
                       </text>
                     </Fragment>
-                  ))
-                  }
+                  ))}
             </Group>
           </svg>
           {tooltipOpen && (
@@ -506,6 +518,7 @@ const RoadmapPage = ({ scrollTop }) => {
               <p className="text-xs text-muted-foreground max-w-80">
                 {tooltipData.task.description}
               </p>
+              <p>{tooltipData.task.developer?.join(', ')}</p>
               <div className="border-t border-primary/50 my-2" />
               <Label className="text-xs">
                 Start: {dayjs(tooltipData.task.start).format('MMM D, YYYY')}
