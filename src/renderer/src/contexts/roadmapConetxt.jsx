@@ -152,7 +152,7 @@ export const RoadmapProvider = ({ children }) => {
       const developersData = featuersByDevelopers.map((item) => {
         const minDate = Math.min(
           ...item.features.map((feature) =>
-            feature.startDate ? new Date(feature.startDate) : Infinity
+            feature.startDate ? new Date(feature.startDate) : new Date()
           )
         )
         let startDate = minDate ? new Date(minDate) : new Date()
@@ -161,7 +161,7 @@ export const RoadmapProvider = ({ children }) => {
           ...item.features.map((feature) =>
             feature.startDate && feature.estimate
               ? dayjs(feature.startDate).add(feature.estimate, 'day')
-              : -Infinity
+              : new Date()
           )
         )
         let endDate = maxDate ? new Date(maxDate) : new Date()

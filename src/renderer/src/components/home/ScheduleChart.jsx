@@ -33,8 +33,7 @@ const chartConfig = {
     color: 'hsl(var(--background))'
   }
 }
-const ScheduleChart = () => {
-  const { products } = useProducts()
+const ScheduleChart = ({products}) => {
 
   const [chartData, setChartData] = useState([])
 
@@ -89,10 +88,10 @@ const ScheduleChart = () => {
         >
           <BarChart
             data={chartData}
-            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+            margin={{ top: 20, right: 20, bottom: 20, left: 5 }}
             layout="vertical"
           >
-            <YAxis dataKey="projectName" type="category" />
+            <YAxis dataKey="projectName" type="category" width={150} />
             <XAxis
               type="number"
               domain={[dayjs().subtract(14, 'day').valueOf(), dayjs().add(14, 'day').valueOf()]}

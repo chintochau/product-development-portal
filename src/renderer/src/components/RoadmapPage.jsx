@@ -74,8 +74,8 @@ const RoadmapPage = ({ scrollTop }) => {
   }
 
   const handleMouseOver = (data) => {
-    console.log("Data", data);
-    
+    console.log('Data', data)
+
     showTooltip({
       tooltipData: data
     })
@@ -207,7 +207,7 @@ const RoadmapPage = ({ scrollTop }) => {
         <Slider
           orientation="vertical"
           min={0}
-          max={defaultHeight*5}
+          max={defaultHeight * 5}
           className="w-4 h-40"
           sliderClassName="h-full"
           value={[height]}
@@ -468,10 +468,11 @@ const RoadmapPage = ({ scrollTop }) => {
               {showMilestones &&
                 milestones
                   ?.filter((milestone) => milestone.due_date)
-                  .map((milestone) => (
+                  .map((milestone, index) => (
                     <Fragment key={milestone.id}>
+                      {/* Line to indicate the milestone */}
                       <Line
-                        stroke="yellow"
+                        stroke="hsl(var(--alternative))"
                         opacity={0.7}
                         strokeWidth={1}
                         x1={xScale(new Date(milestone.due_date))}
@@ -479,21 +480,37 @@ const RoadmapPage = ({ scrollTop }) => {
                         y1={0}
                         y2={chartHeight + 5}
                       />
-                      <text
-                        x={xScale(new Date(milestone.due_date))}
-                        y={20}
-                        textAnchor="middle"
-                        opacity={0.7}
-                        fill="yellow"
-                        fontSize={12}
-                      >
-                        <tspan x={xScale(new Date(milestone.due_date))} dy="0em">
-                          {milestone.title}
-                        </tspan>
-                        <tspan x={xScale(new Date(milestone.due_date))} dy="1em">
-                          {getNameForProject(milestone.project_id)}
-                        </tspan>
-                      </text>
+                      {(() => {
+                        const text = `${getNameForProject(milestone.project_id)} ${milestone.title}`
+                        const padding = 10
+                        const textWidth = text.length * 6 // Approximate width per character
+                        const rectWidth = textWidth + padding * 2
+                        const height = 15
+
+                        return (
+                          <>
+                            {/* Background Rect */}
+                            <rect
+                              x={xScale(new Date(milestone.due_date)) - rectWidth / 2}
+                              y={10 + index * 20 - 10}
+                              width={rectWidth}
+                              height={height}
+                              fill="hsl(var(--alternative))"
+                              rx={4}
+                            />
+                            {/* Text */}
+                            <text
+                              x={xScale(new Date(milestone.due_date))}
+                              y={10 + index * 20 +2} /* Center text vertically */
+                              textAnchor="middle"
+                              fill="hsl(var(--alternative-foreground))"
+                              fontSize={12}
+                            >
+                              {text}
+                            </text>
+                          </>
+                        )
+                      })()}
                     </Fragment>
                   ))}
             </Group>
@@ -506,7 +523,7 @@ const RoadmapPage = ({ scrollTop }) => {
               left={tooltipLeft}
               style={{
                 ...defaultStyles,
-                backgroundColor: 'hsl(var(--accent))',
+                backgroundColor: 'hsl(var(--sidebar-background))',
                 color: 'hsl(var(--accent-foreground))'
               }}
               className="flex flex-col"

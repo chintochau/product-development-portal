@@ -63,125 +63,118 @@ const AllFeatures = ({ features }) => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Feature Requests</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* <DataTable columns={featureColumns} data={features} /> */}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Product</TableHead>
-              <TableHead>Developers</TableHead>
-              <TableHead>Time Estimate</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Gitlab</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {features &&
-              features.map((feature) => <FeatureRow feature={feature} key={feature.id} />)}
-          </TableBody>
-        </Table>
-      </CardContent>
-      <CardFooter>
-        {loading ? (
-          <div className="w-full py-4 flex items-center justify-center">
-            <Loader2 className="animate-spin" />
-          </div>
-        ) : (
-          <Pagination>
-            <PaginationContent>
-              {currentPage !== 1 && (
-                <PaginationItem>
-                  <PaginationPrevious
-                    className="cursor-pointer"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                  />
-                </PaginationItem>
-              )}
-              {currentPage !== 1 && (
-                <PaginationItem key={1}>
-                  <PaginationLink
-                    className="cursor-pointer"
-                    onClick={() => {
-                      handlePageChange(1)
-                    }}
-                  >
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-              {currentPage > 3 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-              {totalPages > 5 ? (
-                <>
-                  {Array.from(
-                    { length: Math.min(3, totalPages - currentPage) },
-                    (_, index) => currentPage + index
-                  ).map((page) => (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        isActive={page === currentPage}
-                        onClick={() => {
-                          handlePageChange(page)
-                        }}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                  <PaginationItem key={totalPages}>
-                    <PaginationLink
-                      className="cursor-pointer"
-                      onClick={() => {
-                        handlePageChange(totalPages)
-                      }}
-                      isActive={totalPages === currentPage}
-                    >
-                      {totalPages}
-                    </PaginationLink>
-                  </PaginationItem>
-                </>
-              ) : (
-                Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+    <div>
+      {/* <DataTable columns={featureColumns} data={features} /> */}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Title</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Product</TableHead>
+            <TableHead>Developers</TableHead>
+            <TableHead>Time Estimate</TableHead>
+            <TableHead>Priority</TableHead>
+            <TableHead>Gitlab</TableHead>
+            <TableHead></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {features && features.map((feature) => <FeatureRow feature={feature} key={feature.id} />)}
+        </TableBody>
+      </Table>
+
+      {loading ? (
+        <div className="w-full py-4 flex items-center justify-center">
+          <Loader2 className="animate-spin" />
+        </div>
+      ) : (
+        <Pagination>
+          <PaginationContent>
+            {currentPage !== 1 && (
+              <PaginationItem>
+                <PaginationPrevious
+                  className="cursor-pointer"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                />
+              </PaginationItem>
+            )}
+            {currentPage !== 1 && (
+              <PaginationItem key={1}>
+                <PaginationLink
+                  className="cursor-pointer"
+                  onClick={() => {
+                    handlePageChange(1)
+                  }}
+                >
+                  1
+                </PaginationLink>
+              </PaginationItem>
+            )}
+            {currentPage > 3 && (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            )}
+            {totalPages > 5 ? (
+              <>
+                {Array.from(
+                  { length: Math.min(3, totalPages - currentPage) },
+                  (_, index) => currentPage + index
+                ).map((page) => (
                   <PaginationItem key={page}>
                     <PaginationLink
+                      isActive={page === currentPage}
                       onClick={() => {
                         handlePageChange(page)
                       }}
+                      className="cursor-pointer"
                     >
                       {page}
                     </PaginationLink>
                   </PaginationItem>
-                ))
-              )}
-              {currentPage < totalPages && (
+                ))}
                 <PaginationItem>
-                  <PaginationNext
+                  <PaginationEllipsis />
+                </PaginationItem>
+                <PaginationItem key={totalPages}>
+                  <PaginationLink
                     className="cursor-pointer"
                     onClick={() => {
-                      handlePageChange(currentPage + 1)
+                      handlePageChange(totalPages)
                     }}
-                  />
+                    isActive={totalPages === currentPage}
+                  >
+                    {totalPages}
+                  </PaginationLink>
                 </PaginationItem>
-              )}
-            </PaginationContent>
-          </Pagination>
-        )}
-      </CardFooter>
-    </Card>
+              </>
+            ) : (
+              Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => {
+                      handlePageChange(page)
+                    }}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))
+            )}
+            {currentPage < totalPages && (
+              <PaginationItem>
+                <PaginationNext
+                  className="cursor-pointer"
+                  onClick={() => {
+                    handlePageChange(currentPage + 1)
+                  }}
+                />
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </Pagination>
+      )}
+    </div>
   )
 }
 
@@ -263,7 +256,7 @@ function FeatureRow({ feature }) {
         e.stopPropagation()
       }}
     >
-      <TableHead className="font-medium">
+      <TableCell className="font-medium">
         <div className="flex items-center justify-between">
           {isEditing ? (
             <Textarea
@@ -301,7 +294,7 @@ function FeatureRow({ feature }) {
             )}
           </>
         </div>
-      </TableHead>
+      </TableCell>
       <TableCell className="font-medium">
         {isEditing ? (
           <Textarea

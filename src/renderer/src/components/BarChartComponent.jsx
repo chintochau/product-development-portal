@@ -35,8 +35,6 @@ const ToolTipConpoment = ({ active, payload, label }) => {
 }
 
 const BarChartComponent = ({ chartData, developerChart }) => {
-  console.log('chartData', chartData)
-
   let data = chartData
     .sort((a, b) => a.start - b.start)
     .map((item) => {
@@ -55,7 +53,7 @@ const BarChartComponent = ({ chartData, developerChart }) => {
     data = chartData.flatMap((item) => {
       // Find the minimum start date across all features
       const developerStart = item.features.reduce((acc, feature) => {
-        return Math.min(acc, feature.startDate ? feature.startDate : Infinity)
+        return Math.min(acc, feature.startDate ? feature.startDate : new Date())
       }, Infinity)
 
       //Fine the max end date across all features
@@ -64,20 +62,19 @@ const BarChartComponent = ({ chartData, developerChart }) => {
           return Math.max(acc, dayjs(feature.startDate).add(feature.estimate, 'day').valueOf())
         }
         return acc
-      }, 0)
+      }, dayjs().add(1, 'day').valueOf())
       const features = item.features
-        .filter((feature) => feature.startDate && feature.estimate)
         .map((item) => {
           const endDate = item.startDate
             ? dayjs(item.startDate).add(item.estimate, 'day').valueOf()
-            : null
+            : dayjs().add(120, 'day').valueOf()
+            
           return {
             name: item.title,
-            period1: [item.startDate, endDate],
+            period1: [item.startDate || dayjs().valueOf(), endDate],
             type: 'feature'
           }
         })
-      console.log(features)
 
       return [
         {
@@ -88,7 +85,7 @@ const BarChartComponent = ({ chartData, developerChart }) => {
         ...features
       ]
     })
-
+    
     return (
       <Card>
         <CardHeader>
@@ -120,15 +117,14 @@ const BarChartComponent = ({ chartData, developerChart }) => {
                   `${dayjs(item.value[1]).format('MM-YYYY')} to ${dayjs(item.value[0]).format('MM-YYYY')}`
                 }
               />
-              <Bar dataKey="period1" layout="vertical" radius={5} shape={
+              <Bar dataKey="period1" layout="vertical" radius={5}  shape={
                 (props) => {
                   const { x, y, width, height, type,name } = props;
-                  console.log('props', props);
-                  
+                  const padding = 5
                   return type === 'developer' ? (
                     <text x={x} y={y} width={width} height={height} dy={25} fill="hsl(var(--chart-1))" fontWeight={'bold'} fontSize={19}>{name}</text>
                   ) : (
-                    <rect x={x} y={y} width={width} height={height} rx={20} fill="hsl(var(--chart-2))" />
+                    <rect x={x } y={y + padding} width={width} height={height - 2*padding} rx={10} fill="hsl(var(--chart-2))" />
                   )
                 }
               } />

@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Label } from '../../../../components/ui/label'
 import dayjs from 'dayjs'
+import { Trash, X } from 'lucide-react'
 
 const maxDays = 365 // 2 years in days
 const growthRate = 2.5 // Controls exponential growth (adjust as needed)
@@ -25,18 +26,24 @@ const EstimateSlider = ({ days = 1, setDays, startDate, setStartDate }) => {
 
   // Convert slider percentage to time estimate using inverse exponential scaling
 
+const daysToSliderValue = (days) => {
+    const percentage = (days / maxDays) ** (1 / growthRate)
+    return percentage * 100
+  }
 
+  const sliderValueToDays = (sliderValue) => {
+    const days = Math.max(1, Math.floor(maxDays * (sliderValue / 100) ** growthRate))
+    return days
+  }
 
   const handleSliderChange = (value) => {
-    console.log(value);
-    
     const estimateText = getEstimateFromSlider(value[0])
     setEstimate(estimateText)
     setEstimateDays(value[0])
   }
 
   const handleSliderCommit = (value) => {
-    setDays(value[0])
+    setDays(sliderValueToDays(value[0]))
   }
 
   return (
@@ -44,7 +51,7 @@ const EstimateSlider = ({ days = 1, setDays, startDate, setStartDate }) => {
       <div className="flex flex-col w-40 gap-2">
         <p className='text-muted-foreground'>Estimate: <span className='font-bold text-primary'>{estimate}</span></p>
         <Slider
-          defaultValue={[days]}
+          defaultValue={[daysToSliderValue(days)]}
           max={100} // 0–100% for slider
           min={1}
           step={1}
@@ -57,16 +64,19 @@ const EstimateSlider = ({ days = 1, setDays, startDate, setStartDate }) => {
       <div>
         <div className='flex flex-col'>
           <Label className="text-muted-foreground/70">Start Date: </Label>
-          <DatePicker
-            className="bg-background hover:underline hover:cursor-pointer"
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            dateFormat="yyyy-MM-dd"
-            placeholderText="Select a date"
-          />
+          <div className='flex items-center'>
+            <DatePicker
+              className="bg-background hover:underline hover:cursor-pointer w-24"
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              dateFormat="yyyy-MM-dd"
+              placeholderText="Select a date"
+            />
+            {startDate&&<X className='size-3 hover:text-red-500 cursor-pointer text-muted-foreground/50  transition-all duration-300' onClick={() => setStartDate(null)} />}
+          </div>
         </div>
         <div className='flex flex-col'>
-          <Label className="text-muted-foreground/70">Estimated End Date:</Label>
+          <Label className="text-muted-foreground/70">Due Date:</Label>
           <p className=" cursor-not-allowed text-muted-foreground">
             {startDate && dayjs(startDate).add(calculateDaysFromPercentage(estimateDays), 'day').format('YYYY-MM-DD')}
           </p>

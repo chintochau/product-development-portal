@@ -42,11 +42,15 @@ import NewFeatureRequest from './feature-page-components/NewFeatureRequest'
 import BarChartComponent from './BarChartComponent'
 import { useRoadmap } from '../contexts/roadmapConetxt'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useSidebar } from '../../../components/ui/sidebar'
+import { cn } from '../../../lib/utils'
 
 const FeaturesPage = () => {
   const { features } = useTickets()
   const { getFeatureEpics } = useSingleProduct()
-  const { featureChartData, featuersByDevelopers  } = useRoadmap()
+  const { featureChartData, featuersByDevelopers } = useRoadmap()
+  // get the open status of sidebar
+  const { open, isMobile } = useSidebar()
 
   const chartData = getFeatureEpics()
     .filter((item) => dayjs(item.due_date).isAfter(dayjs()))
@@ -101,21 +105,23 @@ const FeaturesPage = () => {
           ))}
         </TableBody>
       </Table>
-      {renderChart(chartData)}
+      <div className="">{renderChart(chartData)}</div>
       <NewFeatureRequest />
-      <div className='sticky top-5  z-50'>
-        <Tabs defaultValue="features" >
+      <AllFeatures features={features} />
+      <div className="">
+        <Tabs defaultValue="features">
           <TabsList>
             <TabsTrigger value="features">Features</TabsTrigger>
             <TabsTrigger value="developers">Developers</TabsTrigger>
           </TabsList>
-          <TabsContent value="developers"><BarChartComponent chartData={featuersByDevelopers} developerChart/></TabsContent>
-          <TabsContent value="features"><BarChartComponent chartData={featureChartData} /></TabsContent>
+          <TabsContent value="developers">
+            <BarChartComponent chartData={featuersByDevelopers} developerChart />
+          </TabsContent>
+          <TabsContent value="features">
+            <BarChartComponent chartData={featureChartData} />
+          </TabsContent>
         </Tabs>
       </div>
-
-      
-      <AllFeatures features={features} />
     </div>
   )
 }
@@ -144,14 +150,14 @@ function renderChart(chartData) {
       <CardContent>
         <ChartContainer
           config={chartConfig}
-          style={{ height: chartData.length * 80, width: '100%' }}
+          style={{ height: chartData.length * 40, width: '100%' }}
         >
           <BarChart
             data={chartData}
             margin={{ top: 20, right: 20, bottom: 20, left: 40 }}
             layout="vertical"
           >
-            <YAxis dataKey="projectName" type="category" />
+            <YAxis dataKey="projectName" type="category" width={300} />
             <XAxis
               type="number"
               domain={[dayjs().subtract(14, 'day').valueOf(), dayjs().add(14, 'day').valueOf()]}

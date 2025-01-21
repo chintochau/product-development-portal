@@ -60,7 +60,7 @@ export function AppSidebar() {
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   asChild
-                  className={cn({ 'bg-accent rounded-xl': currentPath === item.url })}
+                  className={cn({ 'bg-sidebar-accent text-sidebar-accent-foreground': currentPath === item.url })}
                 >
                   <Link to={item.url}>
                     <item.icon />

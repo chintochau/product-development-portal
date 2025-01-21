@@ -10,7 +10,7 @@ const FEATURES_PROJECTID = 36518895
 export const getNameForProject = (id) => {
     switch (id) {
         case FIRMWARE_PROJECTID:
-            return null
+            return ""
         case IOS_PROJECTID:
             return "iOS"
         case ANDROID_PROJECTID:

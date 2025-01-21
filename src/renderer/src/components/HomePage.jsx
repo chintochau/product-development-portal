@@ -10,7 +10,7 @@ import { createGitlabIssue, getProductsLog } from '../services/gitlabServices'
 import { Button } from '@/components/ui/button'
 import { Link, useNavigate } from 'react-router-dom'
 import { CREATE_NEW_PRODUCT_ROUTE } from '../constant'
-import { Loader2, Trash } from 'lucide-react'
+import { Loader2, Sheet, Trash } from 'lucide-react'
 import { useProducts } from '../contexts/productsContext'
 import { useSingleProduct } from '../contexts/singleProductContext'
 
@@ -26,10 +26,13 @@ import {
 import { DataTable } from './home/data-table'
 import { columns } from './home/columns'
 import ScheduleChart from './home/ScheduleChart'
+import FrameWraper from './frameWarper'
+import { Checkbox } from '../../../components/ui/checkbox'
 
 const HomePage = () => {
-  const { loading, products, setShouldRefreshProducts } = useProducts() || {}
+  const { products, setShouldRefreshProducts } = useProducts() || {}
   const { setProductLog } = useSingleProduct() || {}
+  const [bluOSOnly, setBluOSOnly] = React.useState(true)
   const navigate = useNavigate()
 
   const handleProductClick = (productLog) => {
@@ -41,21 +44,45 @@ const HomePage = () => {
     setShouldRefreshProducts(true)
   }, [])
 
+  const filteredProducts = bluOSOnly ? products?.filter((product) => product?.bluos) : products
+
   return (
-    <div className="px-4 flex flex-col">
-      <div className="flex items-center">
-        <h1 className="text-2xl">Products</h1>
-        <Link to={CREATE_NEW_PRODUCT_ROUTE}>
-          <Button variant="link" size="sm" className="text-muted-foreground">
-            Add new product
-          </Button>
-        </Link>
+    <FrameWraper>
+      <div className="px-4 flex flex-col">
+        <div className="flex items-center">
+          <h1 className="text-2xl text-primary">Products</h1>
+          <Link to={CREATE_NEW_PRODUCT_ROUTE}>
+            <Button variant="link" size="sm" className="text-muted-foreground">
+              Add new product
+            </Button>
+          </Link>
+        </div>
+
+        <div className="w-full rounded-xl py-4 ">
+          <div className=" flex justify-end">
+            <div className="flex gap-2">
+              <div className="flex items-center gap-1">
+                <Checkbox
+                  checked={bluOSOnly}
+                  onCheckedChange={(checked) => {
+                    setBluOSOnly(checked)
+                  }}
+                  id="bluos"
+                />
+                <label htmlFor="bluos" className="text-muted-foreground">
+                  Show BluOS Only
+                </label>
+              </div>
+              <Button size="icon" variant="ghost">
+                <Sheet />
+              </Button>
+            </div>
+          </div>
+          <DataTable columns={columns} data={filteredProducts} />
+        </div>
+        <ScheduleChart products={filteredProducts} />
       </div>
-      <div className="w-full rounded-xl py-4 ">
-        <DataTable columns={columns} data={products} />
-      </div>
-      <ScheduleChart />
-    </div>
+    </FrameWraper>
   )
 }
 
