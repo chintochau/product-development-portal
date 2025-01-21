@@ -20,6 +20,8 @@ export const TicketsProvider = ({ children }) => {
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [featuersByDevelopers, setFeaturesByDevelopers] = useState([])
   const {developers} = useDevelopers()
+    const [tickets, setTickets] = React.useState([])
+  
 
   const getFeatureRequests = async (page) => {
     setLoading(true)
@@ -86,7 +88,9 @@ export const TicketsProvider = ({ children }) => {
     setCurrentPage,
     totalPages,
     getFeatureRequests,
-    featuersByDevelopers
+    featuersByDevelopers,
+    tickets,
+    setTickets
   }
 
   return <TicketsContext.Provider value={value}>{children}</TicketsContext.Provider>

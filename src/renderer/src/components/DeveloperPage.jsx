@@ -49,8 +49,7 @@ const DeveloperPage = () => {
     selectedDevelopers,
     tickets,
     getTicketsForSelectedDevelopers,
-    loading,
-    developers
+    loading
   } = useDevelopers()
   const { featuersByDevelopers } = useTickets()
   const [showStatusBar, setShowStatusBar] = React.useState(false)

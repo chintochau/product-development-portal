@@ -19,7 +19,7 @@ export const UserProvider = ({ children }) => {
 
   const checkSignInStatus = async () => {
     const signInStatus = await window.api.checkSignIn()
-    console.log('signInStatus', signInStatus);
+    console.log(signInStatus);
     
     setUser(signInStatus)
   }

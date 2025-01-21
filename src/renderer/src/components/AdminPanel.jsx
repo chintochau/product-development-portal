@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { RefreshCcw } from 'lucide-react'
+import { Check, RefreshCcw, Save } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -26,10 +26,9 @@ const AdminPanel = () => {
   const [role, setRole] = useState(userRoles[4].role)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
 
   const getAllUsers = async () => {
-    console.log('Getting all users...')
-
     window.api.getAllUsers().then((res) => {
       setAllUsers(res)
     })
@@ -39,8 +38,8 @@ const AdminPanel = () => {
     getAllUsers()
   }, [])
 
-  const createNewUser = async (email, password, role) => {
-    await window.api.createNewUser(email, password, role)
+  const createNewUser = async () => {
+    await window.api.createNewUser(email, password, role, name)
     getAllUsers()
   }
 
@@ -57,6 +56,7 @@ const AdminPanel = () => {
               />
             </div>
           </TableHead>
+          <TableHead>Name</TableHead>
           <TableHead>Role</TableHead>
           <TableHead>Password</TableHead>
         </TableRow>
@@ -66,6 +66,9 @@ const AdminPanel = () => {
           return (
             <TableRow key={user.email}>
               <TableCell>{user.email}</TableCell>
+              <TableCell>
+                <NameComponent user={user} />
+              </TableCell>
               <TableCell>
                 <Select
                   defaultValue={user.role}
@@ -97,6 +100,14 @@ const AdminPanel = () => {
             />
           </TableCell>
           <TableCell>
+            <Input
+              placeholder="Name"
+              className="w-fit"
+              onChange={(e) => setName(e.target.value)}
+              value={name}
+            />
+          </TableCell>
+          <TableCell>
             <Select onValueChange={setRole} value={role}>
               <SelectTrigger className="w-fit">
                 <SelectValue />
@@ -118,7 +129,7 @@ const AdminPanel = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 value={password}
               />
-              <Button variant="outline" onClick={() => createNewUser(email, password, role)}>
+              <Button variant="outline" onClick={() => createNewUser()}>
                 Create
               </Button>
             </div>
@@ -126,6 +137,32 @@ const AdminPanel = () => {
         </TableRow>
       </TableBody>
     </Table>
+  )
+}
+
+const NameComponent = ({ user }) => {
+  const [name, setName] = useState(user.name)
+  const [isSaved, setIsSaved] = useState(false)
+  const handleSave = async () => {
+    await window.api.updateUserInformation(user.email, user.role, name)
+    setIsSaved(true)
+    setTimeout(() => setIsSaved(false), 2000)
+  }
+  return (
+    <form
+      className="flex items-center gap-2"
+      onSubmit={(e) => {
+        e.preventDefault()
+        handleSave()
+      }}
+    >
+      <Input className="w-fit" value={name} onChange={(e) => setName(e.target.value)} />
+      {isSaved ? (
+        <Check className="size-4" />
+      ) : (
+        <Save className="hover:text-blue-500 cursor-pointer size-4" />
+      )}
+    </form>
   )
 }
 

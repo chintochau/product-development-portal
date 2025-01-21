@@ -8,6 +8,7 @@ import DeveloperPage from "./components/DeveloperPage"
 import RoadmapPage from "./components/RoadmapPage"
 import FeaturesPage from "./components/FeaturesPage"
 import FeatureRequestDetailPage from "./components/FeatureRequestDetailPage"
+import TicketPage from "./components/TicketPage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -43,6 +44,7 @@ export const navigationItems = [
         title: "Ticket Browser",
         url: "/tickets",
         icon: List,
+        element:TicketPage
     },
     {
         title: "Roadmap",

@@ -14,20 +14,13 @@ import { Loader2, Sheet, Trash } from 'lucide-react'
 import { useProducts } from '../contexts/productsContext'
 import { useSingleProduct } from '../contexts/singleProductContext'
 
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
 import { DataTable } from './home/data-table'
 import { columns } from './home/columns'
 import ScheduleChart from './home/ScheduleChart'
 import FrameWraper from './frameWarper'
 import { Checkbox } from '../../../components/ui/checkbox'
+
+const roadmapPath = import.meta.env.VITE_ROADMAP_PATH
 
 const HomePage = () => {
   const { products, setShouldRefreshProducts } = useProducts() || {}
@@ -73,7 +66,7 @@ const HomePage = () => {
                   Show BluOS Only
                 </label>
               </div>
-              <Button size="icon" variant="ghost">
+              <Button size="icon" variant="ghost" onClick={() => window.open(roadmapPath)}>
                 <Sheet />
               </Button>
             </div>

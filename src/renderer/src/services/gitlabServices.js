@@ -123,12 +123,12 @@ export const updateNotesToTicket = async (iid, noteId, data, message, project = 
     return response
 }
 
-export const getNotesFromTicket = async (iid, project = PRODUCT_PROJECTID, page=1) => {
+export const getNotesFromTicket = async (iid, project = PRODUCT_PROJECTID, page = 1) => {
     const data = await window.api.gitlab(`projects/${project}/issues/${iid}/notes?page=${page}&per_page=100`, "GET");
     return data
 }
 
-export const deleteNoteFromTicket = async (iid,noteId, project = PRODUCT_PROJECTID) => {
+export const deleteNoteFromTicket = async (iid, noteId, project = PRODUCT_PROJECTID) => {
     const response = await window.api.gitlab(`projects/${project}/issues/${iid}/notes/${noteId}`, "DELETE");
     return response
 }
@@ -163,6 +163,11 @@ export const getGroupIssuesForDeveloper = async (developerId) => {
     return data
 }
 
+export const getGroupIssuesWithQuery = async ({ text, page = 1, per_page = 100, state = "opened" }) => {
+    const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/issues?search=${text}&page=${page}&per_page=${per_page}&state=${state}`, "GET");
+    return data
+}
+
 export const getMilestones = async () => {
     const firmware = await window.api.gitlab(`projects/${FIRMWARE_PROJECTID}/milestones?per_page=100&state=active`, "GET");
     const ios = await window.api.gitlab(`projects/${IOS_PROJECTID}/milestones?per_page=100&state=active`, "GET");
@@ -172,9 +177,8 @@ export const getMilestones = async () => {
     return data
 }
 
-export const getFeaturesRequestsIssues = async (page=1) => {
+export const getFeaturesRequestsIssues = async (page = 1) => {
     const data = await getNotesFromTicket(1, FEATURES_PROJECTID, page)
-// return ohnly itesm in the array with system=false
     const filteredData = data.filter(item => !item.system)
     return filteredData
 }

@@ -8,11 +8,12 @@ export const signinWithFirebaseEmail = async ({ email, password }) => {
         if (!signIn) {
             return false
         }
-        const role = await getRoleByEmail(signIn.user.email)
+        const info = await getUserInfoByEmail(signIn.user.email)
         return {
             email: signIn.user.email,
             uid: signIn.user.uid,
-            role: role
+            role: info?.role,
+            name: info?.name
         }
     } catch (error) {
         console.log("Can't sign in", error);
@@ -30,24 +31,31 @@ export const checkSignInStatus = async () => {
     if (!user) {
         return false
     }
-    const role = await getRoleByEmail(user.email)
+    const info = await getUserInfoByEmail(user.email)
+    console.log(info);
+    
     return {
         email: user.email,
         uid: user.uid,
-        role: role
+        role: info?.role,
+        name: info?.name
     }
 }
 
-const getRoleByEmail = async (email) => {
+const getUserInfoByEmail = async (email) => {
     const querySnapshot = await getDocs(collection(db, "users"));
     let role = false
+    let name = false
     querySnapshot.forEach((doc) => {
         if (doc.data().email.toLowerCase() === email) {
             role = doc.data().role
+            name = doc.data().name
         }
     });
-
-    return role
+    return {
+        role: role,
+        name: name
+    }
 }
 
 export const getAllUsersFromFirestore = async () => {
@@ -58,7 +66,7 @@ export const getAllUsersFromFirestore = async () => {
     });
     return users
 }
-export const createNewUser = async ({ email, password, role }) => {
+export const createNewUser = async ({ email, password, role, name }) => {
 
     try {
         // register new user in auth with email and password
@@ -67,7 +75,8 @@ export const createNewUser = async ({ email, password, role }) => {
 
         const docRef = await addDoc(collection(db, "users"), {
             email: email.toLowerCase(),
-            role: role
+            role: role,
+            name: name
         });
         console.log("Document written with ID: ", docRef.id);
         return true
@@ -81,13 +90,14 @@ export const createNewUser = async ({ email, password, role }) => {
     }
 }
 
-export const updateUserInformation = async ({ email, role }) => {
+export const updateUserInformation = async ({ email, role, name }) => {
     try {
         const querySnapshot = await getDocs(collection(db, "users"));
         let userDoc = null;
         querySnapshot.forEach((doc) => {
             if (doc.data().email.toLowerCase() === email.toLowerCase()) {
                 userDoc = doc;
+
             }
         });
 
@@ -96,7 +106,21 @@ export const updateUserInformation = async ({ email, role }) => {
             return false;
         }
 
-        await updateDoc(userDoc.ref, { role: role });
+        const data = {};
+
+        if (role !== null) {
+            data.role = role;
+        }
+        if (name !== null) {
+            data.name = name;
+        }
+
+        if (Object.keys(data).length === 0) {
+            console.log("No information to update");
+            return false;
+        }
+
+        await updateDoc(userDoc.ref, data);
         console.log("Role updated successfully");
         return true;
     } catch (error) {
@@ -104,3 +128,4 @@ export const updateUserInformation = async ({ email, role }) => {
         return false;
     }
 }
+

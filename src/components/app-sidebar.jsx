@@ -94,7 +94,8 @@ export function AppSidebar() {
                 <span>
                   {user && user.email ? (
                     <div className="flex flex-col ">
-                      <span className="text-xs text-primary">{user.email}</span>
+
+                      <span className="text-xs text-primary">{user.name || user.email}</span>
                       <span className="text-xs text-muted-foreground">{user.role}</span>
                     </div>
                   ) : (
