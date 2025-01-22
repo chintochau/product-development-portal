@@ -54,6 +54,9 @@ const DeveloperPage = () => {
   const { featuersByDevelopers } = useTickets()
   const [showStatusBar, setShowStatusBar] = React.useState(false)
   const { findProductsById } = useProducts()
+
+  console.log(featuersByDevelopers);
+  
   return (
     <div className="flex flex-col px-4 gap-4 pb-4">
       <h1 className="text-2xl">Developers</h1>
@@ -79,8 +82,8 @@ const DeveloperPage = () => {
               <TableCell className="font-medium align-top">
                 {developer.features?.length > 0 && (
                   <>
-                    {developer.features?.map((feature) => (
-                      <div className="flex gap-2">
+                    {developer.features?.map((feature, idx) => (
+                      <div className="flex gap-2" key={feature.id + idx}>
                         <p>{findProductsById(feature.product)}</p>
                         <p> {feature.title}</p>
                       </div>

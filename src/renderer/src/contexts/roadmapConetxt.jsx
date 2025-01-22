@@ -8,14 +8,14 @@ import _ from 'lodash'
 import dayjs from 'dayjs'
 import { scaleOrdinal } from '@visx/scale'
 
-export const mainColor = '#0070f3'
-export const epicColor = '#22c55e'
-export const hardwareColor = '#f59e0b'
-export const featureColor = '#ef4444' // red
-export const bluosFeatureColor = '#3b82f6' // blue
+export const productsColor = "hsl(var(--chart-1))"; // A deeper blue for good contrast
+export const epicColor = 'hsl(var(--chart-2))'; // A vibrant green with good accessibility
+export const hardwareColor = 'hsl(var(--chart-3))'; // A warm orange (already good)
+export const featureColor = 'hsl(var(--chart-4))'; // A bold red for better visibility
+export const bluosFeatureColor = 'hsl(var(--chart-5))'; // A slightly darker, distinct blue
 export const legendColorScale = scaleOrdinal({
-  domain: ['Planned', 'Software', 'Hardware', 'App Features', 'BluOS Features'],
-  range: [mainColor, epicColor, hardwareColor, featureColor, bluosFeatureColor]
+  domain: ['Products',  'Hardware', 'App', 'BluOS'],
+  range: [productsColor,  hardwareColor, featureColor, bluosFeatureColor]
 })
 
 // Create the User Context
@@ -29,11 +29,15 @@ export const RoadmapProvider = ({ children }) => {
 
   const [featuersByDevelopers, setFeaturesByDevelopers] = useState([])
 
+  // Filtered state
   const [showMilestones, setShowMilestones] = useState(false)
   const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
   const [shouldloadFeatures, setShouldloadFeatures] = useState(false)
   const [selectedBrands, setSelectedBrands] = useState(defaultBrands.map((item) => item.value))
+  const [showSubTasks, setShowSubTasks] = useState(false)
+  const [showDevelopers, setShowDevelopers] = useState(true)
 
+  // Data
   const [productChartData, setProductChartData] = useState([])
   const [epicChartData, setEpicChartData] = useState([])
   const [featureChartData, setFeatureChartData] = useState([])
@@ -99,11 +103,10 @@ export const RoadmapProvider = ({ children }) => {
             bluos: bluos,
             start: new Date(earliestDate),
             end: product.launch ? new Date(product.launch) : new Date(),
-            fill: mainColor, // blue,
+            fill: productsColor, // blue,
             epicId: product.epicId,
             wrikeId: product.wrikeId,
             type: 'product',
-            opacity: 0.3,
             singleDates: singleDates,
             mp1: mp1Date,
             launch: launch
@@ -115,18 +118,37 @@ export const RoadmapProvider = ({ children }) => {
             .filter((item) => selectedBrands.includes(item.brand) && item.bluos)
             .sort((a, b) => new Date(a.mp1) - new Date(b.mp1))
             .map((task) => {
+              console.log("FEATURES", features, task.id);
+              
+              const productFeatures = features
+                .filter((f) => f.product === task.id)
+                .map((f) => {
+                  return {
+                    id: f.id,
+                    name: f.title,
+                    developer: f.assignee_ids?.map(
+                      (id) => developers.find((d) => d.id === id)?.name
+                    ),
+                    start: new Date(f.startDate ? f.startDate : f.created_at),
+                    end: new Date(
+                      f.startDate && f.estimate
+                        ? dayjs(f.startDate)
+                            .add(f.estimate || 30, 'day')
+                            .toDate()
+                        : dayjs().add(30, 'day').toDate()
+                    ),
+                    fill: bluosFeatureColor,
+                    url: f.web_url
+                  }
+                })
+
+                
+
               const epic = epics.find((e) => e.iid === task.epicId)
               return {
                 ...task,
                 subTasks: [
-                  {
-                    id: task.id,
-                    name: epic?.title,
-                    start: new Date(epic?.start_date),
-                    end: new Date(epic?.due_date),
-                    fill: epicColor, // green
-                    epicId: task.epicId
-                  }
+                  ...productFeatures,
                 ]
               }
             })
@@ -170,12 +192,14 @@ export const RoadmapProvider = ({ children }) => {
           name: item.developer?.name,
           start: startDate,
           end: endDate, // Date()
-          fill: '#713000', // dark yellow color
+          fill: 'hsl(var(--alternative))', // dark yellow color
           subTasks: item.features.map((feature) => {
             return {
               id: feature.id,
               name: feature.title,
-              developer: feature.assignee_ids.map((id) => developers.find((d) => d.id === id)?.name),
+              developer: feature.assignee_ids.map(
+                (id) => developers.find((d) => d.id === id)?.name
+              ),
               start: new Date(feature.startDate),
               end: dayjs(feature.startDate)
                 .add(feature.estimate ? feature.estimate : 1, 'day')
@@ -186,7 +210,7 @@ export const RoadmapProvider = ({ children }) => {
             }
           })
         }
-      })
+      }).sort((a, b) => new Date(a.start) - new Date(b.start))
       setDevelopersChartData(developersData)
     }
   }, [featuersByDevelopers])
@@ -212,8 +236,6 @@ export const RoadmapProvider = ({ children }) => {
 
   // set features chart data
   useEffect(() => {
-    console.log(features)
-
     setFeatureChartData(
       features
         .filter((f) => f.startDate)
@@ -234,6 +256,7 @@ export const RoadmapProvider = ({ children }) => {
             url: f.web_url
           }
         })
+        .sort((a, b) => new Date(a.start) - new Date(b.start))
     )
   }, [features])
 
@@ -243,9 +266,9 @@ export const RoadmapProvider = ({ children }) => {
       ...productChartData,
       ...epicChartData,
       ...featureChartData,
-      ...developersChartData
+      ...(showDevelopers ? developersChartData : [])
     ])
-  }, [productChartData, epicChartData, featureChartData, developersChartData])
+  }, [productChartData, epicChartData, featureChartData, developersChartData, showDevelopers])
 
   const groupFeaturesByDevelopers = () => {
     const developerLookup = _.keyBy(developers, 'id')
@@ -348,7 +371,10 @@ export const RoadmapProvider = ({ children }) => {
     range,
     setRange,
     developersChartData,
-    featureChartData
+    featureChartData,
+    showSubTasks,
+    setShowSubTasks,
+    showDevelopers, setShowDevelopers
   }
 
   return <RoadmapContext.Provider value={value}>{children}</RoadmapContext.Provider>

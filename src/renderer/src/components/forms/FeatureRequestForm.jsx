@@ -114,7 +114,7 @@ export function FeatureRequestForm({ editMode }) {
 
   return (
     <div className="px-4">
-      <h1 className="text-2xl mb-4">Submit a Feature Request</h1>
+      <h1 className="text-2xl mb-4">Create Ticket</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

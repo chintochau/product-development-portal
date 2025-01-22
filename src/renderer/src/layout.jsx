@@ -26,12 +26,12 @@ import { ScrollArea } from '../../components/ui/scroll-area'
 import ProductEditPage from './components/forms/EditProductPage'
 import { useUser } from './contexts/userContext'
 import Login from './components/Login'
+import { ModeToggle } from '../../components/mode-toggle'
+import FrameWraper from './components/frameWarper'
 
 const Layout = ({ children }) => {
   const location = useLocation()
   const currentPath = location.pathname
-  const { pageTitle } = useBrowsing()
-
   const [scrollTop, setScrollTop] = React.useState(0)
 
   const {user} = useUser()
@@ -43,34 +43,38 @@ const Layout = ({ children }) => {
     <ScrollArea className="w-full h-screen relative" onScrollCapture={(e) => {
       setScrollTop(e.target.scrollTop)
     }}>
-      <div className="flex items-center sticky top-0 z-50 bg-background border-b ">
-        <SidebarTrigger />
-        <Breadcrumb>
-          <BreadcrumbList>
-            {currentPath.split('/').length > 1 &&
-              currentPath.split('/').map((path, index) => (
-                <Fragment key={path}>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link
-                        to={currentPath
-                          .split('/')
-                          .slice(0, index + 1)
-                          .join('/')}
-                      >
-                        {path}
-                      </Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  {index !== 0 && index < currentPath.split('/').length - 1 && (
-                    <BreadcrumbSeparator />
-                  )}
-                </Fragment>
-              ))}
-          </BreadcrumbList>
-        </Breadcrumb>
-        <p className="ml-1 text-sm text-muted-foreground">{pageTitle}</p>
-      </div>
+      <FrameWraper>
+        <div className="flex items-center sticky top-0 z-50 bg-background border-b justify-between px-2">
+          <div className='flex items-center'>
+            <SidebarTrigger />
+            <Breadcrumb>
+              <BreadcrumbList>
+                {currentPath.split('/').length > 1 &&
+                  currentPath.split('/').map((path, index) => (
+                    <Fragment key={path}>
+                      <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                          <Link
+                            to={currentPath
+                              .split('/')
+                              .slice(0, index + 1)
+                              .join('/')}
+                          >
+                            {path}
+                          </Link>
+                        </BreadcrumbLink>
+                      </BreadcrumbItem>
+                      {index !== 0 && index < currentPath.split('/').length - 1 && (
+                        <BreadcrumbSeparator />
+                      )}
+                    </Fragment>
+                  ))}
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+          <ModeToggle />
+        </div>
+      </FrameWraper>
       <Routes>
         {navigationItems.map((item) => (
           <Route

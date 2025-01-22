@@ -38,7 +38,7 @@ const chartConfig = {
   }
 }
 import AllFeatures from './feature-page-components/AllFeatures'
-import NewFeatureRequest from './feature-page-components/NewFeatureRequest'
+import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
 import BarChartComponent from './BarChartComponent'
 import { useRoadmap } from '../contexts/roadmapConetxt'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -78,50 +78,54 @@ const FeaturesPage = () => {
           Gitlab
         </Button>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Start</TableHead>
-            <TableHead>Due</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {getFeatureEpics().map((ticket) => (
-            <TableRow
-              key={ticket.iid}
-              className="cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation()
-                window.open(ticket.web_url)
-              }}
-            >
-              <TableCell className="font-medium">{ticket.references?.short}</TableCell>
-              <TableCell className="font-medium">{ticket.title}</TableCell>
-              <TableCell className="font-medium">{ticket.start_date}</TableCell>
-              <TableCell className="font-medium">{ticket.due_date}</TableCell>
+      <BluOSFeatureRequest>
+        <div className="flex flex-col gap-2 w-full py-4">
+          <Tabs defaultValue="features">
+            <TabsList>
+              <TabsTrigger value="features">Features</TabsTrigger>
+              <TabsTrigger value="developers">Developers</TabsTrigger>
+            </TabsList>
+            <TabsContent value="developers">
+              <BarChartComponent chartData={featuersByDevelopers} developerChart />
+            </TabsContent>
+            <TabsContent value="features">
+              <BarChartComponent chartData={featureChartData} />
+            </TabsContent>
+          </Tabs>
+          <AllFeatures features={features} className="" />
+        </div>
+      </BluOSFeatureRequest>
+      <AppFeatureChart chartData={chartData}>
+        <Table>
+          <TableHeader className="bg-secondary/20">
+            <TableRow>
+              <TableHead>ID</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Start</TableHead>
+              <TableHead>Due</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <div className="">{renderChart(chartData)}</div>
-      <NewFeatureRequest />
-      <AllFeatures features={features} />
-      <div className="">
-        <Tabs defaultValue="features">
-          <TabsList>
-            <TabsTrigger value="features">Features</TabsTrigger>
-            <TabsTrigger value="developers">Developers</TabsTrigger>
-          </TabsList>
-          <TabsContent value="developers">
-            <BarChartComponent chartData={featuersByDevelopers} developerChart />
-          </TabsContent>
-          <TabsContent value="features">
-            <BarChartComponent chartData={featureChartData} />
-          </TabsContent>
-        </Tabs>
-      </div>
+          </TableHeader>
+          <TableBody>
+            {getFeatureEpics().map((ticket) => (
+              <TableRow
+                key={ticket.iid}
+                className="cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(ticket.web_url)
+                }}
+              >
+                <TableCell className="font-medium">{ticket.references?.short}</TableCell>
+                <TableCell className="font-medium">{ticket.title}</TableCell>
+                <TableCell className="font-medium">{ticket.start_date}</TableCell>
+                <TableCell className="font-medium">{ticket.due_date}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </AppFeatureChart>
+
+      <div className=""></div>
     </div>
   )
 }
@@ -140,12 +144,12 @@ const ToolTipConpoment = ({ active, payload, label }) => {
 
 export default FeaturesPage
 
-function renderChart(chartData) {
+const AppFeatureChart = ({ chartData, children }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>App Planning</CardTitle>
-        <CardDescription>Features Planned</CardDescription>
+        <CardTitle>Apps Planning</CardTitle>
+        <CardDescription>Client Apps Feature Requests</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer
@@ -185,6 +189,8 @@ function renderChart(chartData) {
             />
           </BarChart>
         </ChartContainer>
+
+        {children}
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm"></CardFooter>
     </Card>

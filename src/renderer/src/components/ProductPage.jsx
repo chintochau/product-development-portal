@@ -39,16 +39,17 @@ import { Loader2 } from 'lucide-react'
 import FeaturesStatusCard from './product-page/FeaturesStatusCard'
 import AllFeatures from './feature-page-components/AllFeatures'
 import { useTickets } from '../contexts/ticketsContext'
+import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
 
 const ProductPage = () => {
   const { productData, setTickets, tickets, loading, epics } = useSingleProduct()
   const [selectedEpicId, setSelectedEpicId] = React.useState(null)
   const { setShouldRefreshProducts } = useProducts()
   const location = useLocation()
-  const { projectName, softwareSignoffDate } = productData || {}
-  const {features} = useTickets()
+  const { projectName, softwareSignoffDate, iid: productIid } = productData || {}
+  const { features } = useTickets()
 
-  const featuresFilteredByIID = features.filter(feature => feature.product === productData?.iid)
+  const featuresFilteredByIID = features.filter((feature) => feature.product === productIid)
 
   const loadTickets = async (epicId) => {
     const data = await getTicketsFromEpic(epicId)
@@ -84,6 +85,7 @@ const ProductPage = () => {
       <div className="w-full flex items-center ">
         <h2 className="text-2xl">{projectName}</h2>
       </div>
+
       <div className="w-full flex gap-4">
         <div className="relative w-4/12 flex flex-col gap-4">
           <div className="absolute top-4 right-4">
@@ -100,11 +102,17 @@ const ProductPage = () => {
           <ProductCard />
           <PIFCard />
         </div>
-        <div className="flex flex-col gap-4 w-6/12">
+
+        <div className="flex flex-col gap-4 w-4/12">
           <HardwareStatusCard />
           <SoftwareStatusCard />
         </div>
-        <AllFeatures features={featuresFilteredByIID} />
+
+        <div className="flex flex-col gap-2 w-10/12">
+          <BluOSFeatureRequest productIssueId={productIid}>
+            <AllFeatures features={featuresFilteredByIID} className={"py-2"} />
+          </BluOSFeatureRequest>
+        </div>
       </div>
 
       <div className="mt-4 flex gap-4 flex-wrap">

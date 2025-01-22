@@ -1,4 +1,4 @@
-import { BarChart, Calendar, ChevronDown, Edit, FileText, Home, Inbox, List, Map, Search, Settings, User } from "lucide-react"
+import { BarChart, Calendar, ChevronDown, Edit, FileText, Home, Inbox, LayoutDashboard, List, Map, MapPin, Search, Settings, User } from "lucide-react"
 import HomePage from "./components/HomePage"
 import SettingsPage from "./components/settings/SettingsPage"
 import Login from "./components/Login"
@@ -9,6 +9,7 @@ import RoadmapPage from "./components/RoadmapPage"
 import FeaturesPage from "./components/FeaturesPage"
 import FeatureRequestDetailPage from "./components/FeatureRequestDetailPage"
 import TicketPage from "./components/TicketPage"
+import MilestonePage from "./components/MilestonePage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -17,48 +18,65 @@ export const navigationItems = [
         title: "Products",
         url: "/dashboard",
         icon: Home,
-        element: HomePage
+        element: HomePage,
+        access: 3, // Product team and above
     },
     {
         title: "Features",
         url: "/features",
         icon: FileText,
         element: FeaturesPage,
-        nested: [{
-            title: "New Request",
-            url: "/features/new",
-            icon: Edit,
-            element: FeatureRequestForm,
-        },
-
-        ]
+        access: 3, // Product team and above
     },
     {
         title: "Developers",
         url: "/developers",
         icon: User,
-        element: DeveloperPage
+        element: DeveloperPage,
+        access: 0, // Admin, Platform, and Software Manager
     },
-
     {
         title: "Ticket Browser",
         url: "/tickets",
         icon: List,
-        element:TicketPage
+        element: TicketPage,
+        access: 0, // Admin, Platform, and Software Manager
     },
     {
         title: "Roadmap",
         url: "/roadmap",
         icon: Map,
-        element: RoadmapPage
+        element: RoadmapPage,
+        access: 3, // Product team and above
+    },
+    {
+        title: "Project Hub",
+        url: "/project-hub",
+        icon: LayoutDashboard,
+        nested: [
+            {
+                title: "New Ticket",
+                url: "/features/new",
+                icon: Edit,
+                element: FeatureRequestForm,
+            },
+            {
+                title: "Milestones",
+                url: "/milestones",
+                icon: MapPin,
+                element: MilestonePage,
+            },
+        ],
+        access: 1, // Admin, Platform, and Software Manager
     },
     {
         title: "Settings",
         url: "/settings",
         icon: Settings,
-        element: SettingsPage
+        element: SettingsPage,
+        access: 0, // Admin, Platform, and Software Manager
     },
-]
+];
 
 export const otherPages = [
     {

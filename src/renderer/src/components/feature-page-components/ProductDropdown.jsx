@@ -14,8 +14,6 @@ const ProductDropdown = ({ product, setProduct }) => {
     <Select
       value={product}
       onValueChange={(value) => {
-        console.log(value);
-        
         setProduct(value)
       }}
     >

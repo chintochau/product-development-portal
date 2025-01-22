@@ -32,8 +32,6 @@ export const checkSignInStatus = async () => {
         return false
     }
     const info = await getUserInfoByEmail(user.email)
-    console.log(info);
-    
     return {
         email: user.email,
         uid: user.uid,

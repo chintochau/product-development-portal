@@ -63,18 +63,17 @@ const BarChartComponent = ({ chartData, developerChart }) => {
         }
         return acc
       }, dayjs().add(1, 'day').valueOf())
-      const features = item.features
-        .map((item) => {
-          const endDate = item.startDate
-            ? dayjs(item.startDate).add(item.estimate, 'day').valueOf()
-            : dayjs().add(120, 'day').valueOf()
-            
-          return {
-            name: item.title,
-            period1: [item.startDate || dayjs().valueOf(), endDate],
-            type: 'feature'
-          }
-        })
+      const features = item.features.map((item) => {
+        const endDate = item.startDate
+          ? dayjs(item.startDate).add(item.estimate, 'day').valueOf()
+          : dayjs().add(120, 'day').valueOf()
+
+        return {
+          name: item.title,
+          period1: [item.startDate || dayjs().valueOf(), endDate],
+          type: 'feature'
+        }
+      })
 
       return [
         {
@@ -85,113 +84,109 @@ const BarChartComponent = ({ chartData, developerChart }) => {
         ...features
       ]
     })
-    
+
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Bar Chart</CardTitle>
-          <CardDescription>Features Planned</CardDescription>
-        </CardHeader>
-        <CardContent >
-          <ChartContainer
-            config={chartConfig}
-            style={{ height: chartData.length * 120, width: '100%' }}
-          >
-            <BarChart
-              data={data}
-              margin={{ top: 20, right: 20, bottom: 20, left: 0 }}
-              layout="vertical"
-            >
-              <YAxis dataKey="name" type="category" interval={0} width={250}
+      <ChartContainer
+        config={chartConfig}
+        style={{ height: chartData.length * 120, width: '100%' }}
+      >
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 20, bottom: 20, left: 0 }}
+          layout="vertical"
+        >
+          <YAxis dataKey="name" type="category" interval={0} width={250} />
+          <XAxis
+            type="number"
+            domain={[minDate, maxDate]}
+            tickFormatter={(day) => dayjs(day).format('MM-YYYY')}
+          />
 
-              />
-              <XAxis
-                type="number"
-                domain={[minDate, maxDate]}
-                tickFormatter={(day) => dayjs(day).format('MM-YYYY')}
-              />
-
-              <ChartTooltip
-                content={<ToolTipConpoment />}
-                formatter={(_, __, item) =>
-                  `${dayjs(item.value[1]).format('MM-YYYY')} to ${dayjs(item.value[0]).format('MM-YYYY')}`
-                }
-              />
-              <Bar dataKey="period1" layout="vertical" radius={5}  shape={
-                (props) => {
-                  const { x, y, width, height, type,name } = props;
-                  const padding = 5
-                  return type === 'developer' ? (
-                    <text x={x} y={y} width={width} height={height} dy={25} fill="hsl(var(--chart-1))" fontWeight={'bold'} fontSize={19}>{name}</text>
-                  ) : (
-                    <rect x={x } y={y + padding} width={width} height={height - 2*padding} rx={10} fill="hsl(var(--chart-2))" />
-                  )
-                }
-              } />
-              <ReferenceLine
-                x={dayjs().valueOf()} // Today's timestamp
-                stroke="hsl(var(--primary))" // Line color
-                strokeDasharray="3 3" // Optional: dashed line style
-                label={{
-                  value: `Today: ${dayjs().format('D-MM-YYYY')}`,
-                  position: 'top',
-                  fill: 'hsl(var(--primary))',
-                  fontSize: 12
-                }}
-              />
-            </BarChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+          <ChartTooltip
+            content={<ToolTipConpoment />}
+            formatter={(_, __, item) =>
+              `${dayjs(item.value[1]).format('MM-YYYY')} to ${dayjs(item.value[0]).format('MM-YYYY')}`
+            }
+          />
+          <Bar
+            dataKey="period1"
+            layout="vertical"
+            radius={5}
+            shape={(props) => {
+              const { x, y, width, height, type, name } = props
+              const padding = 5
+              return type === 'developer' ? (
+                <text
+                  x={x}
+                  y={y}
+                  width={width}
+                  height={height}
+                  dy={25}
+                  fill="hsl(var(--chart-1))"
+                  fontWeight={'bold'}
+                  fontSize={19}
+                >
+                  {name}
+                </text>
+              ) : (
+                <rect
+                  x={x}
+                  y={y + padding}
+                  width={width}
+                  height={height - 2 * padding}
+                  rx={10}
+                  fill="hsl(var(--chart-2))"
+                />
+              )
+            }}
+          />
+          <ReferenceLine
+            x={dayjs().valueOf()} // Today's timestamp
+            stroke="hsl(var(--primary))" // Line color
+            strokeDasharray="3 3" // Optional: dashed line style
+            label={{
+              value: `Today: ${dayjs().format('D-MM-YYYY')}`,
+              position: 'top',
+              fill: 'hsl(var(--primary))',
+              fontSize: 12
+            }}
+          />
+        </BarChart>
+      </ChartContainer>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Bar Chart</CardTitle>
-        <CardDescription>Features Planned</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer
-          config={chartConfig}
-          style={{ height: chartData.length * 50, width: '100%' }}
-        >
-          <BarChart
-            data={data}
-            margin={{ top: 20, right: 20, bottom: 20, left: 0 }}
-            layout="vertical"
-          >
-            <YAxis dataKey="name" type="category" interval={0} width={250} />
-            <XAxis
-              type="number"
-              domain={[minDate, maxDate]}
-              tickFormatter={(day) => dayjs(day).format('MM-YYYY')}
-            />
+    <ChartContainer config={chartConfig} style={{ height: chartData.length * 50, width: '100%' }}>
+      <BarChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 0 }} layout="vertical">
+        <YAxis dataKey="name" type="category" interval={0} width={250} />
+        <XAxis
+          type="number"
+          domain={[minDate, maxDate]}
+          tickFormatter={(day) => dayjs(day).format('MM-YYYY')}
+        />
 
-            <ChartTooltip
-              content={<ToolTipConpoment />}
-              formatter={(_, __, item) =>
-                `${dayjs(item.value[1]).format('MM-YYYY')} to ${dayjs(item.value[0]).format('MM-YYYY')}`
-              }
-            />
+        <ChartTooltip
+          content={<ToolTipConpoment />}
+          formatter={(_, __, item) =>
+            `${dayjs(item.value[1]).format('MM-YYYY')} to ${dayjs(item.value[0]).format('MM-YYYY')}`
+          }
+        />
 
-            <Bar dataKey="period1" fill="lightBlue" layout="vertical" radius={5} />
-            <ReferenceLine
-              x={dayjs().valueOf()} // Today's timestamp
-              stroke="hsl(var(--primary))" // Line color
-              strokeDasharray="3 3" // Optional: dashed line style
-              label={{
-                value: `Today: ${dayjs().format('D-MM-YYYY')}`,
-                position: 'top',
-                fill: 'hsl(var(--primary))',
-                fontSize: 12
-              }}
-            />
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+        <Bar dataKey="period1" fill="lightBlue" layout="vertical" radius={5} />
+        <ReferenceLine
+          x={dayjs().valueOf()} // Today's timestamp
+          stroke="hsl(var(--primary))" // Line color
+          strokeDasharray="3 3" // Optional: dashed line style
+          label={{
+            value: `Today: ${dayjs().format('D-MM-YYYY')}`,
+            position: 'top',
+            fill: 'hsl(var(--primary))',
+            fontSize: 12
+          }}
+        />
+      </BarChart>
+    </ChartContainer>
   )
 }
 
