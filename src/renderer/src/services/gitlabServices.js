@@ -6,6 +6,62 @@ const ANDROID_PROJECTID = 34489306
 const DESKTOP_PROJECTID = 34489352
 const FEATURES_PROJECTID = 36518895
 
+import _ from "lodash";
+
+export const groupIssuesByProjectId = (issues) => {
+    // Use Lodash's groupBy to group issues by project_id
+    const groupedIssues = _.groupBy(issues, "project_id");
+
+    // Create a map for quick lookup of config details
+    const projectConfigMap = _.keyBy(projectConfig, "project_id");
+
+    // Create the result object
+    return Object.keys(groupedIssues).reduce((result, projectId) => {
+        const config = projectConfigMap[projectId] || {};
+        result[projectId] = {
+            id: Number(projectId), // Use predefined ID or fallback to projectId
+            name: config.name ?? `Project ${projectId}`, // Fallback name for unknown projects
+            issues: groupedIssues[projectId], // Issues grouped by this project ID
+            color: config.color ?? "hsl(var(--default-chart-color))", // Fallback color,
+        };
+        return result;
+    }, {});
+};
+
+// Example usage:
+const projectConfig = [
+    { id: 5, name: "Firmware", project_id: FIRMWARE_PROJECTID, color: "hsl(var(--chart-1))" },
+    { id: 6, name: "iOS", project_id: IOS_PROJECTID, color: "hsl(var(--chart-2))" },
+    { id: 7, name: "Android", project_id: ANDROID_PROJECTID, color: "hsl(var(--chart-3))" },
+    { id: 8, name: "Desktop", project_id: DESKTOP_PROJECTID, color: "hsl(var(--chart-4))" },
+];
+
+export function getProjectNamesAndIds(issues) {
+    // Use a Map to ensure unique project names and IDs
+    const projectMap = new Map();
+
+    // Create a map for quick lookup of config details
+    const projectConfigMap = _.keyBy(projectConfig, "project_id");
+
+    issues.forEach((issue) => {
+        if (!projectMap.has(issue.project_id)) {
+            const config = projectConfigMap[issue.project_id] || {};
+            const projectRelativePath = issue.references.relative.split("#")[0];
+            projectMap.set(issue.project_id, {
+                id: config.id || issue.project_id,
+                name: config.name || projectRelativePath, // Fallback name
+                color: config.color || "hsl(var(--default-chart-color))",
+                projectId: issue.project_id,
+                web_url: `https://gitlab.com/lenbrook/sovi/${projectRelativePath}/-/issues/`
+            });
+        }
+    });
+    // Convert the Map to an array
+    return Array.from(projectMap.values()).sort((a, b) => a.id - b.id);
+}
+
+
+
 
 export const getNameForProject = (id) => {
     switch (id) {
@@ -24,6 +80,7 @@ export const getNameForProject = (id) => {
 
 import yaml from "js-yaml"
 import frontMatter from 'front-matter'
+import { toQueryString } from "../../../lib/utils"
 
 
 export const getProductsLog = async () => {
@@ -163,8 +220,9 @@ export const getGroupIssuesForDeveloper = async (developerId) => {
     return data
 }
 
-export const getGroupIssuesWithQuery = async ({ text, page = 1, per_page = 100, state = "opened" }) => {
-    const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/issues?search=${text}&page=${page}&per_page=${per_page}&state=${state}`, "GET");
+export const getGroupIssuesWithQuery = async (inputData) => {
+    const query = toQueryString(inputData)
+    const data = await window.api.gitlab(`groups/${SOVI_GROUP_ID}/issues${query}`, "GET");
     return data
 }
 
@@ -174,6 +232,11 @@ export const getMilestones = async () => {
     const android = await window.api.gitlab(`projects/${ANDROID_PROJECTID}/milestones?per_page=100&state=active&state=active`, "GET");
     const desktop = await window.api.gitlab(`projects/${DESKTOP_PROJECTID}/milestones?per_page=100&state=active&state=active`, "GET");
     const data = [...firmware, ...ios, ...android, ...desktop]
+    return data
+}
+
+export const getIssuesFromMilestone = async (projectid, milestoneId) => {
+    const data = await window.api.gitlab(`projects/${projectid}/milestones/${milestoneId}/issues?per_page=100`, "GET");
     return data
 }
 

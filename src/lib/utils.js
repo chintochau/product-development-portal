@@ -78,19 +78,18 @@ export const isInProgress = (startDate, endDate) => {
   return now >= start && now <= end
 }
 
-export const openPageWithReference = (reference) => {
-  const [] = reference.split("/")
-  switch (reference.split("")[0]) {
-    case "jira":
-      return "https://jira.atlassian.com/browse/"
-    case "trello":
-      return "https://trello.com/c/"
-    case "asana":
-      return "https://app.asana.com/0/"
-    case "github":
-      return "https://github.com/"
-    default:
-      return null
-  }
-  window.open(url, '_blank')
+
+export function toQueryString(params) {
+  return (
+      '?' +
+      Object.entries(params)
+          .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+          .join('&')
+  );
 }
+
+// Example usage:
+const input = {
+  state: "opened",
+  per_page: 100
+};

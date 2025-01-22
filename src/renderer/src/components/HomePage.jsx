@@ -73,7 +73,7 @@ const HomePage = () => {
           </div>
           <DataTable columns={columns} data={filteredProducts} />
         </div>
-        <ScheduleChart products={filteredProducts} />
+        <div className='py-4'><ScheduleChart products={filteredProducts} /></div>
       </div>
     </FrameWraper>
   )

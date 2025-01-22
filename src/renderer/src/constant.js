@@ -10,6 +10,7 @@ import FeaturesPage from "./components/FeaturesPage"
 import FeatureRequestDetailPage from "./components/FeatureRequestDetailPage"
 import TicketPage from "./components/TicketPage"
 import MilestonePage from "./components/MilestonePage"
+import ProjectsPage from "./components/project-page/ProjectsPage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -53,6 +54,7 @@ export const navigationItems = [
         title: "Project Hub",
         url: "/project-hub",
         icon: LayoutDashboard,
+        element:ProjectsPage,
         nested: [
             {
                 title: "New Ticket",

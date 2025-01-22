@@ -19,6 +19,7 @@ import { BrowsingProvider } from './contexts/browsingContext'
 import { ThemeProvider } from '../../components/theme-provider'
 import { DeveloperProvider } from './contexts/developerContext'
 import { RoadmapProvider } from './contexts/roadmapConetxt'
+import { ProjectsProvider } from './contexts/projecstContext'
 
 function App() {
   return (
@@ -32,10 +33,12 @@ function App() {
                   <SingleProductProvider>
                     <BrowsingProvider>
                       <SidebarProvider>
-                       <RoadmapProvider>
-                          <AppSidebar />
-                          <Layout />
-                       </RoadmapProvider>
+                       <ProjectsProvider>
+                         <RoadmapProvider>
+                            <AppSidebar />
+                            <Layout />
+                         </RoadmapProvider>
+                       </ProjectsProvider>
                       </SidebarProvider>
                     </BrowsingProvider>
                   </SingleProductProvider>

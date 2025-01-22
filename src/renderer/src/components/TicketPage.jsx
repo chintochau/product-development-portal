@@ -26,7 +26,7 @@ const TicketPage = () => {
   const getTickets = async () => {
     setLoading(true)
     const response = await getGroupIssuesWithQuery({
-      text: searchText,
+      search: searchText,
       state: openOnly ? 'opened' : 'closed'
     })
     setLoading(false)
@@ -48,6 +48,7 @@ const TicketPage = () => {
             <div className="flex gap-2">
               <Input
                 placeholder="Search"
+                className=" border-secondary border-2"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />

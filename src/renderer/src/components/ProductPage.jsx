@@ -110,7 +110,7 @@ const ProductPage = () => {
 
         <div className="flex flex-col gap-2 w-10/12">
           <BluOSFeatureRequest productIssueId={productIid}>
-            <AllFeatures features={featuresFilteredByIID} className={"py-2"} />
+            <AllFeatures features={featuresFilteredByIID} className={"py-2 w-full"} />
           </BluOSFeatureRequest>
         </div>
       </div>

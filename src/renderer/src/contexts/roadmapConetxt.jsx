@@ -118,8 +118,6 @@ export const RoadmapProvider = ({ children }) => {
             .filter((item) => selectedBrands.includes(item.brand) && item.bluos)
             .sort((a, b) => new Date(a.mp1) - new Date(b.mp1))
             .map((task) => {
-              console.log("FEATURES", features, task.id);
-              
               const productFeatures = features
                 .filter((f) => f.product === task.id)
                 .map((f) => {

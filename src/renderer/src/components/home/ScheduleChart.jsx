@@ -76,12 +76,6 @@ const ScheduleChart = ({products}) => {
     }
   }, [products])
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Bar Chart</CardTitle>
-        <CardDescription>From MP1 to Launch Dates</CardDescription>
-      </CardHeader>
-      <CardContent>
         <ChartContainer
           config={chartConfig}
           style={{ height: Math.min(chartData.length * 40,550), width: '100%' }}
@@ -119,9 +113,6 @@ const ScheduleChart = ({products}) => {
             />
           </BarChart>
         </ChartContainer>
-      </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm"></CardFooter>
-    </Card>
   )
 }
 
