@@ -86,7 +86,8 @@ export const ProjectsProvider = ({ children }) => {
     issuesOpenedLastWeek,
     issuesClosedThisWeek,
     issuesClosedLastWeek,
-    setShouldRefresh
+    setShouldRefresh,
+    shouldRefresh
   }
 
   return <ProjectsContext.Provider value={value}>{children}</ProjectsContext.Provider>

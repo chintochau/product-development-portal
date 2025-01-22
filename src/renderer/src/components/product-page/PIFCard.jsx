@@ -30,7 +30,7 @@ const PIFCard = ({ className }) => {
       await postNote(
         {
           type: 'pif',
-          author: user.username,
+          author: user.name,
           fileName: response.alt,
           path: 'https://gitlab.com/' + response.full_path,
           fileId: response.id
@@ -45,7 +45,7 @@ const PIFCard = ({ className }) => {
   }
 
   const canUpload = () => {
-    if (user.username && file && !loading) {
+    if (file && !loading) {
       return true
     }
     return false

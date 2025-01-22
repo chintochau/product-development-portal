@@ -1,8 +1,11 @@
 import React from 'react'
+import FrameWraper from './frameWarper'
 
 const MilestonePage = () => {
   return (
-    <div>MilestonePage</div>
+    <FrameWraper>
+      <div className='w-full h-[90vh] flex items-center justify-center text-3xl'>🚀 New Features Coming Soon!</div>
+    </FrameWraper>
   )
 }
 

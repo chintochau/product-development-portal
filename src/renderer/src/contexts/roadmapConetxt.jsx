@@ -133,9 +133,9 @@ export const RoadmapProvider = ({ children }) => {
                         ? dayjs(f.startDate)
                             .add(f.estimate || 30, 'day')
                             .toDate()
-                        : dayjs().add(30, 'day').toDate()
+                        : dayjs().add(180, 'day').toDate()
                     ),
-                    fill: bluosFeatureColor,
+                    fill: f.startDate ? bluosFeatureColor : "hsl(var(--muted-foreground))",
                     url: f.web_url
                   }
                 })
@@ -248,7 +248,7 @@ export const RoadmapProvider = ({ children }) => {
                 ? dayjs(f.startDate)
                     .add(f.estimate || 30, 'day')
                     .toDate()
-                : dayjs().add(30, 'day').toDate()
+                : dayjs().add(180, 'day').toDate()
             ),
             fill: bluosFeatureColor,
             url: f.web_url

@@ -42,6 +42,8 @@ import { Progress } from '../../../../components/ui/progress'
 import { cn, daysFromToday } from '../../../../lib/utils'
 import { Checkbox } from '../../../../components/ui/checkbox'
 import { Button } from '../../../../components/ui/button'
+import { Badge } from '../../../../components/ui/badge'
+import { StatusComponent } from '../TicketPage'
 
 const ticketStates = ['opened', 'closed']
 
@@ -57,16 +59,31 @@ const ProjectsPage = () => {
   useEffect(() => {
     setSelectedProjects(projectNamesAndIds.map((p) => p.projectId))
   }, [weekIssues])
-
   return (
     <FrameWraper>
       <div className="px-4">
-        <h2 className="text-2xl ">Projects</h2>
+        <div className="flex items-center">
+          <h2 className="text-2xl ">Projects</h2>
+
+          <Button
+            size="icon"
+            variant="ghost"
+            className="group"
+            onClick={() => setShouldRefresh(true)}
+          >
+            <RefreshCcw className="h-4 w-4 group-hover:animate-spin" />
+          </Button>
+        </div>
         <div>{!loading ? <IssueCards /> : <Loader2 className="animate-spin" />}</div>
         <div className="flex items-center">
           <h2 className="text-2xl "> Issues in Two Weeks</h2>
-          <Button size="icon" variant="ghost" className="group" onClick={() => setShouldRefresh(true)}>
-            <RefreshCcw className="h-4 w-4 group-hover:animate-spin"  />
+          <Button
+            size="icon"
+            variant="ghost"
+            className="group"
+            onClick={() => setShouldRefresh(true)}
+          >
+            <RefreshCcw className="h-4 w-4 group-hover:animate-spin" />
           </Button>
         </div>
 
@@ -128,6 +145,8 @@ const ProjectsPage = () => {
               <TableRow>
                 <TableHead className="w-fit">Project</TableHead>
                 <TableHead>Name</TableHead>
+                <TableHead>Creator</TableHead>
+                <TableHead>Assignee</TableHead>
                 <TableHead>Gitlab</TableHead>
                 <TableHead>Milestone</TableHead>
                 <TableHead>State</TableHead>
@@ -147,6 +166,8 @@ const ProjectsPage = () => {
                   >
                     <TableCell className="w-44">{issue.references.relative}</TableCell>
                     <TableCell>{issue.title}</TableCell>
+                    <TableCell>{issue.author?.name}</TableCell>
+                    <TableCell>{issue.assignee?.name}</TableCell>
                     <TableCell
                       onClick={() => window.open(issue.web_url)}
                       className="cursor-pointer hover:underline"
@@ -154,7 +175,9 @@ const ProjectsPage = () => {
                       Link
                     </TableCell>
                     <TableCell className="w-44">{issue.milestone?.title}</TableCell>
-                    <TableCell>{issue.state}</TableCell>
+                    <TableCell>
+                      <StatusComponent status={issue.state} />
+                    </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
@@ -333,16 +356,15 @@ const MilestoneChart = ({ selectedMilestone }) => {
     'hsl(var(--chart-4))',
     'hsl(var(--chart-5))'
   ]
-  const { milestones } = useSingleProduct()
+  const { shouldRefresh } = useProjects()
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
-  const [groupedTickets, setGroupedTickets] = useState([])
   const [aggregateTickets, setAggregateTickets] = useState({})
 
   useEffect(() => {
-    if (!selectedMilestone) return
+    if (!selectedMilestone && !shouldRefresh) return
     loadTickets()
-  }, [selectedMilestone])
+  }, [selectedMilestone, shouldRefresh])
 
   const loadTickets = async () => {
     const data = await getIssuesFromMilestone(selectedMilestone.project_id, selectedMilestone.id)
@@ -413,7 +435,7 @@ const MilestoneChart = ({ selectedMilestone }) => {
         <p>Due: {daysFromToday(selectedMilestone?.due_date)}</p>
         <p>{((100 * closedTickets) / tickets.length).toFixed(2)} %</p>
       </div>
-      <div className="h-60">
+      <div className="h-72">
         {!loading ? (
           <ResponsiveContainer width="100%" height="90%">
             <PieChart width={400} height={400}>

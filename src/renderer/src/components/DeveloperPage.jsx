@@ -55,8 +55,6 @@ const DeveloperPage = () => {
   const [showStatusBar, setShowStatusBar] = React.useState(false)
   const { findProductsById } = useProducts()
 
-  console.log(featuersByDevelopers);
-  
   return (
     <div className="flex flex-col px-4 gap-4 pb-4">
       <h1 className="text-2xl">Developers</h1>
