@@ -29,14 +29,13 @@ const ProductCard = ({ className }) => {
     greenlightTargetMP
   } = productData || {}
   return (
-    <Card className={cn('h-fit', className)}>
+    <Card className={cn('flex flex-col', className)}>
       <CardHeader>
         <CardTitle>Overview</CardTitle>
-        <CardDescription>*Info from Master Roadmap</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ScrollArea>
-          <div className="max-h-72">
+      <CardContent className="flex-1">
+        <ScrollArea className="h-full">
+          <div className="h-40">
             <Label>Brand</Label>
             <p className={contentClassName}>{brand}</p>
             <Label>Project Name</Label>
@@ -60,6 +59,7 @@ const ProductCard = ({ className }) => {
           </div>
         </ScrollArea>
       </CardContent>
+      <CardFooter></CardFooter>
     </Card>
   )
 }

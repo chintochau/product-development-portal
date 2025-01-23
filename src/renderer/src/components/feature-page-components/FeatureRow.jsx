@@ -51,15 +51,14 @@ import ProductDropdown from './ProductDropdown'
 import EstimateSlider from './EstimateSlider'
 import { Textarea } from '../../../../components/ui/textarea'
 import { Input } from '../../../../components/ui/input'
+import PriorityDropdown from './PriorityDropdown'
 
 function FeatureRow({ feature }) {
   const { developers } = useDevelopers()
   const { setShouldRefresh, setLoading } = useTickets()
   const [showStatusBar, setShowStatusBar] = useState(false)
   const [selectedDevelopers, setSelectedDevelopers] = useState([])
-
   const [isEditing, setIsEditing] = useState(false)
-
   const [ticketUrl, setTicketUrl] = useState(feature?.ticket || '')
 
   const isSelected = (id) => {
@@ -75,11 +74,11 @@ function FeatureRow({ feature }) {
   }
 
   const { assignee_ids, id } = feature || {}
-
   const [title, setTitle] = useState(feature?.title)
   const [description, setDescription] = useState(feature?.description)
 
   const [product, setProduct] = useState(feature?.product)
+  const [priority, setPriority] = useState(feature?.priority)
 
   const handleDeleteTicket = async () => {
     setLoading(true)
@@ -137,9 +136,20 @@ function FeatureRow({ feature }) {
 
   const handleProductChange = async (value) => {
     setLoading(true)
+    setProduct(value)
     const response = await updateFeatureRequestIssue(id, {
       ...feature,
       product: value
+    })
+    setShouldRefresh(true)
+  }
+
+  const handlePriorityChange = async (value) => {
+    setLoading(true)
+    setPriority(value)
+    const response = await updateFeatureRequestIssue(id, {
+      ...feature,
+      priority: value
     })
     setShouldRefresh(true)
   }
@@ -199,7 +209,10 @@ function FeatureRow({ feature }) {
             </div>
           ) : (
             <div className="size-5">
-              <Edit className="cursor-pointer" onClick={() => setIsEditing(!isEditing)} />
+              <Edit
+                className="cursor-pointer text-secondary hover:text-primary  duration-300 transition-all"
+                onClick={() => setIsEditing(!isEditing)}
+              />
             </div>
           )}
         </div>
@@ -247,7 +260,9 @@ function FeatureRow({ feature }) {
           setStartDate={handleDateChange}
         />
       </TableCell>
-      <TableCell className="font-medium"></TableCell>
+      <TableCell className="font-medium">
+        <PriorityDropdown priority={priority} setPriority={handlePriorityChange} />
+      </TableCell>
       <TableCell className="font-medium">
         {feature.ticket && !isEditing ? (
           <p

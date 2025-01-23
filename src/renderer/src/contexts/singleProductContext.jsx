@@ -110,7 +110,10 @@ export const SingleProductProvider = ({ children }) => {
 
   useEffect(() => {
     setLoading(true)
-    if (productLog) {
+    if (productLog && productLog.useLookup) {
+      setProductData(productLog)
+      getNotes(productLog.iid)
+    } else if (productLog) {
       setProductData(productLog)
       setIid(productLog.iid)
       getNotes(productLog.iid)
@@ -183,7 +186,10 @@ export const SingleProductProvider = ({ children }) => {
   }
 
   const getFeatureEpics = () => {
-    return epics.filter((item) => item.labels.includes('type::feature')).filter((item) => item.due_date).sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
+    return epics
+      .filter((item) => item.labels.includes('type::feature'))
+      .filter((item) => item.due_date)
+      .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
   }
 
   const value = {

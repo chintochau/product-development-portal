@@ -18,14 +18,13 @@ import { cn } from '../../../../lib/utils'
 const SoftwareStatusCard = ({ className }) => {
   const { software, softwareLoading } = useSingleProduct()
   return (
-    <Card className={cn('h-fit', className)}>
+    <Card className={cn('flex flex-col ', className)}>
       <CardHeader>
-        <CardTitle>Software Status</CardTitle>
-        <CardDescription>*Updated by software team</CardDescription>
+        <CardTitle>Status</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ScrollArea>
-          <div className="max-h-[50vh] pr-3">
+      <CardContent className="flex-1">
+        <ScrollArea className="h-full">
+          <div className=" h-52">
             {softwareLoading ? (
               <Loader2 className="animate-spin" />
             ) : (

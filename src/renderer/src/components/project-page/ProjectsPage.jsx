@@ -415,7 +415,7 @@ const MilestoneChart = ({ selectedMilestone }) => {
     <div className="min-h-80 mt-2 flex flex-col">
       <div className="text-sm flex justify-between items-center">
         <p
-          className="hover:underline text-primary/80  cursor-pointer"
+          className="hover:underline text-primary/80  cursor-pointer pt-1.5 pb-1 font-semibold"
           onClick={() =>
             window.open(
               selectedMilestone?.web_url.split('milestones')[0] +

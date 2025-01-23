@@ -51,6 +51,15 @@ const AllFeatures = ({ features, className }) => {
         </TableHeader>
         <TableBody>
           {features && features.map((feature) => <FeatureRow feature={feature} key={feature.id} />)}
+          {
+            features.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center">
+                  No features found.
+                </TableCell>
+              </TableRow>
+            )
+          }
         </TableBody>
       </Table>
 

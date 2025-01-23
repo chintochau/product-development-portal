@@ -7,6 +7,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { useProducts } from '../../contexts/productsContext'
+import { Label } from '../../../../components/ui/label'
 
 const ProductDropdown = ({ product, setProduct }) => {
   const { products } = useProducts()
@@ -28,7 +29,10 @@ const ProductDropdown = ({ product, setProduct }) => {
           .filter((product) => product.bluos)
           .map((product) => (
             <SelectItem key={product.iid} value={product.iid}>
-              {product.brand} - {product.projectName}
+              <div className="flex flex-col  text-start">
+                <p className="text-[12px] text-muted-foreground">{product.brand}</p>
+                <p>{product.projectName}</p>
+              </div>
             </SelectItem>
           ))}
       </SelectContent>

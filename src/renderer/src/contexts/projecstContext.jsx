@@ -32,7 +32,9 @@ export const ProjectsProvider = ({ children }) => {
 
     const createResult = await getGroupIssuesWithQuery(createQuery)
     const closedResult = await getGroupIssuesWithQuery(closedQuery)
-    const allTickets = createResult.concat(closedResult)
+    console.log(closedResult);
+    
+    const allTickets = createResult.concat(closedResult.filter((issue) => dayjs(issue.closed_at).isAfter(dayjs().startOf('week').subtract(1, 'week'))))
     const uniqueTickets = allTickets.filter(
       (ticket, index) => allTickets.findIndex((t) => t.iid === ticket.iid) === index
     )

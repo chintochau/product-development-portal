@@ -54,7 +54,7 @@ export const navigationItems = [
         title: "Project Hub",
         url: "/project-hub",
         icon: LayoutDashboard,
-        element:ProjectsPage,
+        element: ProjectsPage,
         nested: [
             {
                 title: "New Ticket",
@@ -68,6 +68,12 @@ export const navigationItems = [
                 icon: MapPin,
                 element: MilestonePage,
             },
+            {
+                title:"Analytics",
+                url:"/analytics",
+                icon: BarChart,
+                element: MilestonePage
+            }
         ],
         access: 1, // Admin, Platform, and Software Manager
     },
@@ -107,6 +113,21 @@ export const otherPages = [
     }
 
 ]
+
+export const defaultPriorities = {
+    0: "Required For Launch",
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    6: "6",
+    7: "7",
+    8: "8",
+    9: "9",
+    10: "10",
+}
+
 
 export const defaultBrands = [
     { value: "BLS", name: "Bluesound" },

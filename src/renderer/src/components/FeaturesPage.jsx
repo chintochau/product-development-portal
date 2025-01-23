@@ -64,7 +64,7 @@ const FeaturesPage = () => {
   return (
     <div className="px-4 flex flex-col gap-6 pb-4">
       <div className="flex items-center">
-        <h2 className="text-2xl">Planned Features</h2>
+        <h2 className="text-2xl">Features</h2>
         <Button
           variant="link"
           size="sm"
@@ -149,7 +149,7 @@ const AppFeatureChart = ({ chartData, children }) => {
     <Card>
       <CardHeader>
         <CardTitle>Apps Planning</CardTitle>
-        <CardDescription>Client Apps Feature Requests</CardDescription>
+        <CardDescription>Client Apps Planning</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer

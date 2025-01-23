@@ -43,14 +43,16 @@ const BluOSFeatureRequest = ({ productIssueId, children }) => {
   return (
     <Card className="">
       <CardHeader>
-        <CardTitle>BluOS Planning</CardTitle>
+        <CardTitle>BluOS</CardTitle>
         <CardDescription>BluOS Feature Requests</CardDescription>
       </CardHeader>
 
-      <CardContent>
-        <div className=" rounded-md overflow-hidden shadow">
-          <div className="w-full bg-secondary/20 px-2 py-2 text-sm text-secondary-foreground font-semibold">Create a Feature Request</div>
-          <div className='p-2'>
+      <CardContent className={productIssueId ? 'flex gap-3 flex-wrap' : ''}>
+        <div className=" rounded-md overflow-hidden shadow flex-[4]">
+          <div className="w-full bg-secondary/20 px-2 py-2 text-sm text-secondary-foreground font-semibold">
+            Create a Feature Request
+          </div>
+          <div className="p-2">
             <Label>Product</Label>
             {productIssueId ? (
               <p>{findProductsById(productIssueId)}</p>
@@ -73,13 +75,16 @@ const BluOSFeatureRequest = ({ productIssueId, children }) => {
                 value={description}
               />
               <div>
-                <Button>{loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Create</Button>
+                <Button>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Create
+                </Button>
               </div>
             </form>
           </div>
         </div>
+        {children}
       </CardContent>
-      <CardFooter>{children}</CardFooter>
+      <CardFooter></CardFooter>
     </Card>
   )
 }

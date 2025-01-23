@@ -40,6 +40,7 @@ import FeaturesStatusCard from './product-page/FeaturesStatusCard'
 import AllFeatures from './feature-page-components/AllFeatures'
 import { useTickets } from '../contexts/ticketsContext'
 import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
+import FrameWraper from './frameWarper'
 
 const ProductPage = () => {
   const { productData, setTickets, tickets, loading, epics } = useSingleProduct()
@@ -81,78 +82,67 @@ const ProductPage = () => {
     )
   }
   return (
-    <div className="px-4 pb-4">
-      <div className="w-full flex items-center ">
-        <h2 className="text-2xl">{projectName}</h2>
-      </div>
-
-      <div className="w-full flex gap-4">
-        <div className="relative w-4/12 flex flex-col gap-4">
-          <div className="absolute top-4 right-4">
-            <Link to={`${location.pathname}/edit`}>
-              <Button
-                variant="link"
-                size="sm"
-                className=" text-muted-foreground hover:text-blue-500"
-              >
-                Edit
-              </Button>
-            </Link>
-          </div>
-          <ProductCard />
-          <PIFCard />
+    <FrameWraper>
+      <div className="px-4 pb-4 flex flex-col gap-4">
+        <div className="w-full flex items-center ">
+          <h2 className="text-2xl">{projectName}</h2>
+          <Link to={`${location.pathname}/edit`}>
+            <Button variant="link" size="sm" className=" text-muted-foreground hover:text-blue-500">
+              Edit
+            </Button>
+          </Link>
         </div>
 
-        <div className="flex flex-col gap-4 w-4/12">
-          <HardwareStatusCard />
-          <SoftwareStatusCard />
+        <div className="w-full flex gap-4 flex-wrap ">
+          <ProductCard className="flex-[3] min-w-40 h-96" />
+          <PIFCard className="flex-[3] min-w-40 h-96 " />
+          <SoftwareStatusCard className="flex-[6] min-w-96 h-96" />
         </div>
 
-        <div className="flex flex-col gap-2 w-10/12">
+        <div className="flex flex-col gap-2 flex-1">
           <BluOSFeatureRequest productIssueId={productIid}>
-            <AllFeatures features={featuresFilteredByIID} className={"py-2 w-full"} />
+            <AllFeatures features={featuresFilteredByIID} className={'flex-[8]'} />
           </BluOSFeatureRequest>
         </div>
-      </div>
 
-      <div className="mt-4 flex gap-4 flex-wrap">
-        <div className="relative flex-1 overflow-hidden rounded-xl min-w-96">
-          <div className="absolute top-4 right-4">
-            <Select
-              value={productData?.epicId}
-              onValueChange={(epicId) => {
-                updateTicketDescription(productData.iid, { ...productData, epicId })
-                setShouldRefreshProducts(true)
-                setSelectedEpicId(epicId)
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a product" />
-              </SelectTrigger>
-              <SelectContent>
-                {epics &&
-                  epics.map((epic) => (
-                    <SelectItem key={epic.id} value={epic.iid}>
-                      {epic.title}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+        <div className="mt-4 flex gap-4 flex-wrap">
+          <div className="relative flex-1 overflow-hidden rounded-xl min-w-96">
+            <div className="absolute top-4 right-4">
+              <Select
+                value={productData?.epicId}
+                onValueChange={(epicId) => {
+                  updateTicketDescription(productData.iid, { ...productData, epicId })
+                  setShouldRefreshProducts(true)
+                  setSelectedEpicId(epicId)
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select a product" />
+                </SelectTrigger>
+                <SelectContent>
+                  {epics &&
+                    epics.map((epic) => (
+                      <SelectItem key={epic.id} value={epic.iid}>
+                        {epic.title}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <TicketsChart
+              tickets={tickets}
+              softwareSignoffDate={softwareSignoffDate}
+              className={'flex-1'}
+            />
           </div>
-          <TicketsChart
-            tickets={tickets}
-            softwareSignoffDate={softwareSignoffDate}
-            className={'flex-1'}
-          />
+          <TicketSection tickets={tickets} className="w-1/2" />
         </div>
 
-        <TicketSection tickets={tickets} className="w-1/2" />
+        <div>
+          <NotesCard className="flex-1 mt-4" />
+        </div>
       </div>
-
-      <div>
-        <NotesCard className="flex-1 mt-4" />
-      </div>
-    </div>
+    </FrameWraper>
   )
 }
 

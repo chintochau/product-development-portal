@@ -50,16 +50,20 @@ const PIFCard = ({ className }) => {
     }
     return false
   }
+
   return (
-    <Card className={cn('h-fit', className)}>
+    <Card className={cn('h-full flex flex-col', className)}>
+      {/* Card Header */}
       <CardHeader>
-        <CardTitle>PIF File History</CardTitle>
+        <CardTitle>PIF Files</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ScrollArea>
-          <div className="max-h-52 border border-muted rounded-md">
-            {!pifs ? (
-              <p>No PIF file submitted</p>
+
+      {/* Card Content */}
+      <CardContent className="flex-1">
+        <ScrollArea className="h-full">
+          <div className="h-40">
+            {!pifs || pifs.length === 0 ? (
+              <Label>No PIF files found. Use the upload button below to add one.</Label>
             ) : (
               <>
                 {pifs &&
@@ -74,11 +78,17 @@ const PIFCard = ({ className }) => {
           </div>
         </ScrollArea>
       </CardContent>
+
+      {/* Card Footer */}
       <CardFooter>
         <div className="flex flex-col gap-1">
           <Label>Upload</Label>
           <div className="flex gap-2">
-            <Input type="file" onChange={(e) => setFile(e.target.files[0])} />
+            <Input
+              type="file"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="file:text-xs file:py-1 hover:bg-accent/50 cursor-pointer text-xs "
+            />
             <Button onClick={uploadFile} disabled={!canUpload()}>
               Upload {loading && <Loader2 className="animate-spin" />}
             </Button>
