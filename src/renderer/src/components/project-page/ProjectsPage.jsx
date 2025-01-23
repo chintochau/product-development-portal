@@ -32,7 +32,8 @@ import {
   ArrowUp,
   ArrowDown,
   Loader2,
-  RefreshCcw
+  RefreshCcw,
+  Search
 } from 'lucide-react'
 import { Label } from '../../../../components/ui/label'
 import { useSingleProduct } from '../../contexts/singleProductContext'
@@ -44,6 +45,7 @@ import { Checkbox } from '../../../../components/ui/checkbox'
 import { Button } from '../../../../components/ui/button'
 import { Badge } from '../../../../components/ui/badge'
 import { StatusComponent } from '../TicketPage'
+import { Input } from '../../../../components/ui/input'
 
 const ticketStates = ['opened', 'closed']
 
@@ -260,20 +262,43 @@ function ProjectIssueCard({ project, thisWeekOpen, openChange, thisWeekClosed, c
   )
 
   const [selectedMilestone, setSelectedMilestone] = useState(defaultMilesotne)
+  const [ticketId, setTicketId] = useState('')
 
   return (
     <Card key={project.id}>
       <CardHeader className="bg-secondary/10">
         <CardTitle style={{ color: project.color }}>{project.name}</CardTitle>
         {project.web_url && (
-          <CardDescription
-            className="hover:underline cursor-pointer w-fit"
-            onClick={(e) => {
-              e.stopPropagation()
-              window.open(project.web_url)
-            }}
-          >
-            Gitlab
+          <CardDescription className="flex items-center justify-between">
+            <p
+              className="hover:underline cursor-pointer w-fit"
+              onClick={(e) => {
+                e.stopPropagation()
+                window.open(project.web_url)
+              }}
+            >
+              Gitlab
+            </p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                window.open(`${project.web_url}${ticketId}`)
+              }}
+              className="relative"
+            >
+              <div className=" flex items-center">
+                <Input
+                  type="search"
+                  placeholder="Ticket ID"
+                  value={ticketId}
+                  onChange={(e) => setTicketId(e.target.value)}
+                  className="text-xs text-muted-foreground w-28"
+                />
+                <Button size="icon" type="submit" variant="ghost" className="absolute  right-0 hover:bg-transparent text-secondary">
+                  <Search />
+                </Button>
+              </div>
+            </form>
           </CardDescription>
         )}
       </CardHeader>

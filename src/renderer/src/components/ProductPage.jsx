@@ -101,7 +101,7 @@ const ProductPage = () => {
 
         <div className="flex flex-col gap-2 flex-1">
           <BluOSFeatureRequest productIssueId={productIid}>
-            <AllFeatures features={featuresFilteredByIID} className={'flex-[8]'} />
+            <AllFeatures features={featuresFilteredByIID} className={'flex-[8] w-full'} />
           </BluOSFeatureRequest>
         </div>
 

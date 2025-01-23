@@ -44,6 +44,7 @@ import { useRoadmap } from '../contexts/roadmapConetxt'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useSidebar } from '../../../components/ui/sidebar'
 import { cn } from '../../../lib/utils'
+import FrameWraper from './frameWarper'
 
 const FeaturesPage = () => {
   const { features } = useTickets()
@@ -62,71 +63,73 @@ const FeaturesPage = () => {
     })
 
   return (
-    <div className="px-4 flex flex-col gap-6 pb-4">
-      <div className="flex items-center">
-        <h2 className="text-2xl">Features</h2>
-        <Button
-          variant="link"
-          size="sm"
-          className="text-muted-foreground"
-          onClick={() => {
-            window.open(
-              'https://gitlab.com/groups/lenbrook/sovi/-/epics?state=opened&page=1&sort=start_date_desc'
-            )
-          }}
-        >
-          Gitlab
-        </Button>
-      </div>
-      <BluOSFeatureRequest>
-        <div className="flex flex-col gap-2 w-full py-4">
-          <Tabs defaultValue="features">
-            <TabsList>
-              <TabsTrigger value="features">Features</TabsTrigger>
-              <TabsTrigger value="developers">Developers</TabsTrigger>
-            </TabsList>
-            <TabsContent value="developers">
-              <BarChartComponent chartData={featuersByDevelopers} developerChart />
-            </TabsContent>
-            <TabsContent value="features">
-              <BarChartComponent chartData={featureChartData} />
-            </TabsContent>
-          </Tabs>
-          <AllFeatures features={features} className="" />
+    <FrameWraper>
+      <div className="px-4 flex flex-col gap-6 pb-4">
+        <div className="flex items-center">
+          <h2 className="text-2xl">Features</h2>
+          <Button
+            variant="link"
+            size="sm"
+            className="text-muted-foreground"
+            onClick={() => {
+              window.open(
+                'https://gitlab.com/groups/lenbrook/sovi/-/epics?state=opened&page=1&sort=start_date_desc'
+              )
+            }}
+          >
+            Gitlab
+          </Button>
         </div>
-      </BluOSFeatureRequest>
-      <AppFeatureChart chartData={chartData}>
-        <Table>
-          <TableHeader className="bg-secondary/20">
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Start</TableHead>
-              <TableHead>Due</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {getFeatureEpics().map((ticket) => (
-              <TableRow
-                key={ticket.iid}
-                className="cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  window.open(ticket.web_url)
-                }}
-              >
-                <TableCell className="font-medium">{ticket.references?.short}</TableCell>
-                <TableCell className="font-medium">{ticket.title}</TableCell>
-                <TableCell className="font-medium">{ticket.start_date}</TableCell>
-                <TableCell className="font-medium">{ticket.due_date}</TableCell>
+        <BluOSFeatureRequest className="w-full">
+          <div className="flex flex-col gap-2 w-full py-4">
+            <Tabs defaultValue="features">
+              <TabsList>
+                <TabsTrigger value="features">Features</TabsTrigger>
+                <TabsTrigger value="developers">Developers</TabsTrigger>
+              </TabsList>
+              <TabsContent value="developers">
+                <BarChartComponent chartData={featuersByDevelopers} developerChart />
+              </TabsContent>
+              <TabsContent value="features">
+                <BarChartComponent chartData={featureChartData} />
+              </TabsContent>
+            </Tabs>
+            <AllFeatures features={features} className="w-full" />
+          </div>
+        </BluOSFeatureRequest>
+        <AppFeatureChart chartData={chartData}>
+          <Table>
+            <TableHeader className="bg-secondary/20">
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Start</TableHead>
+                <TableHead>Due</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </AppFeatureChart>
-
-      <div className=""></div>
-    </div>
+            </TableHeader>
+            <TableBody>
+              {getFeatureEpics().map((ticket) => (
+                <TableRow
+                  key={ticket.iid}
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    window.open(ticket.web_url)
+                  }}
+                >
+                  <TableCell className="font-medium">{ticket.references?.short}</TableCell>
+                  <TableCell className="font-medium">{ticket.title}</TableCell>
+                  <TableCell className="font-medium">{ticket.start_date}</TableCell>
+                  <TableCell className="font-medium">{ticket.due_date}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </AppFeatureChart>
+  
+        <div className=""></div>
+      </div>
+    </FrameWraper>
   )
 }
 

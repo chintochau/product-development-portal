@@ -16,8 +16,9 @@ import { createFeatureRequestIssue } from '../../services/gitlabServices'
 import { useTickets } from '../../contexts/ticketsContext'
 import { Loader2 } from 'lucide-react'
 import { useProducts } from '../../contexts/productsContext'
+import { cn } from '../../../../lib/utils'
 
-const BluOSFeatureRequest = ({ productIssueId, children }) => {
+const BluOSFeatureRequest = ({ productIssueId, children, className }) => {
   const [title, setTitle] = React.useState('')
   const [description, setDescription] = React.useState('')
   const [product, setProduct] = React.useState(productIssueId)
@@ -41,13 +42,13 @@ const BluOSFeatureRequest = ({ productIssueId, children }) => {
     resetForm()
   }
   return (
-    <Card className="">
+    <Card className={cn('', className)}>
       <CardHeader>
         <CardTitle>BluOS</CardTitle>
         <CardDescription>BluOS Feature Requests</CardDescription>
       </CardHeader>
 
-      <CardContent className={productIssueId ? 'flex gap-3 flex-wrap' : ''}>
+      <CardContent className={productIssueId ? 'flex gap-3 flex-wrap w-full' : ''}>
         <div className=" rounded-md overflow-hidden shadow flex-[4]">
           <div className="w-full bg-secondary/20 px-2 py-2 text-sm text-secondary-foreground font-semibold">
             Create a Feature Request

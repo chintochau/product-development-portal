@@ -32,7 +32,6 @@ const TicketPage = () => {
     setLoading(false)
     setTickets(response)
   }
-
   return (
     <FrameWraper>
       <div className="flex flex-col">
@@ -48,6 +47,7 @@ const TicketPage = () => {
             <div className="flex gap-2">
               <Input
                 placeholder="Search"
+                type="search"
                 className=" border-secondary border-2"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
