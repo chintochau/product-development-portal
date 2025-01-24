@@ -20,13 +20,14 @@ import { useTickets } from '../contexts/ticketsContext'
 import { legendColorScale, useRoadmap } from '../contexts/roadmapConetxt'
 import { Slider } from '../../../components/ui/slider'
 import { MinusIcon, MoveHorizontalIcon, MoveVerticalIcon, PlusIcon } from 'lucide-react'
+import { getColorIntensityByLevel } from '../../../lib/utils'
 
 const defaultHeight = 800
 const heightFactor = 40
 const minimumWidth = 1200
 const defaultWidthFactor = 5
 // Margins
-const margin = { top: 20, right: 200, bottom: 40, left: 150 }
+const margin = { top: 20, right: 200, bottom: 40, left: 200 }
 
 const RoadmapPage = ({ scrollTop }) => {
   const { milestones } = useSingleProduct()
@@ -45,8 +46,40 @@ const RoadmapPage = ({ scrollTop }) => {
     showDevelopers,
     setShowDevelopers,
     showSubTasks,
-    setShowSubTasks
+    setShowSubTasks,
+    setShowAppsFeatures,
+    showAppsFeatures,
+    setShowBluosFeatures,
+    showBluosFeatures
   } = useRoadmap()
+
+  const checkboxLists = [
+    {
+      label: 'Apps',
+      checked: showAppsFeatures,
+      onChange: () => setShowAppsFeatures(!showAppsFeatures)
+    },
+    {
+      label: 'Bluos',
+      checked: showBluosFeatures,
+      onChange: () => setShowBluosFeatures(!showBluosFeatures)
+    },
+    {
+      label: 'Developers',
+      checked: showDevelopers,
+      onChange: () => setShowDevelopers(!showDevelopers)
+    },
+    {
+      label: 'SubTasks',
+      checked: showSubTasks,
+      onChange: () => setShowSubTasks(!showSubTasks)
+    },
+    {
+      label: 'Milestones',
+      checked: showMilestones,
+      onChange: () => setShowMilestones(!showMilestones)
+    }
+  ]
 
   const [height, setHeight] = useState(defaultHeight)
   const [widthFactor, setWidthFactor] = useState(defaultWidthFactor)
@@ -101,8 +134,8 @@ const RoadmapPage = ({ scrollTop }) => {
   }
 
   // Initial Date Range
-  const minDate = new Date(Math.min(...chartData.map((t) => t.start.getTime())))
-  const maxDate = new Date(Math.max(...chartData.map((t) => t.end.getTime())))
+  const minDate = new Date(Math.min(...chartData.map((t) => t.start?.getTime())))
+  const maxDate = new Date(Math.max(...chartData.map((t) => t.end?.getTime())))
 
   // Filter tasks within the range
   const filteredTasks = chartData.filter((task) => task.end >= range[0] && task.start <= range[1])
@@ -133,13 +166,6 @@ const RoadmapPage = ({ scrollTop }) => {
   })
   // Render
 
-  if (chartData.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-2xl font-semibold">No data available</p>
-      </div>
-    )
-  }
   return (
     <>
       {/* Date Range Slider */}
@@ -192,35 +218,23 @@ const RoadmapPage = ({ scrollTop }) => {
               ))}
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox
-                id="milestones"
-                onCheckedChange={setShowMilestones}
-                checked={showMilestones}
-              />
-              <label
-                htmlFor="milestones"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Milestones
-              </label>
-              <Checkbox
-                id="developers"
-                checked={showDevelopers}
-                onCheckedChange={setShowDevelopers}
-              />
-              <label
-                htmlFor="developers"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Developers
-              </label>
-              <Checkbox id="subtasks" checked={showSubTasks} onCheckedChange={setShowSubTasks} />
-              <label
-                htmlFor="subtasks"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Sub Tasks
-              </label>
+              {
+                checkboxLists.map((checkbox) => (
+                  <Fragment key={checkbox.label}>
+                    <Checkbox
+                      id={checkbox.label}
+                      onCheckedChange={checkbox.onChange}
+                      checked={checkbox.checked}
+                    />
+                    <label
+                      htmlFor={checkbox.label}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      {checkbox.label}
+                    </label>
+                  </Fragment>
+                ))
+              }
             </div>
           </div>
         </div>
@@ -373,6 +387,28 @@ const RoadmapPage = ({ scrollTop }) => {
                           }
                         }}
                       />
+                      {
+                        task.overlaps && task.overlaps.length > 0 && task.overlaps.map((overlap, index) => {
+                          const color = getColorIntensityByLevel(overlap.overlap)
+                          const overlapStart = xScale(overlap.start)
+                          const overlapWidth = xScale(overlap.end) - overlapStart
+                          return (
+                            <Fragment key={index}>
+                              <Bar
+                                key={index}
+                                x={overlapStart-1}
+                                y={barY - 1}
+                                width={overlapWidth + 2}
+                                height={barHeight / numberOfBars - gap + 2}
+                                fill={color}
+                                onMouseMove={handleMouseMove}
+                                onMouseLeave={handleMouseLeave}
+                                onMouseOver={() => handleMouseOver({ task })}
+                              />
+                            </Fragment>
+                          )
+                        })
+                      }
                       {showSubTasks &&
                         subTasks?.length > 0 &&
                         subTasks?.map((subTask, index) => {
@@ -385,6 +421,8 @@ const RoadmapPage = ({ scrollTop }) => {
                           if (subBarWidth < 0) {
                             subBarWidth = 0
                           }
+
+                          const subBarHeight = barHeight / numberOfBars - gap
                           return (
                             <Fragment key={subTask.id}>
                               <Bar
@@ -392,12 +430,12 @@ const RoadmapPage = ({ scrollTop }) => {
                                 x={Math.max(0, subBarX)}
                                 y={barY + (barHeight / numberOfBars) * (index + 1)}
                                 width={subBarWidth}
-                                height={barHeight / numberOfBars - gap}
+                                height={subBarHeight}
                                 fill={subTask.fill}
                                 onMouseMove={handleMouseMove}
                                 onMouseLeave={handleMouseLeave}
                                 onMouseOver={() => handleMouseOver({ task: subTask })}
-                                rx={4}
+                                rx={subBarHeight/2}
                               />
                               {subTask.dates &&
                                 subTask.dates.map((date) => {

@@ -16,7 +16,8 @@ const api = {
   signinWithFirebaseEmail: (email,password) => ipcRenderer.invoke('sign-in', {email,password}),
   getAllUsers: () => ipcRenderer.invoke('get-all-users'),
   createNewUser: (email,password,role,name) => ipcRenderer.invoke('create-new-user', {email,password,role,name}),
-  updateUserInformation: (email,role,name) => ipcRenderer.invoke('update-role', {email,role,name}),
+  updateUserInformation: ({email,role,name}) => ipcRenderer.invoke('update-role', {email,role,name}),
+  graphGet: (endpoint) => ipcRenderer.invoke('graph-get', {endpoint}),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

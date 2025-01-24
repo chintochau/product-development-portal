@@ -96,6 +96,7 @@ const ProductPage = () => {
         <div className="w-full flex gap-4 flex-wrap ">
           <ProductCard className="flex-[3] min-w-40 h-96" />
           <PIFCard className="flex-[3] min-w-40 h-96 " />
+          <HardwareStatusCard className="flex-[3] min-w-96 h-96" />
           <SoftwareStatusCard className="flex-[6] min-w-96 h-96" />
         </div>
 
@@ -120,6 +121,7 @@ const ProductPage = () => {
                   <SelectValue placeholder="Select a product" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value={0}>-</SelectItem>
                   {epics &&
                     epics.map((epic) => (
                       <SelectItem key={epic.id} value={epic.iid}>

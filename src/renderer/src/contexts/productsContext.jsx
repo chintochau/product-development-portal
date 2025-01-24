@@ -18,12 +18,19 @@ export const ProductsProvider = ({ children }) => {
   const loadProducts = async () => {
     const data = await getProductsLog()
     const excelData = await window.api.readExcelFile()
-    setProductDataFromExcel(excelData)
+    const filteredData = excelData.filter(
+      (item) =>
+        item.BluOS === 'Yes' &&
+        item.Status &&
+        item.Status !== 'Concept' &&
+        item['Project Name'].trim() !== ''
+    )
+    setProductDataFromExcel(filteredData)
     setProducts(
       data.map((item) => {
         const attributes = ticketToJSON(item)
         if (attributes.useLookup) {
-          const lookupData = readDataUsingLookupId(toInteger(attributes.lookup), excelData)
+          const lookupData = readDataUsingLookupId(toInteger(attributes.lookup), filteredData)
 
           const {
             Description,
@@ -46,7 +53,7 @@ export const ProductsProvider = ({ children }) => {
           const isBluOS = BluOS === 'Yes'
           return {
             ...attributes,
-            description: isBluOS? Description : "Non BluOS Product",
+            description: isBluOS ? Description : 'Non BluOS Product',
             status: Status,
             brand: Brand,
             bluos: isBluOS,
@@ -54,13 +61,37 @@ export const ProductsProvider = ({ children }) => {
             model,
             note: Note,
             show: Show,
-            launch: Launch ? (dayjs(Launch).isValid() ? dayjs(Launch).format('YYYY-MM-DD') : null) : null,
+            launch: Launch
+              ? dayjs(Launch).isValid()
+                ? dayjs(Launch).format('YYYY-MM-DD')
+                : null
+              : null,
             mp1Date: MP1 ? (dayjs(MP1).isValid() ? dayjs(MP1).format('YYYY-MM-DD') : null) : null,
-            mp1DateActual: mp1DateActual ? (dayjs(mp1DateActual).isValid() ? dayjs(mp1DateActual).format('YYYY-MM-DD') : null) : null,
-            pifDate: pifDate ? (dayjs(pifDate).isValid() ? dayjs(pifDate).format('YYYY-MM-DD') : null) : null,
-            pifDateAccepted: pifDateAccepted ? (dayjs(pifDateAccepted).isValid() ? dayjs(pifDateAccepted).format('YYYY-MM-DD') : null) : null,
-            greenlightDate: greenlightDate ? (dayjs(greenlightDate).isValid() ? dayjs(greenlightDate).format('YYYY-MM-DD') : null) : null,
-            greenlightTargetMP: greenlightTargetMPDate ? (dayjs(greenlightTargetMPDate).isValid() ? dayjs(greenlightTargetMPDate).format('YYYY-MM-DD') : null) : null
+            mp1DateActual: mp1DateActual
+              ? dayjs(mp1DateActual).isValid()
+                ? dayjs(mp1DateActual).format('YYYY-MM-DD')
+                : null
+              : null,
+            pifDate: pifDate
+              ? dayjs(pifDate).isValid()
+                ? dayjs(pifDate).format('YYYY-MM-DD')
+                : null
+              : null,
+            pifDateAccepted: pifDateAccepted
+              ? dayjs(pifDateAccepted).isValid()
+                ? dayjs(pifDateAccepted).format('YYYY-MM-DD')
+                : null
+              : null,
+            greenlightDate: greenlightDate
+              ? dayjs(greenlightDate).isValid()
+                ? dayjs(greenlightDate).format('YYYY-MM-DD')
+                : null
+              : null,
+            greenlightTargetMP: greenlightTargetMPDate
+              ? dayjs(greenlightTargetMPDate).isValid()
+                ? dayjs(greenlightTargetMPDate).format('YYYY-MM-DD')
+                : null
+              : null
           }
         } else {
           return attributes
@@ -111,7 +142,8 @@ export const ProductsProvider = ({ children }) => {
     shouldRefreshProducts,
     setShouldRefreshProducts,
     readDataUsingLookupId,
-    findProductsById
+    findProductsById,
+    productDataFromExcel
   }
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>

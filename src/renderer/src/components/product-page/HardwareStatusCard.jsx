@@ -139,13 +139,11 @@ const HardwareStatusCard = ({ className }) => {
   }, [hardware])
 
   return (
-    <Card className={cn('h-fit', className)}>
+    <Card className={cn('flex flex-col', className)}>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          <p>Hardware Status</p>
-        </CardTitle>
-        <CardDescription>
-          *Info from Wrike
+          <p>Hardware</p>
+
           <Select
             value={hardware}
             onValueChange={(folderId) => {
@@ -168,11 +166,11 @@ const HardwareStatusCard = ({ className }) => {
               ))}
             </SelectContent>
           </Select>
-        </CardDescription>
+        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ScrollArea>
-          <div className="max-h-[50vh] pr-3">
+      <CardContent className="flex-1">
+        <ScrollArea className="h-full">
+          <div className="h-52">
             {tasks?.map((task) => (
               <HardwareTask key={task.id} task={task} />
             ))}

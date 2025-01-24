@@ -1,5 +1,6 @@
 import { clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { userRoles } from "../renderer/src/constant"
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs))
@@ -81,10 +82,10 @@ export const isInProgress = (startDate, endDate) => {
 
 export function toQueryString(params) {
   return (
-      '?' +
-      Object.entries(params)
-          .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-          .join('&')
+    '?' +
+    Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&')
   );
 }
 
@@ -93,3 +94,34 @@ const input = {
   state: "opened",
   per_page: 100
 };
+
+
+// A function to calculate the color based on priority level
+export const getColorIntensityByLevel = (level, scale = 5) => {
+
+  let r, g, b
+
+  if (level <= scale / 2) {
+    g = 255
+    b = 0
+    r = Math.min(255, (Math.round((255 / (scale / 2)) * level)))
+  } else {
+    g = Math.max(0, 255 - Math.round((255 / (scale )) * level))
+    b = 0
+    r = 255
+  }
+
+
+  return `rgb(${r}, ${g}, ${b})`
+}
+
+
+
+export const findTeamByRole = (role) => {
+  const team = userRoles.find((userRole) => userRole.role === role)
+  if (team) {
+      return team.team
+  } else {
+      return null
+  }
+}

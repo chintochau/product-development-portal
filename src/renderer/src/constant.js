@@ -129,14 +129,6 @@ export const defaultPriorities = {
 }
 
 
-export const defaultBrands = [
-    { value: "BLS", name: "Bluesound" },
-    { value: "BPR", name: "Bluesound Pro" },
-    { value: "NAD", name: "NAD" },
-    { value: "PSB", name: "PSB" },
-    { value: "NAD CI", name: "NAD CI" },
-]
-
 export const getBrandName = (brand) => {
     const brandItem = defaultBrands.find((item) => item.value === brand)
     if (brandItem) {
@@ -246,12 +238,20 @@ export const productInformation = {
 export const userRoles = [
     { role: "admin", access: 0 },
     { role: "BluOS Platform Manager", access: 0 },
-    { role: "Software Manager", access: 1 },
-    { role: "Hardware Manager", access: 2 },
-    { role: "Bluesound Product Manager", access: 3 },
-    { role: "Bluesound Pro Product Manager", access: 4 },
-    { role: "NAD Product Manager", access: 5 },
-    { role: "PSB Product Manager", access: 6 }
+    { role: "BluOS Team", access: 1 },
+    { role: "Hardware Team", access: 2 },
+    { role: "Bluesound", access: 3, team:"BLS" },
+    { role: "Bluesound Pro", access: 4, team:"BPR" },
+    { role: "NAD", access: 5, team:"NAD" },
+    { role: "PSB", access: 6, team:"PSB" }
+]
+
+export const defaultBrands = [
+    { value: "BLS", name: "Bluesound" },
+    { value: "BPR", name: "Bluesound Pro" },
+    { value: "NAD", name: "NAD" },
+    { value: "PSB", name: "PSB" },
+    { value: "NAD CI", name: "NAD CI" },
 ]
 
 // 0: Admin

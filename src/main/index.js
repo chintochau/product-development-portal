@@ -7,6 +7,8 @@ import fs from 'fs'
 import { wrike } from './wrikeAPI'
 import { readFromExcel } from './excelAPI'
 import { checkSignInStatus, createNewUser, getAllUsersFromFirestore, signinWithFirebaseEmail, signOut, updateUserInformation } from './firebaseAPI'
+import { graphGet } from './graphAPI'
+
 
 function createWindow() {
   // Create the browser window.
@@ -130,6 +132,10 @@ ipcMain.handle("get-all-users", async () => {
 ipcMain.handle("create-new-user", async (event,email,password,role) => {
   return await createNewUser(email,password,role);
 })
-ipcMain.handle("update-role", async (event,email,role) => {
-  return await updateUserInformation(email,role);
+ipcMain.handle("update-role", async (event,data) => {
+  return await updateUserInformation(data);
+})
+
+ipcMain.handle("graph-get", async (event,{endpoint}) => {
+  return await graphGet(endpoint);
 })

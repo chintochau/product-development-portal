@@ -9,7 +9,7 @@ import {
 import { defaultPriorities } from '../../constant'
 
 // A function to calculate the color based on priority level
-const getPriorityColor = (priority) => {
+export const getPriorityColor = (priority) => {
   const red = 255 - Math.round((255 / 10) * priority) // Gradually reduce red
   const blue = Math.round((255 / 10) * priority) // Gradually increase blue
   return `rgb(${red}, 0, ${blue})` // Dynamic RGB color

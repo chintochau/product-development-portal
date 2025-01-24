@@ -43,6 +43,7 @@ const AdminPanel = () => {
     getAllUsers()
   }
 
+
   return (
     <Table>
       <TableHeader>
@@ -72,7 +73,10 @@ const AdminPanel = () => {
               <TableCell>
                 <Select
                   defaultValue={user.role}
-                  onValueChange={(role) => window.api.updateUserInformation(user.email, role)}
+                  onValueChange={(role) => {
+                    console.log(role)
+                    window.api.updateUserInformation({ email: user.email, role: role })
+                  }}
                 >
                   <SelectTrigger className="w-fit">
                     <SelectValue />
@@ -144,7 +148,9 @@ const NameComponent = ({ user }) => {
   const [name, setName] = useState(user.name)
   const [isSaved, setIsSaved] = useState(false)
   const handleSave = async () => {
-    await window.api.updateUserInformation(user.email, user.role, name)
+    console.log('name', name)
+
+    await window.api.updateUserInformation({ email: user.email, role: user.role, name: name })
     setIsSaved(true)
     setTimeout(() => setIsSaved(false), 2000)
   }
@@ -157,11 +163,13 @@ const NameComponent = ({ user }) => {
       }}
     >
       <Input className="w-fit" value={name} onChange={(e) => setName(e.target.value)} />
-      {isSaved ? (
-        <Check className="size-4" />
-      ) : (
-        <Save className="hover:text-blue-500 cursor-pointer size-4" />
-      )}
+      <Button variant="outline" size="icon" type="submit">
+        {isSaved ? (
+          <Check className="size-4" />
+        ) : (
+          <Save className="hover:text-blue-500 cursor-pointer size-4" />
+        )}
+      </Button>
     </form>
   )
 }

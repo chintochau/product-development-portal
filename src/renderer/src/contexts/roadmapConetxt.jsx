@@ -8,14 +8,14 @@ import _ from 'lodash'
 import dayjs from 'dayjs'
 import { scaleOrdinal } from '@visx/scale'
 
-export const productsColor = "hsl(var(--chart-1))"; // A deeper blue for good contrast
-export const epicColor = 'hsl(var(--chart-2))'; // A vibrant green with good accessibility
-export const hardwareColor = 'hsl(var(--chart-3))'; // A warm orange (already good)
-export const featureColor = 'hsl(var(--chart-4))'; // A bold red for better visibility
-export const bluosFeatureColor = 'hsl(var(--chart-5))'; // A slightly darker, distinct blue
+export const productsColor = 'hsl(var(--chart-1))' // A deeper blue for good contrast
+export const epicColor = 'hsl(var(--chart-2))' // A vibrant green with good accessibility
+export const hardwareColor = 'hsl(var(--chart-3))' // A warm orange (already good)
+export const featureColor = 'hsl(var(--chart-4))' // A bold red for better visibility
+export const bluosFeatureColor = 'hsl(var(--chart-5))' // A slightly darker, distinct blue
 export const legendColorScale = scaleOrdinal({
-  domain: ['Products',  'Hardware', 'App', 'BluOS'],
-  range: [productsColor,  hardwareColor, featureColor, bluosFeatureColor]
+  domain: ['Products', 'App', 'BluOS'],
+  range: [productsColor, featureColor, bluosFeatureColor]
 })
 
 // Create the User Context
@@ -28,14 +28,15 @@ export const RoadmapProvider = ({ children }) => {
   const { features } = useTickets()
 
   const [featuersByDevelopers, setFeaturesByDevelopers] = useState([])
+  const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
 
   // Filtered state
   const [showMilestones, setShowMilestones] = useState(false)
-  const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
-  const [shouldloadFeatures, setShouldloadFeatures] = useState(false)
   const [selectedBrands, setSelectedBrands] = useState(defaultBrands.map((item) => item.value))
   const [showSubTasks, setShowSubTasks] = useState(false)
   const [showDevelopers, setShowDevelopers] = useState(true)
+  const [showAppsFeatures, setShowAppsFeatures] = useState(true)
+  const [showBluosFeatures, setShowBluosFeatures] = useState(true)
 
   // Data
   const [productChartData, setProductChartData] = useState([])
@@ -46,7 +47,7 @@ export const RoadmapProvider = ({ children }) => {
 
   const [range, setRange] = useState([])
 
-  // product data
+  // set Product Chart Data
   useEffect(() => {
     if (products.length > 0) {
       {
@@ -71,12 +72,7 @@ export const RoadmapProvider = ({ children }) => {
 
           const milestoneDates = {
             launch,
-            mp1Date,
-            mp1DateActual,
-            pifDate,
-            pifDateAccepted,
-            greenlightDate,
-            greenlightTargetMP
+            mp1Date
           }
 
           // turn object into array
@@ -101,7 +97,7 @@ export const RoadmapProvider = ({ children }) => {
             brand: product.brand,
             description: product.description,
             bluos: bluos,
-            start: new Date(earliestDate),
+            start: new Date(mp1Date),
             end: product.launch ? new Date(product.launch) : new Date(),
             fill: productsColor, // blue,
             epicId: product.epicId,
@@ -135,19 +131,14 @@ export const RoadmapProvider = ({ children }) => {
                             .toDate()
                         : dayjs().add(180, 'day').toDate()
                     ),
-                    fill: f.startDate ? bluosFeatureColor : "hsl(var(--muted-foreground))",
+                    fill: f.startDate ? bluosFeatureColor : 'hsl(var(--muted-foreground))',
                     url: f.web_url
                   }
                 })
 
-                
-
-              const epic = epics.find((e) => e.iid === task.epicId)
               return {
                 ...task,
-                subTasks: [
-                  ...productFeatures,
-                ]
+                subTasks: [...productFeatures]
               }
             })
         ])
@@ -159,39 +150,35 @@ export const RoadmapProvider = ({ children }) => {
     }
   }, [products, selectedBrands])
 
-  // set features by developers when features or developers change
+  // Group Features by Developers
   useEffect(() => {
     if (features.length > 0 && developers.length > 0) {
       groupFeaturesByDevelopers()
     }
   }, [features, developers])
 
-  // set chartData when featuresByDevelopers change, which is features planned, group by developers
+  // set Developers Chart Data
   useEffect(() => {
     if (featuersByDevelopers.length > 0) {
-      const developersData = featuersByDevelopers.map((item) => {
-        const minDate = Math.min(
-          ...item.features.map((feature) =>
-            feature.startDate ? new Date(feature.startDate) : new Date()
+      const developersData = featuersByDevelopers
+        .map((item) => {
+          const minDate = Math.min(
+            ...item.features.map((feature) =>
+              feature.startDate ? new Date(feature.startDate) : new Date()
+            )
           )
-        )
-        let startDate = minDate ? new Date(minDate) : new Date()
+          let startDate = minDate ? new Date(minDate) : new Date()
 
-        const maxDate = Math.max(
-          ...item.features.map((feature) =>
-            feature.startDate && feature.estimate
-              ? dayjs(feature.startDate).add(feature.estimate, 'day')
-              : new Date()
+          const maxDate = Math.max(
+            ...item.features.map((feature) =>
+              feature.startDate && feature.estimate
+                ? dayjs(feature.startDate).add(feature.estimate, 'day')
+                : new Date()
+            )
           )
-        )
-        let endDate = maxDate ? new Date(maxDate) : new Date()
-        return {
-          id: item.developer?.id,
-          name: item.developer?.name,
-          start: startDate,
-          end: endDate, // Date()
-          fill: 'hsl(var(--alternative))', // dark yellow color
-          subTasks: item.features.map((feature) => {
+          let endDate = maxDate ? new Date(maxDate) : new Date()
+
+          const features = item.features.map((feature) => {
             return {
               id: feature.id,
               name: feature.title,
@@ -207,13 +194,24 @@ export const RoadmapProvider = ({ children }) => {
               ]
             }
           })
-        }
-      }).sort((a, b) => new Date(a.start) - new Date(b.start))
+
+          const overlaps = calculateOverlaps(features)
+          return {
+            id: item.developer?.id,
+            name: item.developer?.name,
+            start: startDate,
+            end: endDate, // Date()
+            fill: 'hsl(var(--alternative))', // dark yellow color
+            subTasks: features,
+            overlaps: overlaps
+          }
+        })
+        .sort((a, b) => new Date(a.start) - new Date(b.start))
       setDevelopersChartData(developersData)
     }
   }, [featuersByDevelopers])
 
-  // set Features from Epic, which is features alerady in gitlab Epic with start and due date
+  // set Apps Features chart data
   useEffect(() => {
     if (featureEpics.length > 0) {
       const features = featureEpics
@@ -232,7 +230,7 @@ export const RoadmapProvider = ({ children }) => {
     }
   }, [featureEpics])
 
-  // set features chart data
+  // set BluOS features chart data
   useEffect(() => {
     setFeatureChartData(
       features
@@ -262,11 +260,19 @@ export const RoadmapProvider = ({ children }) => {
   useEffect(() => {
     setChartData([
       ...productChartData,
-      ...epicChartData,
-      ...featureChartData,
+      ...(showAppsFeatures ? epicChartData : []),
+      ...(showBluosFeatures ? featureChartData : []),
       ...(showDevelopers ? developersChartData : [])
     ])
-  }, [productChartData, epicChartData, featureChartData, developersChartData, showDevelopers])
+  }, [
+    productChartData,
+    epicChartData,
+    featureChartData,
+    developersChartData,
+    showDevelopers,
+    showAppsFeatures,
+    showBluosFeatures
+  ])
 
   const groupFeaturesByDevelopers = () => {
     const developerLookup = _.keyBy(developers, 'id')
@@ -281,12 +287,58 @@ export const RoadmapProvider = ({ children }) => {
     )
     // Group by developer
     const groupedByDeveloper = _.groupBy(featuresByDeveloper, 'developer.id')
-    const groupedFeatures = Object.values(groupedByDeveloper).map((group) => ({
-      developer: group[0].developer,
-      features: group.map((item) => item.feature)
-    }))
+    const groupedFeatures = Object.values(groupedByDeveloper).map((group) => {
+      return {
+        developer: group[0].developer,
+        features: group
+          .sort((a, b) => new Date(a.feature.startDate) - new Date(b.feature.startDate))
+          .map((item) => item.feature)
+      }
+    })
     // Transform the grouped data into the desired output format
     setFeaturesByDevelopers(groupedFeatures)
+  }
+
+  // Function to calculate overlaps
+  function calculateOverlaps(features) {
+    const events = [];
+  
+    // Create an array of events for start and end times
+    features.forEach((task) => {
+      events.push({ time: task.start, type: 'start' });
+      events.push({ time: task.end, type: 'end' });
+    });
+  
+    // Sort events by time, with "end" events coming before "start" events when they overlap
+    events.sort((a, b) => a.time - b.time || (a.type === 'end' ? -1 : 1));
+  
+    const result = [];
+    let currentOverlap = 0;
+    let lastTime = null;
+  
+    // Process events to calculate overlaps
+    for (const event of events) {
+      if (lastTime !== null && event.time > lastTime) {
+        // Push the interval and current overlap count
+        result.push({
+          start: new Date(lastTime),
+          end: new Date(event.time),
+          overlap: currentOverlap
+        });
+      }
+  
+      // Update overlap count
+      if (event.type === 'start') {
+        currentOverlap++;
+      } else if (event.type === 'end') {
+        currentOverlap--;
+      }
+  
+      // Update the last processed time
+      lastTime = event.time;
+    }
+  
+    return result;
   }
 
   const fetchDataFromWrike = async (taskData, taskIndex) => {
@@ -320,7 +372,7 @@ export const RoadmapProvider = ({ children }) => {
             return {
               ...task,
               subTasks: [
-                ...task.subTasks.filter((subTask) => subTask.wrikeId !== wrikeId),
+                ...task.subTasks?.filter((subTask) => subTask.wrikeId !== wrikeId),
                 ...(shippingDates && shippingDates.length > 0
                   ? [
                       {
@@ -342,17 +394,19 @@ export const RoadmapProvider = ({ children }) => {
     }
   }
 
-  useEffect(() => {
-    if (chartData && shouldLoadWrike) {
-      setShouldLoadWrike(false)
-      chartData.forEach((task, index) => {
-        const wrikeId = task.wrikeId
-        if (wrikeId) {
-          fetchDataFromWrike(task, index)
-        }
-      })
-    }
-  }, [chartData, shouldLoadWrike])
+  //TO-DO read data from wrike
+
+  // useEffect(() => {
+  //   if (chartData && shouldLoadWrike) {
+  //     setShouldLoadWrike(false)
+  //     chartData.forEach((task, index) => {
+  //       const wrikeId = task.wrikeId
+  //       if (wrikeId) {
+  //         fetchDataFromWrike(task, index)
+  //       }
+  //     })
+  //   }
+  // }, [chartData, shouldLoadWrike])
 
   const value = {
     chartData,
@@ -361,8 +415,6 @@ export const RoadmapProvider = ({ children }) => {
     setShowMilestones,
     shouldLoadWrike,
     setShouldLoadWrike,
-    shouldloadFeatures,
-    setShouldloadFeatures,
     selectedBrands,
     setSelectedBrands,
     featuersByDevelopers,
@@ -372,7 +424,12 @@ export const RoadmapProvider = ({ children }) => {
     featureChartData,
     showSubTasks,
     setShowSubTasks,
-    showDevelopers, setShowDevelopers
+    showDevelopers,
+    setShowDevelopers,
+    showAppsFeatures,
+    setShowAppsFeatures,
+    showBluosFeatures,
+    setShowBluosFeatures
   }
 
   return <RoadmapContext.Provider value={value}>{children}</RoadmapContext.Provider>

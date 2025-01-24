@@ -53,13 +53,22 @@ export const SingleProductProvider = ({ children }) => {
     setWrikeWorkflows(data)
   }
 
-  const getProductLog = async (iid) => {
+  const getProductLogFromGitlab = async (iid) => {
     const ticketData = await getProductLogWithIID(iid)
-    setProductData(ticketToJSON(ticketData))
+    return ticketToJSON(ticketData)
+  }
+
+  const getAndComebineDataFromGitlabAndExcel = async (productLog) => {
+    const gitlabData = await getProductLogFromGitlab(productLog.iid)
+    setProductData({ ...gitlabData, ...productLog })
+    setIid(productLog.iid)
+    getNotes(productLog.iid)
   }
 
   const getNotes = async (iid) => {
     const notes = await getNotesFromTicket(iid)
+    console.log(notes);
+    
     const notesData = notes.map((item) => {
       const parsedData = frontMatter(item.body)
       return { ...parsedData, id: item.id, date: item.created_at }
@@ -91,6 +100,8 @@ export const SingleProductProvider = ({ children }) => {
   }
 
   const updateNote = async (noteId, data, message) => {
+    console.log(noteId);
+    
     const response = await updateNotesToTicket(iid, noteId, data, message)
     return response
   }
@@ -103,28 +114,22 @@ export const SingleProductProvider = ({ children }) => {
   }, [shouldReloadNotes])
 
   useEffect(() => {
-    if (iid) {
-      getProductLog(iid)
-    }
-  }, [products])
-
-  useEffect(() => {
     setLoading(true)
     if (productLog && productLog.useLookup) {
-      setProductData(productLog)
-      getNotes(productLog.iid)
+      // use excel data
+      getAndComebineDataFromGitlabAndExcel(productLog)
     } else if (productLog) {
       setProductData(productLog)
       setIid(productLog.iid)
       getNotes(productLog.iid)
     } else if (iid && !productData && !productLog) {
-      getProductLog(iid)
+      getProductLogFromGitlab(iid)
     }
     return () => {
       setProductData({})
       setIid(null)
     }
-  }, [iid, productLog])
+  }, [ productLog])
 
   const saveData = async ({ software, type, wrikeId }) => {
     switch (type) {

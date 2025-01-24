@@ -24,14 +24,8 @@ const roadmapPath = import.meta.env.VITE_ROADMAP_PATH
 
 const HomePage = () => {
   const { products, setShouldRefreshProducts } = useProducts() || {}
-  const { setProductLog } = useSingleProduct() || {}
-  const [bluOSOnly, setBluOSOnly] = React.useState(true)
+  const [bluOSOnly, setBluOSOnly] = React.useState(false)
   const navigate = useNavigate()
-
-  const handleProductClick = (productLog) => {
-    setProductLog(productLog)
-    navigate(`/dashboard/${productLog.iid}#${productLog.name}`)
-  }
 
   useEffect(() => {
     setShouldRefreshProducts(true)

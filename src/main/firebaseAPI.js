@@ -87,15 +87,19 @@ export const createNewUser = async ({ email, password, role, name }) => {
         return false
     }
 }
-
 export const updateUserInformation = async ({ email, role, name }) => {
+    if (!email) {
+        console.log("Email is required.");
+        return false;
+    }
     try {
         const querySnapshot = await getDocs(collection(db, "users"));
         let userDoc = null;
+        
+        // Check if any user matches the email
         querySnapshot.forEach((doc) => {
             if (doc.data().email.toLowerCase() === email.toLowerCase()) {
                 userDoc = doc;
-
             }
         });
 
@@ -106,24 +110,27 @@ export const updateUserInformation = async ({ email, role, name }) => {
 
         const data = {};
 
-        if (role !== null) {
+        // Always update the role if provided
+        if (role != null) {
             data.role = role;
         }
-        if (name !== null) {
+
+        // Always update the name if provided
+        if (name != null) {
             data.name = name;
         }
 
+        // If no data to update, return false
         if (Object.keys(data).length === 0) {
             console.log("No information to update");
             return false;
         }
 
+        // Update the document in Firestore
         await updateDoc(userDoc.ref, data);
-        console.log("Role updated successfully");
         return true;
     } catch (error) {
-        console.error("Error updating user role:", error);
+        console.error("Error updating user information:", error);
         return false;
     }
-}
-
+};
