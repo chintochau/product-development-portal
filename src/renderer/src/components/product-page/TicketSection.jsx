@@ -12,7 +12,6 @@ import { Button } from '../../../../components/ui/button'
 import { useSingleProduct } from '../../contexts/singleProductContext'
 
 const TicketSection = ({ tickets, className }) => {
-  const {productLog,productData} = useSingleProduct()
   return (
     <Card className={cn('flex flex-col gap-2 flex-1 min-w-96', className)}> 
       <CardHeader>

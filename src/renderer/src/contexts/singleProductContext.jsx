@@ -4,7 +4,7 @@ import {
   getEpics,
   getMilestones,
   getNotesFromTicket,
-  getProductLogWithIID,
+  getProductDataFromGitlabWithIid,
   postNotesToTicket,
   ticketToJSON,
   updateNotesToTicket
@@ -19,7 +19,6 @@ export const useSingleProduct = () => {
 export const SingleProductProvider = ({ children }) => {
   const { products } = useProducts()
   const [loading, setLoading] = useState(true)
-  const [productLog, setProductLog] = useState(null)
   const [productData, setProductData] = useState(null)
   const [iid, setIid] = useState(null)
   const [tickets, setTickets] = useState([])
@@ -39,6 +38,8 @@ export const SingleProductProvider = ({ children }) => {
   const [features, setFeatures] = useState([])
   const [featuresId, setFeaturesId] = useState(null)
   const [featuresLoading, setFeaturesLoading] = useState(false)
+  const [selectedEpicId, setSelectedEpicId] = useState(null)
+  const [shouldRefreshProductData, setShouldRefreshProductData] = useState(false)
 
   useEffect(() => {
     getEpics().then((data) => setEpics(data.sort((a, b) => a.title.localeCompare(b.title))))
@@ -53,22 +54,25 @@ export const SingleProductProvider = ({ children }) => {
     setWrikeWorkflows(data)
   }
 
-  const getProductLogFromGitlab = async (iid) => {
-    const ticketData = await getProductLogWithIID(iid)
+  const getDataFromGitlab = async (iid) => {
+    const ticketData = await getProductDataFromGitlabWithIid(iid)
     return ticketToJSON(ticketData)
   }
 
-  const getAndComebineDataFromGitlabAndExcel = async (productLog) => {
-    const gitlabData = await getProductLogFromGitlab(productLog.iid)
-    setProductData({ ...gitlabData, ...productLog })
-    setIid(productLog.iid)
-    getNotes(productLog.iid)
+  const getAndComebineDataFromGitlabAndExcel = async (iid) => {
+    const gitlabData = await getDataFromGitlab(iid)
+    let excelData
+    if (gitlabData.useLookup && gitlabData.lookup) {
+      excelData = products.find((product) => product.lookup === gitlabData.lookup)
+      console.log(excelData)
+    }
+    setProductData({ ...gitlabData, ...excelData })
+    getNotes(iid)
+    setSelectedEpicId(gitlabData?.epicId)
   }
 
   const getNotes = async (iid) => {
     const notes = await getNotesFromTicket(iid)
-    console.log(notes);
-    
     const notesData = notes.map((item) => {
       const parsedData = frontMatter(item.body)
       return { ...parsedData, id: item.id, date: item.created_at }
@@ -100,8 +104,6 @@ export const SingleProductProvider = ({ children }) => {
   }
 
   const updateNote = async (noteId, data, message) => {
-    console.log(noteId);
-    
     const response = await updateNotesToTicket(iid, noteId, data, message)
     return response
   }
@@ -114,22 +116,15 @@ export const SingleProductProvider = ({ children }) => {
   }, [shouldReloadNotes])
 
   useEffect(() => {
-    setLoading(true)
-    if (productLog && productLog.useLookup) {
-      // use excel data
-      getAndComebineDataFromGitlabAndExcel(productLog)
-    } else if (productLog) {
-      setProductData(productLog)
-      setIid(productLog.iid)
-      getNotes(productLog.iid)
-    } else if (iid && !productData && !productLog) {
-      getProductLogFromGitlab(iid)
+    if (!iid) return
+    // handle choosing product with iid
+    if (iid) {
+      setProductData(null)
+      setLoading(true)
+      getAndComebineDataFromGitlabAndExcel(iid)
     }
-    return () => {
-      setProductData({})
-      setIid(null)
-    }
-  }, [ productLog])
+    return () => {}
+  }, [iid, products])
 
   const saveData = async ({ software, type, wrikeId }) => {
     switch (type) {
@@ -201,8 +196,6 @@ export const SingleProductProvider = ({ children }) => {
     productData,
     iid,
     setIid,
-    setProductLog,
-    productLog,
     tickets,
     setTickets,
     notes,
@@ -237,7 +230,11 @@ export const SingleProductProvider = ({ children }) => {
     setFeatures,
     setFeaturesId,
     featuresLoading,
-    setFeaturesLoading
+    setFeaturesLoading,
+    selectedEpicId,
+    setSelectedEpicId,
+    shouldRefreshProductData,
+    setShouldRefreshProductData
   }
 
   return <SingleProductContext.Provider value={value}>{children}</SingleProductContext.Provider>

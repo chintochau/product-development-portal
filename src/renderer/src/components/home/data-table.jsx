@@ -27,14 +27,13 @@ export function DataTable({
         getCoreRowModel: getCoreRowModel(),
     })
 
-    const { loading, products, setShouldRefreshProducts } = useProducts()
-    const { setProductLog } = useSingleProduct()
+    const { setIid } = useSingleProduct()
     const navigate = useNavigate()
 
-    const handleProductClick = (productLog) => {
-        if (!productLog?.iid) return
-        setProductLog(productLog)
-        navigate(`/dashboard/${productLog.iid}#${productLog.name}`)
+    const handleProductClick = (iid) => {
+        if (!iid) return
+        setIid(iid)
+        navigate(`/dashboard/${iid}`)
     }
 
     return (
@@ -64,7 +63,7 @@ export function DataTable({
                             <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && "selected"}
-                                onClick={() => handleProductClick(row.original)}
+                                onClick={() => handleProductClick(row.original.iid)}
                                 className={cn(row.original?.iid && "cursor-pointer")}
                             >
                                 {row.getVisibleCells().map((cell) => (

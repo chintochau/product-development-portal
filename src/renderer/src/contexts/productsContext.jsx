@@ -30,7 +30,7 @@ export const ProductsProvider = ({ children }) => {
       data.map((item) => {
         const attributes = ticketToJSON(item)
         if (attributes.useLookup) {
-          const lookupData = readDataUsingLookupId(toInteger(attributes.lookup), filteredData)
+          const lookupData = getDataFromExcel(toInteger(attributes.lookup), filteredData)
 
           const {
             Description,
@@ -101,8 +101,8 @@ export const ProductsProvider = ({ children }) => {
     setLoading(false)
   }
 
-  const readDataUsingLookupId = (id, excelData = productDataFromExcel) => {
-    return excelData?.find((item) => item['Lookup#'] === id && item.Status !== 'Concept')
+  const getDataFromExcel = (id, excelData = productDataFromExcel) => {
+    return excelData?.find((item) =>  (item['Lookup#']) === id && item.Status !== 'Concept')
   }
 
   useEffect(() => {
@@ -118,6 +118,7 @@ export const ProductsProvider = ({ children }) => {
     }
     return () => {}
   }, [shouldRefreshProducts])
+
   const deleteProductLog = async (iid) => {
     deleteTicket(iid)
   }
@@ -141,7 +142,6 @@ export const ProductsProvider = ({ children }) => {
     deleteProductLog,
     shouldRefreshProducts,
     setShouldRefreshProducts,
-    readDataUsingLookupId,
     findProductsById,
     productDataFromExcel
   }

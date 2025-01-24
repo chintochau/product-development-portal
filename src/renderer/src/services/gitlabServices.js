@@ -129,7 +129,7 @@ export const deleteTicket = async (iid) => {
 }
 
 
-export const getProductLogWithIID = async (iid) => {
+export const getProductDataFromGitlabWithIid = async (iid) => {
     const data = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/issues/${iid}`, "GET");
     return data
 }

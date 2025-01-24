@@ -43,12 +43,11 @@ import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
 import FrameWraper from './frameWarper'
 
 const ProductPage = () => {
-  const { productData, setTickets, tickets, loading, epics } = useSingleProduct()
-  const [selectedEpicId, setSelectedEpicId] = React.useState(null)
-  const { setShouldRefreshProducts } = useProducts()
-  const location = useLocation()
+  const { productData, setTickets, tickets, loading, epics, selectedEpicId, setSelectedEpicId } = useSingleProduct() || {}
+  const { setShouldRefreshProducts } = useProducts() || {}
+  const location = useLocation() || {}
   const { projectName, softwareSignoffDate, iid: productIid } = productData || {}
-  const { features } = useTickets()
+  const { features } = useTickets() || {}
 
   const featuresFilteredByIID = features.filter((feature) => feature.product === productIid)
 
@@ -110,7 +109,7 @@ const ProductPage = () => {
           <div className="relative flex-1 overflow-hidden rounded-xl min-w-96">
             <div className="absolute top-4 right-4">
               <Select
-                value={productData?.epicId}
+                value={selectedEpicId}
                 onValueChange={(epicId) => {
                   updateTicketDescription(productData.iid, { ...productData, epicId })
                   setShouldRefreshProducts(true)
