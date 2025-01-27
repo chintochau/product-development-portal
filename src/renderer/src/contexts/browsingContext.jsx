@@ -12,7 +12,7 @@ export const BrowsingProvider = ({ children }) => {
   const location = useLocation()
   const path = location.pathname
   const [pageTitle, setPageTitle] = useState()
-  const { productData } = useSingleProduct()
+  const { productData } = useSingleProduct() || {}
 
   useEffect(() => {
     if (productData) {

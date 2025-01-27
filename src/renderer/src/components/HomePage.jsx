@@ -20,18 +20,14 @@ import ScheduleChart from './home/ScheduleChart'
 import FrameWraper from './frameWarper'
 import { Checkbox } from '../../../components/ui/checkbox'
 
-const roadmapPath = import.meta.env.VITE_ROADMAP_PATH
 
 const HomePage = () => {
   const { products, setShouldRefreshProducts } = useProducts() || {}
-  const [bluOSOnly, setBluOSOnly] = React.useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
     setShouldRefreshProducts(true)
   }, [])
-
-  const filteredProducts = bluOSOnly ? products?.filter((product) => product?.bluos) : products
 
   return (
     <FrameWraper>
@@ -48,26 +44,12 @@ const HomePage = () => {
         <div className="w-full rounded-xl py-4 ">
           <div className=" flex justify-end">
             <div className="flex gap-2">
-              <div className="flex items-center gap-1">
-                <Checkbox
-                  checked={bluOSOnly}
-                  onCheckedChange={(checked) => {
-                    setBluOSOnly(checked)
-                  }}
-                  id="bluos"
-                />
-                <label htmlFor="bluos" className="text-muted-foreground">
-                  Show BluOS Only
-                </label>
-              </div>
-              <Button size="icon" variant="ghost" onClick={() => window.open(roadmapPath)}>
-                <Sheet />
-              </Button>
+
             </div>
           </div>
-          <DataTable columns={columns} data={filteredProducts} />
+          <DataTable columns={columns} data={products} />
         </div>
-        <div className='py-4'><ScheduleChart products={filteredProducts} /></div>
+        <div className='py-4'><ScheduleChart products={products} /></div>
       </div>
     </FrameWraper>
   )
