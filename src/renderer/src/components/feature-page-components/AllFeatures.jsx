@@ -24,6 +24,8 @@ import {
 import { Check, Cross, Edit, Loader2, ThumbsUp, Trash2, X } from 'lucide-react'
 import { useTickets } from '../../contexts/ticketsContext'
 import FeatureRow from './FeatureRow'
+import { DataTable } from '../home/data-table'
+import { featureColumns } from './feature-columns'
 
 const AllFeatures = ({ features, className }) => {
   const navigate = useNavigate()
@@ -33,9 +35,11 @@ const AllFeatures = ({ features, className }) => {
     getFeatureRequests(page)
   }
 
+  console.log(features);
+  
   return (
     <div className={className}>
-      {/* <DataTable columns={featureColumns} data={features} /> */}
+      <DataTable columns={featureColumns} data={features} />
       <Table>
         <TableHeader className=" bg-secondary/10 text-secondary-foreground">
           <TableRow>

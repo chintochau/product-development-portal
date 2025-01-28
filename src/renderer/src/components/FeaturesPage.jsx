@@ -80,8 +80,8 @@ const FeaturesPage = () => {
             Gitlab
           </Button>
         </div>
-        <BluOSFeatureRequest className="w-full">
-          <div className="flex flex-col gap-2 w-full py-4">
+        <BluOSFeatureRequest className="">
+          <div className="flex flex-col gap-2 py-4">
             <Tabs defaultValue="features">
               <TabsList>
                 <TabsTrigger value="features">Features</TabsTrigger>
@@ -94,7 +94,7 @@ const FeaturesPage = () => {
                 <BarChartComponent chartData={featureChartData} />
               </TabsContent>
             </Tabs>
-            <AllFeatures features={features} className="w-full" />
+            <AllFeatures features={features}  />
           </div>
         </BluOSFeatureRequest>
         <AppFeatureChart chartData={chartData}>

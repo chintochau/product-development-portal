@@ -19,7 +19,7 @@ export const TicketsProvider = ({ children }) => {
   const [shouldRefresh, setShouldRefresh] = useState(true)
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [featuersByDevelopers, setFeaturesByDevelopers] = useState([])
-  const {developers} = useDevelopers()
+  const {developers} = useDevelopers() || {}
     const [tickets, setTickets] = React.useState([])
   
 
