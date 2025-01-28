@@ -20,7 +20,6 @@ const TicketPage = () => {
   const { tickets, setTickets } = useTickets()
   const [searchText, setSearchText] = React.useState('')
   const [loading, setLoading] = React.useState(false)
-  const [searchArray, setSearchArray] = React.useState([])
   const [openOnly, setOpenOnly] = React.useState(true)
 
   const getTickets = async () => {
@@ -81,19 +80,7 @@ const TicketPage = () => {
                 </TableRow>
               )}
               {tickets.map((ticket) => (
-                <TableRow key={ticket.id}>
-                  <TableCell>{ticket.references?.relative}</TableCell>
-                  <TableCell>{ticket.title}</TableCell>
-                  <TableCell
-                    className="hover:underline cursor-pointer"
-                    onClick={() => window.open(ticket.web_url)}
-                  >
-                    Link
-                  </TableCell>
-                  <TableCell>
-                    <StatusComponent status={ticket.state} />
-                  </TableCell>
-                </TableRow>
+                <TicketRow key={ticket.id} ticket={ticket} />
               ))}
             </TableBody>
           </Table>
@@ -107,7 +94,7 @@ export const StatusComponent = ({ status }) => {
   return (
     <span
       className={`px-2 py-1 rounded-full text-xs font-semibold ${
-        status === 'closed' ? 'bg-green-400 text-white' : 'bg-blue-400 text-white'
+        status === 'closed' ? 'bg-muted-foreground text-white' : 'bg-green-400 text-white'
       }`}
     >
       {status}
@@ -116,3 +103,21 @@ export const StatusComponent = ({ status }) => {
 }
 
 export default TicketPage
+
+const TicketRow = ({ ticket }) => {
+  return (
+    <TableRow key={ticket.id}>
+      <TableCell>{ticket.references?.relative || ticket.iid}</TableCell>
+      <TableCell>{ticket.title}</TableCell>
+      <TableCell
+        className="hover:underline cursor-pointer"
+        onClick={() => window.open(ticket.web_url)}
+      >
+        Link
+      </TableCell>
+      <TableCell>
+        <StatusComponent status={ticket.state} />
+      </TableCell>
+    </TableRow>
+  )
+}

@@ -16,7 +16,7 @@ import {
 const SingleStep = ({ step, index, className, software, hardware }) => {
   const [completedSubSteps, setCompletedSubSteps] = useState(false)
   const [completedPercentage, setCompletedPercentage] = useState(0)
-  const { setHardware, setSoftware, pifs, saveData } = useSingleProduct()
+  const { setHardware, setSoftware, pifs, saveData,milestones } = useSingleProduct()
 
   useEffect(() => {
     if (step.subSteps) {
@@ -31,7 +31,7 @@ const SingleStep = ({ step, index, className, software, hardware }) => {
     }
   }, [step.subSteps])
 
-  const handleClick = ({ pifFile }) => {
+  const handleClick = ({ pifFile, milestone }) => {
     if (hardware) {
       setHardware((prevHardware) => {
         // Ensure we have a base array to work with
@@ -82,6 +82,17 @@ const SingleStep = ({ step, index, className, software, hardware }) => {
                   url: pifFile.attributes?.path,
                   timestamp: new Date().toISOString().split('T')[0],
                   pifId: pifFile.id
+                }
+              }
+            }
+
+            if (milestone) {
+              return {
+                ...step,
+                milestone: {
+                  title: milestone.title,
+                  timestamp: new Date().toISOString().split('T')[0],
+                  milestoneId: milestone.id
                 }
               }
             }
@@ -136,9 +147,37 @@ const SingleStep = ({ step, index, className, software, hardware }) => {
                   <span className="text-xs text-gray-400">Completed: {step.timestamp}</span>
                 )}
                 {step.milestone && (
-                  <span className="text-sm font-bold text-blue-600">
-                    Milestone: {step.milestone}
-                  </span>
+                  <div >
+                    <span className="text-sm font-bold text-blue-600">
+                      Milestone: {step.milestone.title}
+                    </span>
+  
+                      <Select
+                          onValueChange={(milestoneId) => {
+                            const chosenMilestone = milestones.find((milestone) => milestone.id === milestoneId)
+                            handleClick({ milestone: chosenMilestone })
+                          }}
+                        >
+                          <SelectTrigger className="h-5 overflow-hidden flex items-start py-0 max-w-56 text-wrap border-0">
+                            <SelectValue placeholder="Select Milestone" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {milestones && milestones.length > 0 ? (
+                              <>
+                                {milestones.map((milestone) => (
+                                  <SelectItem key={milestone.id} value={milestone.id}>
+                                    {milestone.title}
+                                  </SelectItem>
+                                ))}
+                              </>
+                            ) : (
+                              <SelectItem value="" disabled>
+                                No milestones found
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                  </div>
                 )}
                 {step.pif && (
                   <>
@@ -308,9 +347,6 @@ const SubStep = ({ step, index, mainIndex, software, hardware, saveData }) => {
           )}
           {step.timestamp && (
             <span className="text-xs text-gray-400">Completed: {step.timestamp}</span>
-          )}
-          {step.milestone && (
-            <span className="text-sm font-bold text-blue-600">Milestone: {step.milestone}</span>
           )}
         </div>
         {step.subSteps && (

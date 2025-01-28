@@ -364,7 +364,7 @@ function ProjectIssueCard({ project, thisWeekOpen, openChange, thisWeekClosed, c
   )
 }
 
-const MilestoneChart = ({ selectedMilestone }) => {
+export const MilestoneChart = ({ selectedMilestone, setIssues }) => {
   const COLORS = {
     none: '#8f926d', // Neutral, unassigned or inactive tickets
     'to-do': '#F9D423', // Light yellow for tasks that need to be done, attention but not urgent
@@ -394,6 +394,7 @@ const MilestoneChart = ({ selectedMilestone }) => {
   const loadTickets = async () => {
     const data = await getIssuesFromMilestone(selectedMilestone.project_id, selectedMilestone.id)
 
+    if (setIssues) setIssues(data)
     setTickets(data)
     // Group tickets by workflow label
     const ticketsByWorkflow = _.groupBy(data, (ticket) => {

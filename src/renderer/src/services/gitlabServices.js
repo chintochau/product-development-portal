@@ -185,6 +185,11 @@ export const getNotesFromTicket = async (iid, project = PRODUCT_PROJECTID, page 
     return data
 }
 
+export const getLabelsFromTicket = async(iid, project = PRODUCT_PROJECTID) => {
+    const data = await window.api.gitlab(`projects/${project}/issues/${iid}/resource_label_events?per_page=100`, "GET");
+    return data
+}
+
 export const deleteNoteFromTicket = async (iid, noteId, project = PRODUCT_PROJECTID) => {
     const response = await window.api.gitlab(`projects/${project}/issues/${iid}/notes/${noteId}`, "DELETE");
     return response
@@ -258,5 +263,26 @@ export const updateFeatureRequestIssue = async (noteId, data) => {
 
 export const deleteFeatureRequestIssue = async (noteId) => {
     const response = await deleteNoteFromTicket(1, noteId, FEATURES_PROJECTID)
+    return response
+}
+
+export const getMilestonePlanningIssues = async (page = 1) => {
+    const data = await getNotesFromTicket(2, FEATURES_PROJECTID, page)
+    const filteredData = data.filter(item => !item.system)
+    return filteredData
+}
+
+export const createMilestonePlanningIssue = async (data) => {
+    const response = await postNotesToTicket(2, data, null, FEATURES_PROJECTID)
+    return response
+}
+
+export const updateMilestonePlanningIssue = async (noteId, data) => {
+    const response = await updateNotesToTicket(2, noteId, data, null, FEATURES_PROJECTID)
+    return response
+}
+
+export const deleteMilestonePlanningIssue = async (noteId) => {
+    const response = await deleteNoteFromTicket(2, noteId, FEATURES_PROJECTID)
     return response
 }

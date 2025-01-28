@@ -125,3 +125,33 @@ export const findTeamByRole = (role) => {
       return null
   }
 }
+
+
+export const findCommitsFromNotes = (notes) => {
+  const commits = []
+  notes.forEach((note) => {
+    if (note.noteType === "commit") {
+      commits.push(note)
+    }
+  })
+  return commits
+}
+
+
+
+
+const predefinedColors = ["#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#8E44AD"]; // 5 distinct colors
+
+const stringToHash = (str) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
+};
+
+export const getColorForAuthor = (author) => {
+  const hash = Math.abs(stringToHash(author)); // Ensure non-negative hash
+  const colorIndex = hash % predefinedColors.length; // Map hash to one of the 5 colors
+  return predefinedColors[colorIndex];
+};

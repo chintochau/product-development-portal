@@ -11,6 +11,7 @@ import FeatureRequestDetailPage from "./components/FeatureRequestDetailPage"
 import TicketPage from "./components/TicketPage"
 import MilestonePage from "./components/MilestonePage"
 import ProjectsPage from "./components/project-page/ProjectsPage"
+import AnalyticsPage from "./components/AnalyticsPage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -72,7 +73,7 @@ export const navigationItems = [
                 title:"Analytics",
                 url:"/analytics",
                 icon: BarChart,
-                element: MilestonePage
+                element: AnalyticsPage
             }
         ],
         access: 1, // Admin, Platform, and Software Manager
@@ -215,8 +216,7 @@ export const defaultSoftwareSteps = [
         }
     },
     { label: "Requirement Specification", completed: false, },
-    { label: "Development", completed: false, },
-    { label: "Testing", completed: false, },
+    { label: "MP Preparation", completed: false, },
     { label: "Release", completed: false, milestone: "-" },
 ];
 

@@ -52,12 +52,13 @@ export function DataTable({ columns, data }) {
     }
   })
 
-  const { setIid } = useSingleProduct()
+  const { setIid,setLoading } = useSingleProduct()
   const navigate = useNavigate()
 
   const handleProductClick = (iid) => {
     if (!iid) return
     setIid(iid)
+    setLoading(true)
     navigate(`/dashboard/${iid}`)
   }
 
