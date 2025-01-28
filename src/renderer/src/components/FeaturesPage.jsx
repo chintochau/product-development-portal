@@ -94,9 +94,11 @@ const FeaturesPage = () => {
                 <BarChartComponent chartData={featureChartData} />
               </TabsContent>
             </Tabs>
+            
             <AllFeatures features={features}  />
           </div>
         </BluOSFeatureRequest>
+
         <AppFeatureChart chartData={chartData}>
           <Table>
             <TableHeader className="bg-secondary/20">

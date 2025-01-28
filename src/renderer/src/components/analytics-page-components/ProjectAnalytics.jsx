@@ -31,18 +31,42 @@ const convertTimeToDays = (timeStr) => {
 const ProjectAnalytics = ({ issues }) => {
   // Calculate project overview metrics
 
-  const totalIssues = issues.length
-  const totalOpenIssues = issues.filter((issue) => issue.state === 'opened').length
-  const totalClosedIssues = issues.filter((issue) => issue.state === 'closed').length
-  const criticalIssues = issues.filter(
-    (issue) => issue.labels?.includes('priority::critical') && issue.state === 'opened'
-  ).length
-  const highIssues = issues.filter(
-    (issue) => issue.labels?.includes('priority::high') && issue.state === 'opened'
-  ).length
-  const testingIssues = issues.filter(
-    (issue) => issue.labels?.includes('workflow:: 4 testing') && issue.state === 'opened'
-  ).length
+  let totalIssues = 0;
+let totalOpenIssues = 0;
+let totalClosedIssues = 0;
+let totalBugs = 0;
+let totalFeatures = 0;
+let completedBugs = 0;
+let completeFeatures = 0;
+let criticalIssues = 0;
+let highIssues = 0;
+let testingIssues = 0;
+
+for (const issue of issues) {
+  totalIssues++;
+
+  const isOpen = issue.state === 'opened';
+  const isClosed = issue.state === 'closed';
+  
+  if (isOpen) totalOpenIssues++;
+  if (isClosed) totalClosedIssues++;
+
+  const labels = issue.labels || [];
+
+  if (labels.includes('type::bug')) {
+    totalBugs++;
+    if (isClosed) completedBugs++;
+  }
+  if (labels.includes('type::feature')) {
+    totalFeatures++;
+    if (isClosed) completeFeatures++;
+  }
+  if (isOpen) {
+    if (labels.includes('priority::critical')) criticalIssues++;
+    if (labels.includes('priority::high')) highIssues++;
+    if (labels.includes('workflow:: 4 testing')) testingIssues++;
+  }
+}
 
   const totalTestingCount = issues.reduce(
     (acc, issue) => acc + (issue.analytics?.testingCount || 0),
@@ -103,6 +127,30 @@ const ProjectAnalytics = ({ issues }) => {
               <div className="text-3xl font-bold">
                 {totalOpenIssues}
                 <span className="text-muted-foreground">/{totalIssues}</span>
+              </div>
+            </CardContent>
+            <CardFooter />
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">Features</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">
+                {completeFeatures}
+                <span className="text-muted-foreground">/{totalFeatures}</span>
+              </div>
+            </CardContent>
+            <CardFooter />
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">Bugs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">
+                {completedBugs}
+                <span className="text-muted-foreground">/{totalBugs}</span>
               </div>
             </CardContent>
             <CardFooter />

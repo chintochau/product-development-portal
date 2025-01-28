@@ -40,32 +40,7 @@ const AllFeatures = ({ features, className }) => {
   return (
     <div className={className}>
       <DataTable columns={featureColumns} data={features} />
-      <Table>
-        <TableHeader className=" bg-secondary/10 text-secondary-foreground">
-          <TableRow>
-            <TableHead className="w-96">Title</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Product</TableHead>
-            <TableHead>Developers</TableHead>
-            <TableHead>Time Estimate</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>Gitlab</TableHead>
-            <TableHead></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {features && features.map((feature) => <FeatureRow feature={feature} key={feature.id} />)}
-          {
-            features.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
-                  No features found.
-                </TableCell>
-              </TableRow>
-            )
-          }
-        </TableBody>
-      </Table>
+      
 
       {loading ? (
         <div className="w-full py-4 flex items-center justify-center">

@@ -1,25 +1,33 @@
 import { cn, daysFromToday } from '@/lib/utils'
 import { useProducts } from '../../contexts/productsContext'
 import ProductDropdown from './ProductDropdown'
-import { updateFeatureRequestIssue } from '../../services/gitlabServices'
+import { deleteFeatureRequestIssue, updateFeatureRequestIssue } from '../../services/gitlabServices'
 import { useTickets } from '../../contexts/ticketsContext'
 import { useState } from 'react'
 import { DeveloperDropdown } from '../DeveloperPage'
 import { useDevelopers } from '../../contexts/developerContext'
 import EstimateSlider from './EstimateSlider'
 import { Button } from '../../../../components/ui/button'
-import { ArrowUpDown } from 'lucide-react'
+import { ArrowUpDown, Check, Trash } from 'lucide-react'
+import { Input } from '../../../../components/ui/input'
+import dayjs from 'dayjs'
+import { Checkbox } from '../../../../components/ui/checkbox'
+import FeatureTypeSelector from './FeatureTypeSelector'
+import PriorityDropdown from './PriorityDropdown'
 
 export const featureColumns = [
   {
     accessorKey: 'title',
     header: 'Title',
-    size: 100,
+    size: 180,
     cell: ({ row }) => {
-      const { title, description } = row.original || {}
+      const { title, description, created_at } = row.original || {}
       return (
         <div className="">
           <p className="text-primary ">{title}</p>
+          <p className="text-muted-foreground text-sm line-clamp-4">
+            {dayjs(created_at).format('DD/MM')}
+          </p>
           <p className="text-muted-foreground text-sm line-clamp-4">{description}</p>
         </div>
       )
@@ -183,11 +191,110 @@ export const featureColumns = [
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
+    },
+    cell: ({ row }) => {
+      const feature = row.original || {}
+      const { priority, id } = row.original || {}
+      const { setShouldRefresh } = useTickets()
+      const handlePriorityChange = async (value) => {
+        const response = await updateFeatureRequestIssue(id, {
+          ...feature,
+          priority: value
+        })
+        setShouldRefresh(true)
+      }
+      return (
+        <PriorityDropdown priority={priority} setPriority={handlePriorityChange} rowIndex={row.index} />
+      )
+    }
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+    cell: ({ row }) => {
+      const feature = row.original || {}
+      const { type, id } = row.original || {}
+      const { setShouldRefresh } = useTickets()
+      const handleTypeChange = async (value) => {
+        const response = await updateFeatureRequestIssue(id, {
+          ...feature,
+          type: value
+        })
+        setShouldRefresh(true)
+      }
+      return (
+       <FeatureTypeSelector type={type} handleTypeChange={handleTypeChange} rowIndex={row.index} />
+      )
     }
   },
   {
     accessorKey: 'ticket',
+    header: 'Gitlab',
+    size: 50,
+    cell: ({ row }) => {
+      const feature = row.original || {}
+      const { ticket, id } = row.original || {}
+      const [ticketUrl, setTicketUrl] = useState(ticket || '')
+      const { setShouldRefresh, setLoading } = useTickets()
+
+      const handleTicketChange = async (value) => {
+        setLoading(true)
+        const response = await updateFeatureRequestIssue(id, {
+          ...feature,
+          ticket: value
+        })
+        setShouldRefresh(true)
+      }
+
+      return (
+        <>
+          {ticket ? (
+            <p className="text-primary hover:underline cursor-pointer" onClick={() => window.open(ticket)}>
+              #{ticket.split('/').pop()}
+            </p>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleTicketChange(ticketUrl)
+              }}
+              className="flex gap-1"
+            >
+              <Input
+                className="w-20"
+                value={ticketUrl}
+                onChange={(e) => setTicketUrl(e.target.value)}
+                placeholder="gitlab"
+              />
+              <Button className="bg-transparent" variant="outline" size="icon">
+                <Check className="size-4" />
+              </Button>
+            </form>
+          )}
+        </>
+      )
+    }
   },
+  {
+    id: 'delete',
+    header: null,
+    size: 50,
+    cell: ({ row }) => {
+      const feature = row.original || {}
+      const { id } = row.original || {}
+      const { setShouldRefresh } = useTickets()
+      const handleDelete = async () => {
+        await deleteFeatureRequestIssue(id)
+        setShouldRefresh(true)
+      }
+      return (
+        <Button size="icon" onClick={handleDelete} variant="ghost" className="hover:text-red-500">
+          <Trash className="w-4 h-4" />
+        </Button>
+      )
+    }
+  },
+
   { accessorKey: 'model', header: null, cell: null, size: 0 },
   { accessorKey: 'projectName', header: null, cell: null, size: 0 },
   { accessorKey: 'mp1Date', header: null, cell: null, size: 0 }

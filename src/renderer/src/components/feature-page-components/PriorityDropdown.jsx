@@ -27,7 +27,7 @@ const PriorityDropdown = ({ priority, setPriority }) => {
         <SelectValue value={priority} placeholder="-" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={null} className="text-muted-foreground">
+        <SelectItem value={99} className="text-muted-foreground">
           -
         </SelectItem>
         {Object.keys(defaultPriorities).map((priority) => (
