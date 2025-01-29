@@ -15,12 +15,12 @@ import { defaultStyles, useTooltip, useTooltipInPortal } from '@visx/tooltip'
 import { localPoint } from '@visx/event'
 import { Label } from '../../../components/ui/label'
 
-import { defaultBrands, getBrandName } from '../constant'
+import { defaultBrands, getBrandName, QUARTER_CONFIG } from '../constant'
 import { useTickets } from '../contexts/ticketsContext'
 import { legendColorScale, useRoadmap } from '../contexts/roadmapConetxt'
 import { Slider } from '../../../components/ui/slider'
 import { MinusIcon, MoveHorizontalIcon, MoveVerticalIcon, PlusIcon } from 'lucide-react'
-import { getColorIntensityByLevel } from '../../../lib/utils'
+import { cn, getColorIntensityByLevel } from '../../../lib/utils'
 
 const defaultHeight = 800
 const heightFactor = 40
@@ -166,6 +166,26 @@ const RoadmapPage = ({ scrollTop }) => {
   })
   // Render
 
+// Generate quarters for all years in visible range
+const startYear = new Date(range[0]).getFullYear();
+const endYear = new Date(range[1]).getFullYear();
+const quarterDates = [];
+
+for (let year = startYear; year <= endYear; year++) {
+  QUARTER_CONFIG.forEach((config, index) => {
+    const quarterIndex = index * 3; // Each quarter spans 3 months
+    const start = new Date(year, quarterIndex, 1);
+    const end = new Date(year, quarterIndex + 3, 0); // Fix for month gaps
+    
+    quarterDates.push({
+      label: `${config.label} ${year}`,
+      start,
+      end,
+      fill: config.fill
+    });
+  });
+}
+
   return (
     <>
       {/* Date Range Slider */}
@@ -302,6 +322,40 @@ const RoadmapPage = ({ scrollTop }) => {
               }}
             >
               <Group top={margin.top} left={0}>
+{quarterDates.map((q, index) => {
+  const xStart = Math.max(xScale(q.start), xScale(range[0]));
+  const xEnd = Math.min(xScale(q.end), xScale(range[1]));
+  const width = xEnd - xStart;
+
+  // Only render if visible in current view
+  if (width <= 0) return null;
+
+  const middleX = xStart + width / 2;
+  
+  return (
+    <g key={index}>
+      <rect
+        x={xStart}
+        y={0}
+        width={width+5}
+        height={chartHeight}
+        fill={q.fill}
+        opacity={0.5}
+      />
+      <text
+        x={middleX}
+        y={chartHeight / 2}
+        textAnchor="middle"
+        fontSize={24}
+        fill="rgba(0, 0, 0, 0.15)"
+        fontFamily="Arial"
+        fontWeight="bold"
+      >
+        {q.label}
+      </text>
+    </g>
+  );
+})}
                 {pointerX && (
                   <Fragment>
                     <Line
@@ -386,6 +440,9 @@ const RoadmapPage = ({ scrollTop }) => {
                             window.open(task.url, '_blank')
                           }
                         }}
+                        className={cn(
+                          task.url  ? 'cursor-pointer' : 'cursor-default'
+                        )}
                       />
                       {
                         task.overlaps && task.overlaps.length > 0 && task.overlaps.map((overlap, index) => {

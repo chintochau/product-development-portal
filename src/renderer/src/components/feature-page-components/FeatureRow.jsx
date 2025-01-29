@@ -62,17 +62,7 @@ function FeatureRow({ feature, index }) {
   const [isEditing, setIsEditing] = useState(false)
   const [ticketUrl, setTicketUrl] = useState(feature?.ticket || '')
 
-  const isSelected = (id) => {
-    return selectedDevelopers.findIndex((dev) => dev.id === id) !== -1
-  }
-
-  const updateAssignees = async () => {
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      assignee_ids: selectedDevelopers.map((dev) => dev.id)
-    })
-    setShouldRefresh(true)
-  }
+  const { isAdhoc } = feature || {}
 
   const { assignee_ids, id } = feature || {}
   const [title, setTitle] = useState(feature?.title)
@@ -82,9 +72,20 @@ function FeatureRow({ feature, index }) {
   const [priority, setPriority] = useState(feature?.priority)
   const [type, setType] = useState(feature?.type)
 
+  const isSelected = (id) => {
+    return selectedDevelopers.findIndex((dev) => dev.id === id) !== -1
+  }
+
+  const updateAssignees = async () => {
+    const response = await updateFeatureRequestIssue(id, {
+      ...feature,
+      assignee_ids: selectedDevelopers.map((dev) => dev.id)
+    },isAdhoc ? 3 : 1)
+    setShouldRefresh(true)
+  }
   const handleDeleteTicket = async () => {
     setLoading(true)
-    const response = await deleteFeatureRequestIssue(id)
+    const response = await deleteFeatureRequestIssue(id,isAdhoc ? 3 : 1)
     setShouldRefresh(true)
   }
 
@@ -93,7 +94,7 @@ function FeatureRow({ feature, index }) {
     const response = await updateFeatureRequestIssue(id, {
       ...feature,
       estimate: value
-    })
+    },isAdhoc ? 3 : 1)
     setShouldRefresh(true)
   }
 
@@ -106,7 +107,7 @@ function FeatureRow({ feature, index }) {
     const response = await updateFeatureRequestIssue(id, {
       ...feature,
       startDate: value
-    })
+    },isAdhoc ? 3 : 1)
     setShouldRefresh(true)
   }
 
@@ -117,7 +118,7 @@ function FeatureRow({ feature, index }) {
       ...feature,
       title,
       description
-    })
+    },isAdhoc ? 3 : 1)
     setLoading(false)
   }
 
@@ -132,7 +133,7 @@ function FeatureRow({ feature, index }) {
     const response = await updateFeatureRequestIssue(id, {
       ...feature,
       ticket: value
-    })
+    },isAdhoc ? 3 : 1)
     setShouldRefresh(true)
   }
 
@@ -142,7 +143,7 @@ function FeatureRow({ feature, index }) {
     const response = await updateFeatureRequestIssue(id, {
       ...feature,
       product: value
-    })
+    },isAdhoc ? 3 : 1)
     setShouldRefresh(true)
   }
 
@@ -152,7 +153,7 @@ function FeatureRow({ feature, index }) {
     const response = await updateFeatureRequestIssue(id, {
       ...feature,
       priority: value
-    })
+    },isAdhoc ? 3 : 1)
     setShouldRefresh(true)
   }
 
@@ -162,25 +163,25 @@ function FeatureRow({ feature, index }) {
     const response = await updateFeatureRequestIssue(id, {
       ...feature,
       type: value
-    })
+    },isAdhoc ? 3 : 1)
     setShouldRefresh(true)
   }
 
   const handleChangeRequestStatus = async (changeIndex, newStatus) => {
-    setLoading(true);
-    const updatedChanges = feature.changes.map((change, index) => 
+    setLoading(true)
+    const updatedChanges = feature.changes.map((change, index) =>
       index === changeIndex ? { ...change, status: newStatus } : change
-    );
-    
+    )
+
     await updateFeatureRequestIssue(id, {
       ...feature,
       changes: updatedChanges
-    });
-    setShouldRefresh(true);
-  };
+    },isAdhoc ? 3 : 1)
+    setShouldRefresh(true)
+  }
 
   const createChangeRequest = async () => {
-    setLoading(true);
+    setLoading(true)
     const response = await updateFeatureRequestIssue(id, {
       ...feature,
       changes: [
@@ -193,10 +194,9 @@ function FeatureRow({ feature, index }) {
           createdBy: 'Current User' // Replace with actual user context
         }
       ]
-    });
-    setShouldRefresh(true);
-  };
-
+    },isAdhoc ? 3 : 1)
+    setShouldRefresh(true)
+  }
 
   return (
     <>
@@ -211,7 +211,7 @@ function FeatureRow({ feature, index }) {
               <div className="flex flex-col">
                 <Textarea
                   defaultValue={title}
-                  className="min-h-40"
+                  className="min-h-60"
                   onChange={(e) => {
                     e.target.style.height = '1em'
                     e.target.style.height = e.target.scrollHeight + 'px'
@@ -219,7 +219,7 @@ function FeatureRow({ feature, index }) {
                   }}
                 />
                 <Textarea
-                  className="min-h-40"
+                  className="min-h-60"
                   defaultValue={description}
                   onChange={(e) => {
                     e.target.style.height = '1em'
@@ -259,9 +259,9 @@ function FeatureRow({ feature, index }) {
             )}
           </div>
         </TableCell>
-        <TableCell className="font-medium">
+       {!isAdhoc && <TableCell className="font-medium">
           <ProductDropdown product={product} setProduct={handleProductChange} />
-        </TableCell>
+        </TableCell>}
         <TableCell className="font-medium">
           <DeveloperDropdown
             showStatusBar={showStatusBar}
@@ -302,9 +302,9 @@ function FeatureRow({ feature, index }) {
             setStartDate={handleDateChange}
           />
         </TableCell>
-        <TableCell className="font-medium">
+        {!isAdhoc &&<TableCell className="font-medium">
           <PriorityDropdown priority={priority} setPriority={handlePriorityChange} />
-        </TableCell>
+        </TableCell>}
         <TableCell>
           <FeatureTypeSelector type={type} handleTypeChange={handleTypeChange} rowIndex={index} />
         </TableCell>
@@ -337,11 +337,11 @@ function FeatureRow({ feature, index }) {
           )}
         </TableCell>
 
-        <TableCell className="font-medium">
+        {!isAdhoc &&<TableCell className="font-medium">
           <Button variant="outline" onClick={createChangeRequest}>
             Create
           </Button>
-        </TableCell>
+        </TableCell>}
 
         <TableCell className="font-medium">
           <Trash2
@@ -350,7 +350,7 @@ function FeatureRow({ feature, index }) {
           />
         </TableCell>
       </TableRow>
-      
+
       {feature?.changes?.map((change, index) => (
         <ChangeRequestRow
           key={index}
@@ -369,8 +369,8 @@ const ChangeRequestRow = ({ change, onChangeStatus }) => {
   const statusColor = {
     pending: 'text-yellow-600',
     approved: 'text-green-600',
-    rejected: 'text-red-600',
-  }[change.status];
+    rejected: 'text-red-600'
+  }[change.status]
 
   return (
     <TableRow className="bg-muted/50">
@@ -384,11 +384,9 @@ const ChangeRequestRow = ({ change, onChangeStatus }) => {
               </span>
             </div>
             <span className="text-sm text-muted-foreground">{change.description}</span>
-            <span className={`text-sm font-medium ${statusColor}`}>
-              {change.status}
-            </span>
+            <span className={`text-sm font-medium ${statusColor}`}>{change.status}</span>
           </div>
-          
+
           {change.status === 'pending' && (
             <div className="flex items-center gap-2">
               <Button
@@ -414,5 +412,5 @@ const ChangeRequestRow = ({ change, onChangeStatus }) => {
         </div>
       </TableCell>
     </TableRow>
-  );
-};
+  )
+}

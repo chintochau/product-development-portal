@@ -34,9 +34,7 @@ const Layout = ({ children }) => {
   const location = useLocation()
   const currentPath = location.pathname
   const [scrollTop, setScrollTop] = React.useState(0)
-
-  const { user } = useUser()
-
+  const { user } = useUser() || {}
   if (!user) {
     return <Login />
   }
@@ -48,8 +46,7 @@ const Layout = ({ children }) => {
       }}
     >
       <WithPermission requiredAccess={99} fallback={<Login />}>
-        <FrameWraper>
-          <div className="flex items-center sticky top-0 z-50 bg-background border-b justify-between px-2">
+          <div className="flex items-center sticky top-0 z-50 bg-background border-b">
             <div className="flex items-center">
               <SidebarTrigger />
               <Breadcrumb>
@@ -77,9 +74,7 @@ const Layout = ({ children }) => {
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <ModeToggle />
           </div>
-        </FrameWraper>
         <Routes>
           {navigationItems.map((item) => (
             <Route

@@ -97,18 +97,17 @@ const TicketPage = () => {
 }
 export const StatusComponent = ({ ticket }) => {
   let isTesting, isBug, isFeature, isDoing, isReview
-
-  ticket.labels?.forEach((label) => {
-    if (label.includes('type::bug')) isBug = { label: 'Bug', color: 'bg-gray-100 text-gray-800' }
-    if (label.includes('type::feature'))
-      isFeature = { label: 'Feature', color: 'bg-gray-100 text-gray-800' }
-    if (label.includes('workflow:: 2 doing'))
-      isDoing = { label: 'Doing', color: 'bg-blue-500 text-blue-50' }
-    if (label.includes('workflow:: 3 review'))
-      isReview = { label: 'Review', color: 'bg-orange-500 text-orange-50' }
-    if (label.includes('workflow:: 4 testing'))
-      isReview = { label: 'Testing', color: 'bg-purple-500 text-purple-50' }
-  })
+  const { labels } = ticket || {}
+  if (!labels) return null
+  if (labels.includes('type::bug')) isBug = { label: 'Bug', color: 'bg-gray-100 text-gray-800' }
+  if (labels.includes('type::feature'))
+    isFeature = { label: 'Feature', color: 'bg-gray-100 text-gray-800' }
+  if (labels.includes('workflow:: 2 doing'))
+    isDoing = { label: 'Doing', color: 'bg-blue-500 text-blue-50' }
+  if (labels.includes('workflow:: 3 review'))
+    isReview = { label: 'Review', color: 'bg-orange-500 text-orange-50' }
+  if (labels.includes('workflow:: 4 testing'))
+    isReview = { label: 'Testing', color: 'bg-purple-500 text-purple-50' }
 
   const ticketStatus =
     ticket.state === 'opened'

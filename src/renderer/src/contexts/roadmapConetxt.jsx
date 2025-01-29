@@ -23,9 +23,9 @@ const RoadmapContext = createContext()
 
 export const RoadmapProvider = ({ children }) => {
   const { products } = useProducts()
-  const { featureEpics, epics } = useSingleProduct()
+  const { featureEpics } = useSingleProduct()
   const { developers } = useDevelopers()
-  const { features } = useTickets()
+  const { features,adhocTickets } = useTickets()
 
   const [featuersByDevelopers, setFeaturesByDevelopers] = useState([])
   const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
@@ -155,7 +155,7 @@ export const RoadmapProvider = ({ children }) => {
     if (features.length > 0 && developers.length > 0) {
       groupFeaturesByDevelopers()
     }
-  }, [features, developers])
+  }, [features, developers,adhocTickets])
 
   // set Developers Chart Data
   useEffect(() => {
@@ -178,7 +178,9 @@ export const RoadmapProvider = ({ children }) => {
           )
           let endDate = maxDate ? new Date(maxDate) : new Date()
 
-          const features = item.features.map((feature) => {
+          console.log(item);
+          
+          const features = [...item.features,...item.adhoc].map((feature) => {
             return {
               id: feature.id,
               name: feature.title,
@@ -189,9 +191,7 @@ export const RoadmapProvider = ({ children }) => {
               end: dayjs(feature.startDate)
                 .add(feature.estimate ? feature.estimate : 1, 'day')
                 .toDate(),
-              fill: ['#FFA500', '#FF4500', '#32CD32', '#00CED1', '#FFD700'][
-                Math.floor(Math.random() * 5)
-              ]
+              fill: feature.isAdhoc ? 'hsl(var(--chart-1))' : 'hsl(var(--chart-2))',
             }
           })
 
@@ -249,7 +249,7 @@ export const RoadmapProvider = ({ children }) => {
                 : dayjs().add(180, 'day').toDate()
             ),
             fill: bluosFeatureColor,
-            url: f.web_url
+            url: f.web_url || f.ticket
           }
         })
         .sort((a, b) => new Date(a.start) - new Date(b.start))
@@ -275,29 +275,51 @@ export const RoadmapProvider = ({ children }) => {
   ])
 
   const groupFeaturesByDevelopers = () => {
-    const developerLookup = _.keyBy(developers, 'id')
+    // Example `features` input:
+    // [{ title, startDate, assignee_ids: [1, 2, 3] }, { title, startDate, assignee_ids: [1] }]
+    // Example `developers` input:
+    // [{ id: 1, name: 'John Doe', email: 'john@example.com' }, ...]
+    // Create a lookup for developers by their IDs
+    const developerLookup = _.keyBy(developers, 'id');
+  
     // Flatten the features and associate them with their developers
     const featuresByDeveloper = features.flatMap((feature) =>
       feature.assignee_ids
         ? feature.assignee_ids.map((assigneeId) => ({
             developer: developerLookup[assigneeId],
-            feature
+            feature,
+            type: 'feature' // Add a type to distinguish between features and adhoc tasks
           }))
         : []
-    )
+    );
+  
+    // Flatten the adhoc tasks and associate them with their developers
+    const adhocFeaturesByDeveloper = adhocTickets.flatMap((feature) =>
+      feature.assignee_ids
+        ? feature.assignee_ids.map((assigneeId) => ({
+            developer: developerLookup[assigneeId],
+            feature,
+            type: 'adhoc' // Add a type to distinguish between features and adhoc tasks
+          }))
+        : []
+    );
+  
+    // Combine features and adhoc tasks into a single array
+    const combinedFeatures = [...featuresByDeveloper, ...adhocFeaturesByDeveloper];
+  
     // Group by developer
-    const groupedByDeveloper = _.groupBy(featuresByDeveloper, 'developer.id')
-    const groupedFeatures = Object.values(groupedByDeveloper).map((group) => {
-      return {
-        developer: group[0].developer,
-        features: group
-          .sort((a, b) => new Date(a.feature.startDate) - new Date(b.feature.startDate))
-          .map((item) => item.feature)
-      }
-    })
+    const groupedByDeveloper = _.groupBy(combinedFeatures, 'developer.id');
+  
     // Transform the grouped data into the desired output format
-    setFeaturesByDevelopers(groupedFeatures)
-  }
+    const groupedFeatures = Object.values(groupedByDeveloper).map((group) => ({
+      developer: group[0].developer,
+      features: group.filter((item) => item.type === 'feature').map((item) => item.feature).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)),
+      adhoc: group.filter((item) => item.type === 'adhoc').map((item) => item.feature).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)),
+    }));
+  
+    // Set the combined state
+    setFeaturesByDevelopers(groupedFeatures);
+  };
 
   // Function to calculate overlaps
   function calculateOverlaps(features) {

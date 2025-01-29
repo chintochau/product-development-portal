@@ -19,6 +19,10 @@ const chartConfig = {
   feature: {
     label: 'feature',
     color: 'hsl(var(--chart-2))'
+  },
+  adhoc: {
+    label: 'adhoc',
+    color: 'hsl(var(--chart-3))'
   }
 }
 
@@ -63,6 +67,7 @@ const BarChartComponent = ({ chartData, developerChart }) => {
         }
         return acc
       }, dayjs().add(1, 'day').valueOf())
+
       const features = item.features.map((item) => {
         const endDate = item.startDate
           ? dayjs(item.startDate).add(item.estimate, 'day').valueOf()
@@ -75,13 +80,27 @@ const BarChartComponent = ({ chartData, developerChart }) => {
         }
       })
 
+      const adhocFeatures = item.adhoc.map((item) => {
+        const endDate = item.startDate
+          ? dayjs(item.startDate).add(item.estimate, 'day').valueOf()
+          : dayjs().add(120, 'day').valueOf()
+
+        return {
+          name: item.title,
+          period1: [item.startDate || dayjs().valueOf(), endDate],
+          type: 'adhoc'
+        }
+      })
+
+
       return [
         {
           name: item.developer?.name,
           period1: [developerStart, developerEnd],
           type: 'developer'
         },
-        ...features
+        ...features,
+        ...adhocFeatures
       ]
     })
 
@@ -107,7 +126,7 @@ const BarChartComponent = ({ chartData, developerChart }) => {
             formatter={(_, __, item) =>
               `${dayjs(item.value[1]).format('MM-YYYY')} to ${dayjs(item.value[0]).format('MM-YYYY')}`
             }
-          />
+          />   
           <Bar
             dataKey="period1"
             layout="vertical"
@@ -135,7 +154,7 @@ const BarChartComponent = ({ chartData, developerChart }) => {
                   width={width}
                   height={height - 2 * padding}
                   rx={10}
-                  fill="hsl(var(--chart-2))"
+                  fill={type === 'feature' ? 'hsl(var(--chart-2))' : 'hsl(var(--chart-4))'}
                 />
               )
             }}

@@ -294,7 +294,12 @@ function ProjectIssueCard({ project, thisWeekOpen, openChange, thisWeekClosed, c
                   onChange={(e) => setTicketId(e.target.value)}
                   className="text-xs text-muted-foreground w-28"
                 />
-                <Button size="icon" type="submit" variant="ghost" className="absolute  right-0 hover:bg-transparent text-secondary">
+                <Button
+                  size="icon"
+                  type="submit"
+                  variant="ghost"
+                  className="absolute  right-0 hover:bg-transparent text-secondary"
+                >
                   <Search />
                 </Button>
               </div>
@@ -366,13 +371,13 @@ function ProjectIssueCard({ project, thisWeekOpen, openChange, thisWeekClosed, c
 
 export const MilestoneChart = ({ selectedMilestone, setIssues }) => {
   const COLORS = {
-    none: '#8f926d', // Neutral, unassigned or inactive tickets
-    'to-do': '#F9D423', // Light yellow for tasks that need to be done, attention but not urgent
-    doing: '#c4483b', // Soft red-orange for tasks in progress, a sense of urgency and activity
-    review: '#3157ce', // Calm teal for review stage, clear and distinct
-    done: '#81D8D0', // Safe green for completed tasks, a stable and reassuring color for done tasks
-    testing: '#646d9b', // Bright red for testing tasks, draws attention for critical work needing validation
-    backlog: '#FBC02D' // Warm amber for backlog tasks, not urgent but still needing attention
+    none: '#8f926d',
+    'to-do': '#F9D423',
+    doing: '#3498DB',
+    review: '#D35400',
+    done: '#81D8D0',
+    testing: '#8E44AD',
+    backlog: '#F9D423'
   }
   const CHART_COLORS = [
     'hsl(var(--chart-1))',
@@ -396,13 +401,16 @@ export const MilestoneChart = ({ selectedMilestone, setIssues }) => {
 
     if (setIssues) setIssues(data)
     setTickets(data)
-    // Group tickets by workflow label
-    const ticketsByWorkflow = _.groupBy(data, (ticket) => {
-      const label = ticket.labels.find((label) => label?.startsWith('workflow'))
-      return label ? label : 'none'
-    })
 
-    const aggregateTicketsByWorkflow = Object.entries(ticketsByWorkflow)
+    const aggregateTicketsByWorkflow = Object.entries(
+      _.groupBy(
+        data.filter((ticket) => ticket.state !== 'closed'),
+        (ticket) => {
+          const label = ticket.labels.find((label) => label?.startsWith('workflow'))
+          return label ? label : 'none'
+        }
+      )
+    )
       .map(([workflow, tickets]) => {
         return {
           name: workflow.split(' ').slice(-1)[0],
@@ -453,7 +461,7 @@ export const MilestoneChart = ({ selectedMilestone, setIssues }) => {
           Milestone: {selectedMilestone?.title}
         </p>
         <p>
-          {openedTickets} / {tickets.length}{' '}
+          {closedTickets} / {tickets.length}
         </p>
       </div>
       <Progress className="w-full" value={(100 * closedTickets) / tickets.length} />

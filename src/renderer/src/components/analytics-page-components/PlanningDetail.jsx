@@ -67,8 +67,6 @@ const PlanningDetail = ({ selectedPlan }) => {
     })
   }
 
-  console.log(tickets)
-
   useEffect(() => {
     if (selectedPlan) {
       const savedTickets = selectedPlan.tickets || []

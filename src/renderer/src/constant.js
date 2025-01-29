@@ -15,6 +15,16 @@ import AnalyticsPage from "./components/AnalyticsPage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
+
+// Configuration array with fill colors and labels
+export const QUARTER_CONFIG = [
+    { label: "Q1", fill: "rgba(0, 128, 255, 0.1)" },
+    { label: "Q2", fill: "rgba(255, 165, 0, 0.1)" },
+    { label: "Q3", fill: "rgba(0, 255, 128, 0.1)" },
+    { label: "Q4", fill: "rgba(128, 0, 255, 0.1)" }
+  ];
+  
+
 export const navigationItems = [
     {
         title: "Products",

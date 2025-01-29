@@ -10,6 +10,49 @@ import bluOSLogo from '../assets/BluOS-on-black-Logo.png'
 import { Eye, EyeClosed } from 'lucide-react'
 
 const Login = () => {
+  return (
+    <WithPermission requiredAccess={99} fallback={<LoginComponent />}>
+      <UserProfile />
+    </WithPermission>
+  )
+}
+
+export default Login
+
+const UserProfile = () => {
+  const { user, signIn, signOut } = useUser()
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8 space-y-10">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 space-y-6">
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold text-gray-900">{user.name}, Welcome back</h1>
+          <p className="text-gray-600">You're logged in as:</p>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex flex-col space-y-1">
+            <span className="text-sm font-medium text-gray-700">Email</span>
+            <p className="text-gray-900 p-2 bg-gray-50 rounded-lg">{user.email}</p>
+          </div>
+
+          <div className="flex flex-col space-y-1">
+            <span className="text-sm font-medium text-gray-700">Role</span>
+            <p className="text-gray-900 p-2 bg-gray-50 rounded-lg">{user.role}</p>
+          </div>
+        </div>
+
+        <Button variant="destructive" onClick={signOut} className="w-full py-3 text-base">
+          Sign Out
+        </Button>
+      </div>
+      <WithPermission requiredAccess={5}>
+        <AdminPanel />
+      </WithPermission>
+    </div>
+  )
+}
+
+const LoginComponent = () => {
   const { user, signIn, signOut } = useUser()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -56,6 +99,7 @@ const Login = () => {
         <WithPermission requiredAccess={5}>
           <AdminPanel />
         </WithPermission>
+        {JSON.stringify(user)}
       </div>
     )
   }
@@ -166,5 +210,3 @@ const Login = () => {
     </div>
   )
 }
-
-export default Login

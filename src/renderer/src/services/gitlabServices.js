@@ -245,24 +245,49 @@ export const getIssuesFromMilestone = async (projectid, milestoneId) => {
     return data
 }
 
-export const getFeaturesRequestsIssues = async (page = 1) => {
-    const data = await getNotesFromTicket(1, FEATURES_PROJECTID, page)
+/**
+ * Get all feature requests issues
+ * @param {number} page - page number
+ * @param {number} ticketIid - ticket id, 1 for feature, 2 for adhoc task
+ * @returns {Promise<Array>} - array of feature requests issues
+ */
+export const getFeaturesRequestsIssues = async (page = 1,ticketIid = 1) => {
+    const data = await getNotesFromTicket(ticketIid, FEATURES_PROJECTID, page)
     const filteredData = data.filter(item => !item.system)
     return filteredData
 }
 
-export const createFeatureRequestIssue = async (data) => {
-    const response = await postNotesToTicket(1, data, null, FEATURES_PROJECTID)
+/**
+ * Create a new feature request issue
+ * @param {Object} data - data of feature request
+ * @param {number} ticketIid - ticket id, 1 for feature, 2 for adhoc task
+ * @returns {Promise<Object>} - created feature request issue
+ */
+export const createFeatureRequestIssue = async (data,ticketIid = 1) => {
+    const response = await postNotesToTicket(ticketIid, data, null, FEATURES_PROJECTID)
     return response
 }
 
-export const updateFeatureRequestIssue = async (noteId, data) => {
-    const response = await updateNotesToTicket(1, noteId, data, null, FEATURES_PROJECTID)
+/**
+ * Update a feature request issue
+ * @param {number} noteId - note id
+ * @param {Object} data - data of feature request
+ * @param {number} ticketIid - ticket id, 1 for feature, 2 for adhoc task
+ * @returns {Promise<Object>} - updated feature request issue
+ */
+export const updateFeatureRequestIssue = async (noteId, data,ticketIid = 1) => {
+    const response = await updateNotesToTicket( ticketIid, noteId, data, null, FEATURES_PROJECTID)
     return response
 }
 
-export const deleteFeatureRequestIssue = async (noteId) => {
-    const response = await deleteNoteFromTicket(1, noteId, FEATURES_PROJECTID)
+/**
+ * Delete a feature request issue
+ * @param {number} noteId - note id
+ * @param {number} ticketIid - ticket id, 1 for feature, 2 for adhoc task
+ * @returns {Promise<Object>} - deleted feature request issue
+ */
+export const deleteFeatureRequestIssue = async (noteId,ticketIid = 1) => {
+    const response = await deleteNoteFromTicket( ticketIid, noteId, FEATURES_PROJECTID)
     return response
 }
 
@@ -287,25 +312,3 @@ export const deleteMilestonePlanningIssue = async (noteId) => {
     return response
 }
 
-
-
-export const getAdhocTaskIssues = async (page = 1) => {
-    const data = await getNotesFromTicket(3, FEATURES_PROJECTID, page)
-    const filteredData = data.filter(item => !item.system)
-    return filteredData
-}
-
-export const createAdhocTaskIssue = async (data) => {
-    const response = await postNotesToTicket(3, data, null, FEATURES_PROJECTID)
-    return response
-}
-
-export const updateAdhocTaskIssue = async (noteId, data) => {
-    const response = await updateNotesToTicket(3, noteId, data, null, FEATURES_PROJECTID)
-    return response
-}
-
-export const deleteAdhocTaskIssue = async (noteId) => {
-    const response = await deleteNoteFromTicket(3, noteId, FEATURES_PROJECTID)
-    return response
-}
