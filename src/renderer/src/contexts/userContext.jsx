@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { findTeamByRole } from '../../../lib/utils'
 
 // Create the User Context
 const UserContext = createContext()
@@ -38,7 +39,10 @@ export const UserProvider = ({ children }) => {
   const value = {
     logoutUser,
     signIn,
-    user,
+    user:{
+      ...user,
+      team: findTeamByRole(user?.role || '')
+    },
     setUser,
     signOut
   }

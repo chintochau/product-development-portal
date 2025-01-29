@@ -28,6 +28,7 @@ import { useUser } from './contexts/userContext'
 import Login from './components/Login'
 import { ModeToggle } from '../../components/mode-toggle'
 import FrameWraper from './components/frameWarper'
+import { WithPermission } from './contexts/permissionContext'
 
 const Layout = ({ children }) => {
   const location = useLocation()
@@ -43,38 +44,40 @@ const Layout = ({ children }) => {
     <ScrollArea className="w-full h-screen relative" onScrollCapture={(e) => {
       setScrollTop(e.target.scrollTop)
     }}>
-      <FrameWraper>
-        <div className="flex items-center sticky top-0 z-50 bg-background border-b justify-between px-2">
-          <div className='flex items-center'>
-            <SidebarTrigger />
-            <Breadcrumb>
-              <BreadcrumbList>
-                {currentPath.split('/').length > 1 &&
-                  currentPath.split('/').map((path, index) => (
-                    <Fragment key={path}>
-                      <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                          <Link
-                            to={currentPath
-                              .split('/')
-                              .slice(0, index + 1)
-                              .join('/')}
-                          >
-                            {path}
-                          </Link>
-                        </BreadcrumbLink>
-                      </BreadcrumbItem>
-                      {index !== 0 && index < currentPath.split('/').length - 1 && (
-                        <BreadcrumbSeparator />
-                      )}
-                    </Fragment>
-                  ))}
-              </BreadcrumbList>
-            </Breadcrumb>
+      <WithPermission requiredAccess={99}>
+        <FrameWraper>
+          <div className="flex items-center sticky top-0 z-50 bg-background border-b justify-between px-2">
+            <div className='flex items-center'>
+              <SidebarTrigger />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  {currentPath.split('/').length > 1 &&
+                    currentPath.split('/').map((path, index) => (
+                      <Fragment key={path}>
+                        <BreadcrumbItem>
+                          <BreadcrumbLink asChild>
+                            <Link
+                              to={currentPath
+                                .split('/')
+                                .slice(0, index + 1)
+                                .join('/')}
+                            >
+                              {path}
+                            </Link>
+                          </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        {index !== 0 && index < currentPath.split('/').length - 1 && (
+                          <BreadcrumbSeparator />
+                        )}
+                      </Fragment>
+                    ))}
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
+            <ModeToggle />
           </div>
-          <ModeToggle />
-        </div>
-      </FrameWraper>
+        </FrameWraper>
+      </WithPermission>
       <Routes>
         {navigationItems.map((item) => (
           <Route

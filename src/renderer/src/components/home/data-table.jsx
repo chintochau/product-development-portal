@@ -23,6 +23,7 @@ import { Input } from '../../../../components/ui/input'
 import { Sheet } from 'lucide-react'
 import { Button } from '../../../../components/ui/button'
 import { defaultBrands } from '../../constant'
+import { WithPermission } from '../../contexts/permissionContext'
 
 export function DataTable({ columns, data }) {
   const [sorting, setSorting] = useState([
@@ -92,7 +93,7 @@ export function DataTable({ columns, data }) {
   return (
     <div>
       <div className="flex items-center justify-between py-2">
-        <BrandFilter />
+        <WithPermission requiredAccess={2}><BrandFilter /></WithPermission>
         <div className=" flex items-center gap-1">
           <Input
             placeholder="Search..."

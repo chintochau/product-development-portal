@@ -21,35 +21,35 @@ export const navigationItems = [
         url: "/dashboard",
         icon: Home,
         element: HomePage,
-        access: 3, // Product team and above
+        access: 99, // Product team and above
     },
     {
         title: "Features",
         url: "/features",
         icon: FileText,
         element: FeaturesPage,
-        access: 3, // Product team and above
+        access: 99, // Product team and above
     },
     {
         title: "Developers",
         url: "/developers",
         icon: User,
         element: DeveloperPage,
-        access: 0, // Admin, Platform, and Software Manager
+        access: 2, // Admin, Platform, and Software Manager
     },
     {
         title: "Ticket Browser",
         url: "/tickets",
         icon: List,
         element: TicketPage,
-        access: 0, // Admin, Platform, and Software Manager
+        access: 2, // Admin, Platform, and Software Manager
     },
     {
         title: "Roadmap",
         url: "/roadmap",
         icon: Map,
         element: RoadmapPage,
-        access: 3, // Product team and above
+        access: 2, // Product team and above
     },
     {
         title: "Project Hub",
@@ -83,7 +83,7 @@ export const navigationItems = [
         url: "/settings",
         icon: Settings,
         element: SettingsPage,
-        access: 0, // Admin, Platform, and Software Manager
+        access: 99, // Admin, Platform, and Software Manager
     },
 ];
 
@@ -240,10 +240,10 @@ export const userRoles = [
     { role: "BluOS Platform Manager", access: 0 },
     { role: "BluOS Team", access: 1 },
     { role: "Hardware Team", access: 2 },
-    { role: "Bluesound", access: 3, team:"BLS" },
-    { role: "Bluesound Pro", access: 4, team:"BPR" },
-    { role: "NAD", access: 5, team:"NAD" },
-    { role: "PSB", access: 6, team:"PSB" }
+    { role: "Bluesound Manager", access: 3, team:"BLS" },
+    { role: "Bluesound Pro Manager", access: 3, team:"BPR" },
+    { role: "NAD Manager", access: 3, team:"NAD" },
+    { role: "PSB Manager", access: 3, team:"PSB" }
 ]
 
 export const defaultBrands = [
@@ -261,12 +261,3 @@ export const defaultBrands = [
 // 4: Bluesound Pro
 // 5: NAD
 // 6: PSB
-
-export const checkRights = (role) => {
-    const rights = userRoles.find((userRole) => userRole.role === role)
-    if (rights) {
-        return rights.access
-    } else {
-        return 0
-    }
-}
