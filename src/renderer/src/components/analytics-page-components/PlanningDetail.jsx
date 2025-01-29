@@ -196,7 +196,7 @@ const TicketRow = forwardRef(({ ticket }, ref) => {
         <CommitAnalytics ticket={ticket} ref={ref} />
       </TableCell>
       <TableCell className="w-10">
-        <StatusComponent status={ticket.state} />
+        <StatusComponent ticket={ticket} />
       </TableCell>
     </TableRow>
   )

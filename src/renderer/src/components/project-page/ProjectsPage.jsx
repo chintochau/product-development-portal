@@ -178,7 +178,7 @@ const ProjectsPage = () => {
                     </TableCell>
                     <TableCell className="w-44">{issue.milestone?.title}</TableCell>
                     <TableCell>
-                      <StatusComponent status={issue.state} />
+                      <StatusComponent ticket={issue} />
                     </TableCell>
                   </TableRow>
                 ))}

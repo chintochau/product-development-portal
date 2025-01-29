@@ -93,91 +93,33 @@ const DeveloperPage = () => {
           ))}
         </TableBody>
       </Table>
+      <AdHocTasksTable />
+    </div>
+  )
+}
 
-      <DeveloperDropdown
-        showStatusBar={showStatusBar}
-        setShowStatusBar={setShowStatusBar}
-        selectedDevelopers={selectedDevelopers}
-        selectDeveloper={selectDeveloper}
-        isSelected={isSelected}
-        onClick={getTicketsForSelectedDevelopers}
-        loading={loading}
-      >
-        <div className="flex flex-col">
-          <h1 className="text-2xl">Gitlab Tickets</h1>
-          <div className="flex items-center">
-            <div className="flex flex-col justify-start items-start">
-              <Button variant="link">
-                select {selectedDevelopers.length ? selectedDevelopers.length : null}
-              </Button>
-              <Badge className="bg-blue-500 text-white w-fit ml-4 mr-2">Workflow::Doing</Badge>
-            </div>
-            {selectedDevelopers.length !== 0 && (
-              <ScrollArea className="w-fit max-w-96 whitespace-nowrap rounded-md border">
-                <div className="flex w-max space-x-2 py-1 px-2">
-                  {selectedDevelopers.length !== 0 &&
-                    selectedDevelopers.map((dev) => (
-                      <Avatar key={dev.id}>
-                        <AvatarImage src={dev.avatar_url} />
-                        <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>
-                      </Avatar>
-                    ))}
-                </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-            )}
-          </div>
-        </div>
-      </DeveloperDropdown>
-
+const AdHocTasksTable = () => {
+  const {adhocTickets} = useTickets()
+  return (
+    <>
+      <h3 className="text-2xl"> Ad Hoc Tasks</h3>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Assignees</TableHead>
+            <TableHead className="w-96">Developer</TableHead>
+            <TableHead>Counts</TableHead>
+            <TableHead>Feature</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {tickets?.map((ticket) => (
-            <TableRow key={ticket.iid}>
-              <TableHead className="w-[170px]">{ticket.references?.relative}</TableHead>
-              <TableCell className="font-medium">{ticket.title}</TableCell>
-              <TableCell className="font-medium relative">
-                <div className="min-h-8"></div>
-                {ticket.assignees?.map((dev, index) => (
-                  <HoverCard key={dev.id + index}>
-                    <HoverCardTrigger>
-                      <Avatar
-                        key={dev.id + index}
-                        className={cn(`absolute top-1 bg-background`)}
-                        style={{
-                          left: index * 20
-                        }}
-                      >
-                        <AvatarImage src={dev.avatar_url} />
-                        <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>
-                      </Avatar>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="rounded-xl flex flex-col gap-2">
-                      {ticket.assignees?.map((dev) => (
-                        <div className="flex items-center gap-1" key={dev.id + index + dev.name}>
-                          <Avatar>
-                            <AvatarImage src={dev.avatar_url} />
-                            <AvatarFallback>{dev.name.slice(0, 1)}</AvatarFallback>
-                          </Avatar>
-                          <div>{dev.name}</div>
-                        </div>
-                      ))}
-                    </HoverCardContent>
-                  </HoverCard>
-                ))}
-              </TableCell>
-            </TableRow>
-          ))}
+          <TableRow>
+            <TableCell className="font-medium align-top">1</TableCell>
+            <TableCell className="font-medium w-[100px] align-top">1</TableCell>
+            <TableCell className="font-medium align-top">1</TableCell>
+          </TableRow>
         </TableBody>
       </Table>
-    </div>
+    </>
   )
 }
 

@@ -35,19 +35,22 @@ const Layout = ({ children }) => {
   const currentPath = location.pathname
   const [scrollTop, setScrollTop] = React.useState(0)
 
-  const {user} = useUser()
+  const { user } = useUser()
 
   if (!user) {
     return <Login />
   }
   return (
-    <ScrollArea className="w-full h-screen relative" onScrollCapture={(e) => {
-      setScrollTop(e.target.scrollTop)
-    }}>
-      <WithPermission requiredAccess={99}>
+    <ScrollArea
+      className="w-full h-screen relative"
+      onScrollCapture={(e) => {
+        setScrollTop(e.target.scrollTop)
+      }}
+    >
+      <WithPermission requiredAccess={99} fallback={<Login />}>
         <FrameWraper>
           <div className="flex items-center sticky top-0 z-50 bg-background border-b justify-between px-2">
-            <div className='flex items-center'>
+            <div className="flex items-center">
               <SidebarTrigger />
               <Breadcrumb>
                 <BreadcrumbList>
@@ -77,39 +80,43 @@ const Layout = ({ children }) => {
             <ModeToggle />
           </div>
         </FrameWraper>
-      </WithPermission>
-      <Routes>
-        {navigationItems.map((item) => (
-          <Route
-            key={item.title}
-            path={item.url}
-            element={item.element ? <item.element scrollTop={scrollTop}/> : <h1>{item.title}</h1>}
-          />
-        ))}
-        {/* Handle nested routes explicitly */}
-        {navigationItems
-          .filter((item) => item.nested) // Only process items with nested routes
-          .flatMap((item) =>
-            item.nested.map((nestedItem) => (
-              <Route
-                key={nestedItem.title}
-                path={nestedItem.url}
-                element={nestedItem.element ? <nestedItem.element /> : <h1>{nestedItem.title}</h1>}
-              />
-            ))
-          )}
-        {otherPages.map((item) => (
-          <Route
-            key={item.title}
-            path={item.url}
-            element={item.element ? <item.element {...item.pageProps} /> : <h1>{item.title}</h1>}
-          />
-        ))}
-        {/* Default redirect to /dashboard */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard/:id" element={<ProductPage editMode />} />{' '}
-        <Route path="/dashboard/:id/edit" element={<ProductEditPage editMode />} />
-      </Routes>
+        <Routes>
+          {navigationItems.map((item) => (
+            <Route
+              key={item.title}
+              path={item.url}
+              element={
+                item.element ? <item.element scrollTop={scrollTop} /> : <h1>{item.title}</h1>
+              }
+            />
+          ))}
+          {/* Handle nested routes explicitly */}
+          {navigationItems
+            .filter((item) => item.nested) // Only process items with nested routes
+            .flatMap((item) =>
+              item.nested.map((nestedItem) => (
+                <Route
+                  key={nestedItem.title}
+                  path={nestedItem.url}
+                  element={
+                    nestedItem.element ? <nestedItem.element /> : <h1>{nestedItem.title}</h1>
+                  }
+                />
+              ))
+            )}
+          {otherPages.map((item) => (
+            <Route
+              key={item.title}
+              path={item.url}
+              element={item.element ? <item.element {...item.pageProps} /> : <h1>{item.title}</h1>}
+            />
+          ))}
+          {/* Default redirect to /dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard/:id" element={<ProductPage editMode />} />{' '}
+          <Route path="/dashboard/:id/edit" element={<ProductEditPage editMode />} />
+        </Routes>
+      </WithPermission >
     </ScrollArea>
   )
 }

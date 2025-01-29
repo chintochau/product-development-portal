@@ -29,8 +29,6 @@ import { useSingleProduct } from '../contexts/singleProductContext'
 
 import frontMatter from 'front-matter'
 import { getColorForAuthor, timeAgo } from '../../../lib/utils'
-import { StatusComponent } from './TicketPage'
-
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'

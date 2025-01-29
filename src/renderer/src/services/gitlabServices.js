@@ -286,3 +286,26 @@ export const deleteMilestonePlanningIssue = async (noteId) => {
     const response = await deleteNoteFromTicket(2, noteId, FEATURES_PROJECTID)
     return response
 }
+
+
+
+export const getAdhocTaskIssues = async (page = 1) => {
+    const data = await getNotesFromTicket(3, FEATURES_PROJECTID, page)
+    const filteredData = data.filter(item => !item.system)
+    return filteredData
+}
+
+export const createAdhocTaskIssue = async (data) => {
+    const response = await postNotesToTicket(3, data, null, FEATURES_PROJECTID)
+    return response
+}
+
+export const updateAdhocTaskIssue = async (noteId, data) => {
+    const response = await updateNotesToTicket(3, noteId, data, null, FEATURES_PROJECTID)
+    return response
+}
+
+export const deleteAdhocTaskIssue = async (noteId) => {
+    const response = await deleteNoteFromTicket(3, noteId, FEATURES_PROJECTID)
+    return response
+}

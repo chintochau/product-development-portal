@@ -15,6 +15,7 @@ import { Input } from '../../../components/ui/input'
 import { Loader2, Search } from 'lucide-react'
 import { useTickets } from '../contexts/ticketsContext'
 import { Checkbox } from '../../../components/ui/checkbox'
+import { Badge } from '../../../components/ui/badge'
 
 const TicketPage = () => {
   const { tickets, setTickets } = useTickets()
@@ -24,10 +25,13 @@ const TicketPage = () => {
 
   const getTickets = async () => {
     setLoading(true)
-    const response = await getGroupIssuesWithQuery({
-      search: searchText,
-      state: openOnly ? 'opened' : 'closed'
-    })
+    const query = {
+      search: searchText
+    }
+    if (openOnly) {
+      query.state = 'opened'
+    }
+    const response = await getGroupIssuesWithQuery(query)
     setLoading(false)
     setTickets(response)
   }
@@ -70,6 +74,8 @@ const TicketPage = () => {
                 <TableHead className="w-[200px]">id</TableHead>
                 <TableHead>title</TableHead>
                 <TableHead>Gitlab</TableHead>
+                <TableHead>Epic</TableHead>
+                <TableHead>Milestone</TableHead>
                 <TableHead>status</TableHead>
               </TableRow>
             </TableHeader>
@@ -89,34 +95,74 @@ const TicketPage = () => {
     </FrameWraper>
   )
 }
+export const StatusComponent = ({ ticket }) => {
+  let isTesting, isBug, isFeature, isDoing, isReview
 
-export const StatusComponent = ({ status }) => {
+  ticket.labels?.forEach((label) => {
+    if (label.includes('type::bug')) isBug = { label: 'Bug', color: 'bg-gray-100 text-gray-800' }
+    if (label.includes('type::feature'))
+      isFeature = { label: 'Feature', color: 'bg-gray-100 text-gray-800' }
+    if (label.includes('workflow:: 2 doing'))
+      isDoing = { label: 'Doing', color: 'bg-blue-500 text-blue-50' }
+    if (label.includes('workflow:: 3 review'))
+      isReview = { label: 'Review', color: 'bg-orange-500 text-orange-50' }
+    if (label.includes('workflow:: 4 testing'))
+      isReview = { label: 'Testing', color: 'bg-purple-500 text-purple-50' }
+  })
+
+  const ticketStatus =
+    ticket.state === 'opened'
+      ? { label: 'Open', color: 'bg-green-500 text-green-50' }
+      : { label: 'Closed', color: 'bg-gray-500 text-gray-50' }
+
+  const labelsArray = [ticketStatus, isTesting, isDoing, isReview, isBug, isFeature]
+
   return (
-    <span
-      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-        status === 'closed' ? 'bg-muted-foreground text-white' : 'bg-green-400 text-white'
-      }`}
-    >
-      {status}
-    </span>
+    <>
+      {labelsArray
+        .filter((labelObj) => labelObj) // Filter out undefined/null values
+        .map((labelObj, index) => (
+          <Badge
+            key={index}
+            className={`px-2 py-1 text-xs font-medium rounded-full ${labelObj.color}`}
+          >
+            {labelObj.label}
+          </Badge>
+        ))}
+    </>
   )
 }
-
 export default TicketPage
 
 const TicketRow = ({ ticket }) => {
   return (
     <TableRow key={ticket.id}>
       <TableCell>{ticket.references?.relative || ticket.iid}</TableCell>
-      <TableCell>{ticket.title}</TableCell>
       <TableCell
         className="hover:underline cursor-pointer"
         onClick={() => window.open(ticket.web_url)}
       >
-        Link
+        {ticket.title}
+      </TableCell>
+      <TableCell>{ticket.assignee?.name}</TableCell>
+      <TableCell>
+        <p
+          className=" cursor-pointer hover:underline"
+          onClick={() => window.open(ticket.epic?.url)}
+        >
+          {ticket.epic?.title}
+        </p>
       </TableCell>
       <TableCell>
-        <StatusComponent status={ticket.state} />
+        <p
+          className=" cursor-pointer hover:underline"
+          onClick={() => window.open(ticket.milestone?.web_url)}
+        >
+          {ticket.milestone?.title}
+        </p>
+      </TableCell>
+      <TableCell>
+        <StatusComponent ticket={ticket} />
       </TableCell>
     </TableRow>
   )

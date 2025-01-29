@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { getFeaturesRequestsIssues } from '../services/gitlabServices'
+import { getAdhocTaskIssues, getFeaturesRequestsIssues } from '../services/gitlabServices'
 import frontMatter from 'front-matter'
 import { toInteger } from 'lodash'
 import _ from 'lodash'
@@ -19,17 +19,24 @@ export const TicketsProvider = ({ children }) => {
   const [shouldRefresh, setShouldRefresh] = useState(true)
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [featuersByDevelopers, setFeaturesByDevelopers] = useState([])
-  const {developers} = useDevelopers() || {}
-    const [tickets, setTickets] = React.useState([])
-  
+  const { developers } = useDevelopers() || {}
+  const [tickets, setTickets] = React.useState([])
+  const [adhocTickets, setAdhocTickets] = React.useState([])
 
   const getFeatureRequests = async (page) => {
     setLoading(true)
     const response = await getFeaturesRequestsIssues(page)
+    const adhoc = await getAdhocTaskIssues(page)
+    setAdhocTickets(
+      adhoc?.map((item) => {
+        const attributes = frontMatter(item.body).attributes
+        return { ...item, ...attributes, iid: item.iid, url: item.web_url }
+      })
+    )
     setFeatures(
       response?.map((item) => {
         const attributes = frontMatter(item.body).attributes
-        return {...item, ...attributes, iid: item.iid, url: item.web_url }
+        return { ...item, ...attributes, iid: item.iid, url: item.web_url }
       })
     )
     setTotalPages(toInteger(response?.headers?.['x-total-pages']))
@@ -49,32 +56,33 @@ export const TicketsProvider = ({ children }) => {
   }, [features, developers])
 
   const getFeaturesByDevelopers = () => {
-    
     // Example `features` input:
     // [{ title, startDate, assignee_ids: [1, 2, 3] }, { title, startDate, assignee_ids: [1] }]
     // Example `developers` input:
     // [{ id: 1, name: 'John Doe', email: 'john@example.com' }, ...]
     // Create a lookup for developers by their IDs
-    const developerLookup = _.keyBy(developers, 'id');
-  
+    const developerLookup = _.keyBy(developers, 'id')
+
     // Flatten the features and associate them with their developers
     const featuresByDeveloper = features.flatMap((feature) =>
-      feature.assignee_ids ? feature.assignee_ids.map((assigneeId) => ({
-        developer: developerLookup[assigneeId],
-        feature,
-      })) : []
-    );
+      feature.assignee_ids
+        ? feature.assignee_ids.map((assigneeId) => ({
+            developer: developerLookup[assigneeId],
+            feature
+          }))
+        : []
+    )
 
     // Group by developer
-    const groupedByDeveloper = _.groupBy(featuresByDeveloper, 'developer.id');
+    const groupedByDeveloper = _.groupBy(featuresByDeveloper, 'developer.id')
 
     const groupedFeatures = Object.values(groupedByDeveloper).map((group) => ({
       developer: group[0].developer,
-      features: group.map((item) => item.feature),
+      features: group.map((item) => item.feature)
     }))
     // Transform the grouped data into the desired output format
     setFeaturesByDevelopers(groupedFeatures)
-  };
+  }
 
   const value = {
     loading,
@@ -90,7 +98,9 @@ export const TicketsProvider = ({ children }) => {
     getFeatureRequests,
     featuersByDevelopers,
     tickets,
-    setTickets
+    setTickets,
+    adhocTickets,
+    setAdhocTickets
   }
 
   return <TicketsContext.Provider value={value}>{children}</TicketsContext.Provider>
