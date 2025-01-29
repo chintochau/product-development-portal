@@ -49,7 +49,7 @@ const ProductPage = () => {
   const { projectName, softwareSignoffDate, iid: productIid } = productData || {}
   const { features } = useTickets() || {}
 
-  const featuresFilteredByIID = features.filter((feature) => feature.product === productIid)
+  const featuresFilteredByIID = features?.filter((feature) => feature.product === productIid)
 
   const loadTickets = async (epicId) => {
     const data = await getTicketsFromEpic(epicId)

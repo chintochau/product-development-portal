@@ -21,7 +21,7 @@ import {
   PaginationPrevious
 } from '@/components/ui/pagination'
 
-import { Check, Cross, Edit, Loader2, ThumbsUp, Trash2, X } from 'lucide-react'
+import { ArrowUpDown, Check, Cross, Edit, Loader2, ThumbsUp, Trash2, X } from 'lucide-react'
 import { useTickets } from '../../contexts/ticketsContext'
 import FeatureRow from './FeatureRow'
 import { DataTable } from '../home/data-table'
@@ -35,12 +35,44 @@ const AllFeatures = ({ features, className }) => {
     getFeatureRequests(page)
   }
 
-  console.log(features);
-  
   return (
     <div className={className}>
-      <DataTable columns={featureColumns} data={features} />
-      
+      {/* <DataTable columns={featureColumns} data={features} /> */}
+      <Table>
+        <TableHeader className=" bg-secondary/10 text-secondary-foreground">
+          <TableRow>
+            <TableHead className="w-60">Title</TableHead>
+            <TableHead>
+              <Button variant="ghost" className="flex items-center">
+                <p>Product</p> <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>Developers</TableHead>
+            <TableHead><Button variant="ghost" className="flex items-center">
+                <p>Time Estimate</p> <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+              </TableHead>
+            <TableHead>Priority</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Gitlab</TableHead>
+            <TableHead>Change Req.</TableHead>
+            <TableHead></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {features &&
+            features.map((feature, index) => (
+              <FeatureRow feature={feature} key={feature.id} index={index} />
+            ))}
+          {features.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={8} className="h-24 text-center">
+                No features found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
 
       {loading ? (
         <div className="w-full py-4 flex items-center justify-center">
