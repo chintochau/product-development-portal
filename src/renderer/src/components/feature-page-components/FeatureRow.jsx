@@ -23,7 +23,7 @@ const chartConfig = {
     color: 'hsl(var(--background))'
   }
 }
-import { Check, Cross, Edit, Loader2, PlusCircle, ThumbsUp, Trash2, X } from 'lucide-react'
+import { Check, Cross, Edit, Loader2, PlusCircle, ThumbsUp, Trash, Trash2, X } from 'lucide-react'
 import { useDevelopers } from '../../contexts/developerContext'
 import { useTickets } from '../../contexts/ticketsContext'
 import { DeveloperDropdown } from '../DeveloperPage'
@@ -35,6 +35,10 @@ import { Input } from '../../../../components/ui/input'
 import PriorityDropdown from './PriorityDropdown'
 import FeatureTypeSelector from './FeatureTypeSelector'
 import { Badge } from '../../../../components/ui/badge'
+import { usePermissions, WithPermission } from '../../contexts/permissionContext'
+import { useUser } from '../../contexts/userContext'
+import { Label } from '../../../../components/ui/label'
+import dayjs from 'dayjs'
 
 function FeatureRow({ feature, index }) {
   const { developers } = useDevelopers()
@@ -55,6 +59,8 @@ function FeatureRow({ feature, index }) {
   const [product, setProduct] = useState(feature?.product)
   const [priority, setPriority] = useState(feature?.priority)
   const [type, setType] = useState(feature?.type)
+
+  const { user } = useUser()
 
   const isSelected = (id) => {
     return selectedDevelopers.findIndex((dev) => dev.id === id) !== -1
@@ -186,7 +192,9 @@ function FeatureRow({ feature, index }) {
   const handleChangeRequestStatus = async (changeIndex, newStatus) => {
     setLoading(true)
     const updatedChanges = feature.changes.map((change, index) =>
-      index === changeIndex ? { ...change, status: newStatus } : change
+      index === changeIndex
+        ? { ...change, status: newStatus, statusBy: user?.name, statusAt: dayjs().format("MMM DD, YYYY") }
+        : change
     )
 
     await updateFeatureRequestIssue(
@@ -210,17 +218,33 @@ function FeatureRow({ feature, index }) {
         changes: [
           ...(feature.changes || []),
           {
-            type: 'modification',
-            description: ticketUrl,
-            status: 'pending',
+            type: 'change',
+            id: Date.now(),
+            status: 'draft',
             createdAt: new Date().toISOString(),
-            createdBy: 'Current User' // Replace with actual user context
+            createdBy: user?.name // Replace with actual user context
           }
         ]
       },
       isAdhoc ? 3 : 1
     )
     setShouldRefresh(true)
+  }
+
+  let pendingChange = 0,
+    approvedChange = 0,
+    rejectedChange = 0
+
+  if (feature?.changes && feature.changes.length > 0) {
+    feature.changes.forEach((change) => {
+      if (change.status === 'pending') {
+        pendingChange++
+      } else if (change.status === 'approved') {
+        approvedChange++
+      } else if (change.status === 'rejected') {
+        rejectedChange++
+      }
+    })
   }
 
   return (
@@ -270,8 +294,8 @@ function FeatureRow({ feature, index }) {
               </div>
             ) : (
               <>
-                <div className="w-60 flex flex-col gap-1">
-                  <p>{title}</p>
+                <div className=" w-64 flex flex-col gap-1">
+                  <p className=' capitalize font-medium'>{title}</p>
                   <p className="text-sm  text-muted-foreground line-clamp-3">{description}</p>
                   {hasChanges && (
                     <div
@@ -279,9 +303,17 @@ function FeatureRow({ feature, index }) {
                       onClick={() => setOpenChangeList(!openChangeList)}
                     >
                       <Badge className="hover:bg-secondary bg-secondary">Changes</Badge>
-                      <span className="text-[hsl(var(--alternative))] group-hover:underline ">
-                        {changes.length}
-                      </span>
+                      <div className="flex items-center gap-2 group-hover:underline font-semibold">
+                        {approvedChange > 0 && (
+                          <span className="text-green-500 ">{approvedChange}</span>
+                        )}
+                        {pendingChange > 0 && (
+                          <span className="text-[hsl(var(--alternative))]  ">{pendingChange}</span>
+                        )}
+                        {rejectedChange > 0 && (
+                          <span className="text-red-500 ">{rejectedChange}</span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -348,10 +380,10 @@ function FeatureRow({ feature, index }) {
         <TableCell>
           <FeatureTypeSelector type={type} handleTypeChange={handleTypeChange} rowIndex={index} />
         </TableCell>
-        <TableCell className="font-medium">
+        <TableCell className="font-medium break-all w-20">
           {feature.ticket && !isEditing ? (
             <p
-              className="text-primary hover:underline  cursor-pointer"
+              className="text-primary hover:underline  cursor-pointer "
               onClick={() => window.open(feature.ticket, '_blank')}
             >
               #{feature.ticket && feature.ticket.split('/').pop()}
@@ -379,17 +411,24 @@ function FeatureRow({ feature, index }) {
 
         {!isAdhoc && (
           <TableCell className="font-medium">
-            <Button variant="outline" onClick={createChangeRequest}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 text-blue-600 hover:bg-blue-50"
+              onClick={createChangeRequest}
+            >
               Create
             </Button>
           </TableCell>
         )}
 
         <TableCell className="font-medium">
-          <Trash2
-            className="cursor-pointer size-4 duration-300 transition-all hover:text-red-500 text-muted-foreground"
-            onClick={handleDeleteTicket}
-          />
+          <WithPermission requiredAccess={2}>
+            <Trash2
+              className="cursor-pointer size-4 duration-300 transition-all hover:text-red-500 text-muted-foreground"
+              onClick={handleDeleteTicket}
+            />
+          </WithPermission>
         </TableCell>
       </TableRow>
       {hasChanges &&
@@ -399,6 +438,8 @@ function FeatureRow({ feature, index }) {
             key={index}
             change={change}
             onChangeStatus={(status) => handleChangeRequestStatus(index, status)}
+            changeIndex={index}
+            feature={feature}
           />
         ))}
     </>
@@ -408,35 +449,135 @@ function FeatureRow({ feature, index }) {
 export default FeatureRow
 
 // ChangeRequestRow Component
-const ChangeRequestRow = ({ change, onChangeStatus }) => {
+const ChangeRequestRow = ({ change, onChangeStatus, feature, changeIndex }) => {
   const statusColor = {
     pending: 'text-yellow-600',
     approved: 'text-green-600',
     rejected: 'text-red-600'
   }[change.status]
 
+  const [title, setTitle] = useState(change.title)
+  const [description, setDescription] = useState(change.description)
+  const { id, isAdhoc } = feature || {}
+  const { loading, setLoading, setShouldRefresh } = useTickets()
+
+  const { user } = useUser()
+  const handleChangeRequestUpdate = async (data) => {
+
+    setLoading(true)
+    const updatedChanges = feature.changes.map((change, index) =>
+      index === changeIndex ? { ...change, ...data } : change
+    )
+
+    await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        changes: updatedChanges
+      },
+      isAdhoc ? 3 : 1
+    )
+    setShouldRefresh(true)
+  }
+
+  const submitChangeRequest = async () => {
+    await handleChangeRequestUpdate({
+      title,
+      description,
+      status: 'pending'
+    })
+  }
+
+  const handleChangeRequestDelete = async () => {
+    setLoading(true)
+    const updatedChanges = feature.changes.filter((_, index) => index !== changeIndex)
+    await updateFeatureRequestIssue(id, { ...feature, changes: updatedChanges }, isAdhoc ? 3 : 1)
+    setShouldRefresh(true)
+  }
+
+  const isDraft = change.status === 'draft'
+  const isPending = change.status === 'pending'
+  const isAuthor = change.createdBy === user?.name
+
   return (
     <TableRow className="bg-muted/50">
       <TableCell colSpan={9} className="pl-12">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col">
-              <span className="text-sm font-medium capitalize">{change.type}</span>
-              <span className="text-xs text-muted-foreground">
-                {new Date(change.createdAt).toLocaleDateString()} - {change.createdBy}
+          {isDraft ? (
+            <div className="flex flex-col gap-1">
+              <Label>Change Request Draft - {user?.name}</Label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Change Request Title"
+                className="w-96"
+                disabled={loading}
+              />
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Change Request Description"
+                className="w-96"
+                disabled={loading}
+              />
+              {isAuthor && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-3 text-green-600 hover:bg-green-50"
+                    onClick={() => submitChangeRequest()}
+                    disabled={loading}
+                  >
+                    <Check className="mr-2 h-3 w-3" />
+                    Submit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-3 text-red-600 hover:bg-red-50"
+                    onClick={() => handleChangeRequestDelete()}
+                    disabled={loading}
+                  >
+                    <X className="mr-2 h-3 w-3" />
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium capitalize">Change</span>
+                <span className="text-xs text-muted-foreground">
+                  {dayjs(change.createdAt).format("MMM DD, YYYY")} - {change.createdBy}
+                </span>
+              </div>
+              <span className=" text-primary font-semibold w-72 capitalize">{change.title}</span>
+              <Textarea
+                readOnly
+                className=" w-[600px] h-28 text-sm text-muted-foreground max-w-[600px] max-h-[400px] overflow-auto"
+              >
+                {change.description}
+              </Textarea>
+              <span className={`text-sm font-medium ${statusColor}`}>
+                {change.status} 
+                {change.statusBy && (
+                  <span className="text-xs text-muted-foreground/80">
+                    {" "}By {change.statusBy} {change.statusAt}
+                  </span>
+                )}
               </span>
             </div>
-            <span className="text-sm text-muted-foreground">{change.description}</span>
-            <span className={`text-sm font-medium ${statusColor}`}>{change.status}</span>
-          </div>
-
-          {change.status === 'pending' && (
+          )}
+          {isPending && (
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-8 px-3 text-green-600 hover:bg-green-50"
                 onClick={() => onChangeStatus('approved')}
+                disabled={loading}
               >
                 <Check className="mr-2 h-3 w-3" />
                 Approve
@@ -446,12 +587,24 @@ const ChangeRequestRow = ({ change, onChangeStatus }) => {
                 size="sm"
                 className="h-8 px-3 text-red-600 hover:bg-red-50"
                 onClick={() => onChangeStatus('rejected')}
+                disabled={loading}
               >
                 <X className="mr-2 h-3 w-3" />
                 Reject
               </Button>
             </div>
           )}
+          <WithPermission requiredAccess={2}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 px-3 text-red-600 hover:bg-red-50"
+              onClick={() => handleChangeRequestDelete()}
+              disabled={loading}
+            >
+              <Trash className="mr-2 h-3 w-3" />
+            </Button>
+          </WithPermission>
         </div>
       </TableCell>
     </TableRow>
