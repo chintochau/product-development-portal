@@ -126,7 +126,7 @@ export const otherPages = [
 ]
 
 export const defaultPriorities = {
-    0: "Required For Launch",
+    0: "At Launch",
     1: "1",
     2: "2",
     3: "3",

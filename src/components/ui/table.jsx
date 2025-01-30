@@ -1,19 +1,23 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { ScrollArea, ScrollBar } from "./scroll-area"
 
 const Table = React.forwardRef(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-x-auto rounded-lg border">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props} />
-  </div>
+  <ScrollArea className="relative w-full rounded-lg border">
+    <div className="relative w-full max-h-[calc(100vh-100px)]">
+      <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props} />
+    </div>
+    <ScrollBar orientation="horizontal" />
+  </ScrollArea>
 ))
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b bg-secondary/50 text-secondary-foreground", className)} {...props} />
+  <thead ref={ref} className={cn(" rounded-t-lg [&_tr]:border-b bg-secondary/50 text-secondary-foreground sticky top-0 z-40 backdrop-blur-md", className)} {...props} />
 ))
 TableHeader.displayName = "TableHeader"
 

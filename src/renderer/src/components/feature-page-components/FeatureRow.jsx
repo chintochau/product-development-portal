@@ -9,15 +9,6 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { useNavigate } from 'react-router-dom'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter
-} from '@/components/ui/card'
 const chartConfig = {
   mp1Date: {
     label: 'mp1Date',
@@ -32,16 +23,6 @@ const chartConfig = {
     color: 'hsl(var(--background))'
   }
 }
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from '@/components/ui/pagination'
-
 import { Check, Cross, Edit, Loader2, PlusCircle, ThumbsUp, Trash2, X } from 'lucide-react'
 import { useDevelopers } from '../../contexts/developerContext'
 import { useTickets } from '../../contexts/ticketsContext'
@@ -53,6 +34,7 @@ import { Textarea } from '../../../../components/ui/textarea'
 import { Input } from '../../../../components/ui/input'
 import PriorityDropdown from './PriorityDropdown'
 import FeatureTypeSelector from './FeatureTypeSelector'
+import { Badge } from '../../../../components/ui/badge'
 
 function FeatureRow({ feature, index }) {
   const { developers } = useDevelopers()
@@ -62,7 +44,9 @@ function FeatureRow({ feature, index }) {
   const [isEditing, setIsEditing] = useState(false)
   const [ticketUrl, setTicketUrl] = useState(feature?.ticket || '')
 
-  const { isAdhoc } = feature || {}
+  const { isAdhoc, changes } = feature || {}
+  const hasChanges = changes?.length > 0
+  const [openChangeList, setOpenChangeList] = useState(false)
 
   const { assignee_ids, id } = feature || {}
   const [title, setTitle] = useState(feature?.title)
@@ -77,24 +61,32 @@ function FeatureRow({ feature, index }) {
   }
 
   const updateAssignees = async () => {
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      assignee_ids: selectedDevelopers.map((dev) => dev.id)
-    },isAdhoc ? 3 : 1)
+    const response = await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        assignee_ids: selectedDevelopers.map((dev) => dev.id)
+      },
+      isAdhoc ? 3 : 1
+    )
     setShouldRefresh(true)
   }
   const handleDeleteTicket = async () => {
     setLoading(true)
-    const response = await deleteFeatureRequestIssue(id,isAdhoc ? 3 : 1)
+    const response = await deleteFeatureRequestIssue(id, isAdhoc ? 3 : 1)
     setShouldRefresh(true)
   }
 
   const handleEstimateChange = async (value) => {
     setLoading(true)
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      estimate: value
-    },isAdhoc ? 3 : 1)
+    const response = await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        estimate: value
+      },
+      isAdhoc ? 3 : 1
+    )
     setShouldRefresh(true)
   }
 
@@ -104,21 +96,29 @@ function FeatureRow({ feature, index }) {
 
   const handleDateChange = async (value) => {
     setLoading(true)
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      startDate: value
-    },isAdhoc ? 3 : 1)
+    const response = await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        startDate: value
+      },
+      isAdhoc ? 3 : 1
+    )
     setShouldRefresh(true)
   }
 
   const saveEditing = async () => {
     setIsEditing(!isEditing)
     setLoading(true)
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      title,
-      description
-    },isAdhoc ? 3 : 1)
+    const response = await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        title,
+        description
+      },
+      isAdhoc ? 3 : 1
+    )
     setLoading(false)
   }
 
@@ -130,40 +130,56 @@ function FeatureRow({ feature, index }) {
 
   const handleTicketChange = async (value) => {
     setLoading(true)
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      ticket: value
-    },isAdhoc ? 3 : 1)
+    const response = await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        ticket: value
+      },
+      isAdhoc ? 3 : 1
+    )
     setShouldRefresh(true)
   }
 
   const handleProductChange = async (value) => {
     setLoading(true)
     setProduct(value)
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      product: value
-    },isAdhoc ? 3 : 1)
+    const response = await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        product: value
+      },
+      isAdhoc ? 3 : 1
+    )
     setShouldRefresh(true)
   }
 
   const handlePriorityChange = async (value) => {
     setLoading(true)
     setPriority(value)
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      priority: value
-    },isAdhoc ? 3 : 1)
+    const response = await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        priority: value
+      },
+      isAdhoc ? 3 : 1
+    )
     setShouldRefresh(true)
   }
 
   const handleTypeChange = async (value) => {
     setLoading(true)
     setType(value)
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      type: value
-    },isAdhoc ? 3 : 1)
+    const response = await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        type: value
+      },
+      isAdhoc ? 3 : 1
+    )
     setShouldRefresh(true)
   }
 
@@ -173,28 +189,37 @@ function FeatureRow({ feature, index }) {
       index === changeIndex ? { ...change, status: newStatus } : change
     )
 
-    await updateFeatureRequestIssue(id, {
-      ...feature,
-      changes: updatedChanges
-    },isAdhoc ? 3 : 1)
+    await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        changes: updatedChanges
+      },
+      isAdhoc ? 3 : 1
+    )
     setShouldRefresh(true)
   }
 
   const createChangeRequest = async () => {
     setLoading(true)
-    const response = await updateFeatureRequestIssue(id, {
-      ...feature,
-      changes: [
-        ...(feature.changes || []),
-        {
-          type: 'modification',
-          description: ticketUrl,
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-          createdBy: 'Current User' // Replace with actual user context
-        }
-      ]
-    },isAdhoc ? 3 : 1)
+    setOpenChangeList(true)
+    const response = await updateFeatureRequestIssue(
+      id,
+      {
+        ...feature,
+        changes: [
+          ...(feature.changes || []),
+          {
+            type: 'modification',
+            description: ticketUrl,
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+            createdBy: 'Current User' // Replace with actual user context
+          }
+        ]
+      },
+      isAdhoc ? 3 : 1
+    )
     setShouldRefresh(true)
   }
 
@@ -245,9 +270,20 @@ function FeatureRow({ feature, index }) {
               </div>
             ) : (
               <>
-                <div className="flex flex-col gap-1">
+                <div className="w-60 flex flex-col gap-1">
                   <p>{title}</p>
                   <p className="text-sm  text-muted-foreground line-clamp-3">{description}</p>
+                  {hasChanges && (
+                    <div
+                      className="flex gap-1 items-center cursor-pointer group w-fit"
+                      onClick={() => setOpenChangeList(!openChangeList)}
+                    >
+                      <Badge className="hover:bg-secondary bg-secondary">Changes</Badge>
+                      <span className="text-[hsl(var(--alternative))] group-hover:underline ">
+                        {changes.length}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div className="size-5">
                   <Edit
@@ -259,9 +295,11 @@ function FeatureRow({ feature, index }) {
             )}
           </div>
         </TableCell>
-       {!isAdhoc && <TableCell className="font-medium">
-          <ProductDropdown product={product} setProduct={handleProductChange} />
-        </TableCell>}
+        {!isAdhoc && (
+          <TableCell className="font-medium">
+            <ProductDropdown product={product} setProduct={handleProductChange} />
+          </TableCell>
+        )}
         <TableCell className="font-medium">
           <DeveloperDropdown
             showStatusBar={showStatusBar}
@@ -302,9 +340,11 @@ function FeatureRow({ feature, index }) {
             setStartDate={handleDateChange}
           />
         </TableCell>
-        {!isAdhoc &&<TableCell className="font-medium">
-          <PriorityDropdown priority={priority} setPriority={handlePriorityChange} />
-        </TableCell>}
+        {!isAdhoc && (
+          <TableCell className="font-medium">
+            <PriorityDropdown priority={priority} setPriority={handlePriorityChange} />
+          </TableCell>
+        )}
         <TableCell>
           <FeatureTypeSelector type={type} handleTypeChange={handleTypeChange} rowIndex={index} />
         </TableCell>
@@ -337,11 +377,13 @@ function FeatureRow({ feature, index }) {
           )}
         </TableCell>
 
-        {!isAdhoc &&<TableCell className="font-medium">
-          <Button variant="outline" onClick={createChangeRequest}>
-            Create
-          </Button>
-        </TableCell>}
+        {!isAdhoc && (
+          <TableCell className="font-medium">
+            <Button variant="outline" onClick={createChangeRequest}>
+              Create
+            </Button>
+          </TableCell>
+        )}
 
         <TableCell className="font-medium">
           <Trash2
@@ -350,14 +392,15 @@ function FeatureRow({ feature, index }) {
           />
         </TableCell>
       </TableRow>
-
-      {feature?.changes?.map((change, index) => (
-        <ChangeRequestRow
-          key={index}
-          change={change}
-          onChangeStatus={(status) => handleChangeRequestStatus(index, status)}
-        />
-      ))}
+      {hasChanges &&
+        openChangeList &&
+        feature?.changes?.map((change, index) => (
+          <ChangeRequestRow
+            key={index}
+            change={change}
+            onChangeStatus={(status) => handleChangeRequestStatus(index, status)}
+          />
+        ))}
     </>
   )
 }

@@ -18,7 +18,7 @@ const ProductDropdown = ({ product, setProduct }) => {
         setProduct(value)
       }}
     >
-      <SelectTrigger className="w-[180px] border-0 hover:underline">
+      <SelectTrigger className="w-fit border-0 hover:underline">
         <SelectValue className="" placeholder="-" value={product} />
       </SelectTrigger>
       <SelectContent>

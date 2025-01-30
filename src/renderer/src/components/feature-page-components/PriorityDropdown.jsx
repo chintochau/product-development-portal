@@ -23,7 +23,7 @@ const PriorityDropdown = ({ priority, setPriority }) => {
         setPriority(value)
       }}
     >
-      <SelectTrigger className="w-[180px] border-0 hover:underline" style={{ color: getPriorityColor(priority) }}>
+      <SelectTrigger className="w-fit border-0 hover:underline" style={{ color: getPriorityColor(priority) }}>
         <SelectValue value={priority} placeholder="-" />
       </SelectTrigger>
       <SelectContent>

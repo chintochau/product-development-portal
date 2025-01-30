@@ -38,7 +38,7 @@ const AllFeatures = ({ features, className }) => {
   return (
     <div className={className}>
       {/* <DataTable columns={featureColumns} data={features} /> */}
-      <Table>
+      <Table >
         <TableHeader className=" bg-secondary/10 text-secondary-foreground">
           <TableRow>
             <TableHead className="w-60">Title</TableHead>
@@ -59,7 +59,7 @@ const AllFeatures = ({ features, className }) => {
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody >
           {features &&
             features.map((feature, index) => (
               <FeatureRow feature={feature} key={feature.id} index={index} />

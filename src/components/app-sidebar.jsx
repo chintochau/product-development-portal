@@ -25,7 +25,7 @@ import { WithPermission } from '../renderer/src/contexts/permissionContext'
 export function AppSidebar() {
   const location = useLocation()
   const currentPath = location.pathname
-  const { user } = useUser() || {}
+  const { user } = useUser()
   const [version, setVersion] = useState(null)
 
   const getAppVersion = async () => {
