@@ -177,8 +177,6 @@ export const RoadmapProvider = ({ children }) => {
             )
           )
           let endDate = maxDate ? new Date(maxDate) : new Date()
-
-          console.log(item);
           
           const features = [...item.features,...item.adhoc].map((feature) => {
             return {

@@ -11,24 +11,28 @@ const PIFComponent = ({ pif }) => {
     window.open(path, '_blank')
   }
   return (
-    <div className="w-full rounded-md flex flex-col ">
-      <div className="flex justify-between items-center hover:bg-accent px-2 py-1">
-        <div className="flex items-center">
-          <File className="mr-2 size-4" />
-          <div className="flex flex-col">
-            <h3 className="text-sm text-muted-foreground">{fileName}</h3>
-            <p className="text-xs  text-muted-foreground/60">
-              {timeAgo(date)}, {author}
+    <div className="w-full rounded-md flex flex-col hover:bg-accent/50 transition-colors">
+      <div className="flex justify-between items-center px-2 py-1.5 gap-2">
+        {/* File Info */}
+        <div className="flex items-center gap-2 flex-1 min-w-0 w-64">
+        <Download
+          className="size-5 text-muted-foreground hover:text-blue-500 cursor-pointer transition-colors shrink-0"
+          onClick={handleDownloadFile}
+        />
+          <div className="flex flex-col flex-1 min-w-0 ">
+            <h3 className="text-sm font-medium text-foreground truncate w-full">
+              {fileName}
+            </h3>
+            <p className="text-xs text-muted-foreground/80">
+              {timeAgo(date)} • {author}
             </p>
           </div>
         </div>
-        <Download
-          className="mr-2 w-5 h-5 hover:text-blue-500 cursor-pointer"
-          onClick={handleDownloadFile}
-        />
+  
+        {/* Download Button */}
       </div>
     </div>
-  )
+  );
 }
 
 export default PIFComponent

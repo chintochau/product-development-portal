@@ -35,7 +35,7 @@ const ProductCard = ({ className }) => {
       </CardHeader>
       <CardContent className="flex-1">
         <ScrollArea className="h-full">
-          <div className="h-40">
+          <div className="h-40  space-y-1">
             <Label>Brand</Label>
             <p className={contentClassName}>{brand}</p>
             <Label>Project Name</Label>

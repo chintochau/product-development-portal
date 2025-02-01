@@ -35,21 +35,67 @@ export const gitlab = async (path, type, data) => {
             response = await gitlabAPI.put(path, data);
             break
         case "UPLOAD":
-            const { file } = data || {};
-            if (!file) {
+            const { file, fileUrl } = data || {};
+            if (!file && !fileUrl) {
                 throw new Error("No file data provided.");
             }
 
-            // Reconstruct the file as a Buffer
-            const fileBuffer = Buffer.from(file.buffer);
             const formData = new FormData();
 
-            // Append the file with the correct filename and MIME type
-            formData.append('file', fileBuffer, { filename: file.name, contentType: file.type });
+            if (file) {
+                // Handle direct file upload
+                const fileBuffer = Buffer.from(file.buffer);
+                formData.append('file', fileBuffer, { filename: file.name, contentType: file.type });
+            } else {
+                // Handle fileUrl download
+                try {
+                    const downloadResponse = await axios.get(fileUrl, { responseType: 'arraybuffer' });
+                    const fileBuffer = Buffer.from(downloadResponse.data);
+
+                    let filename;
+                    const contentDisposition = downloadResponse.headers['content-disposition'];
+
+                    // Extract filename from Content-Disposition header
+                    if (contentDisposition) {
+                        const parts = contentDisposition.split(';');
+                        for (let part of parts) {
+                            part = part.trim();
+                            if (part.startsWith('filename*=')) {
+                                const filenamePart = part.split('filename*=')[1];
+                                const [encoding, ...filenamePieces] = filenamePart.split("''");
+                                filename = decodeURIComponent(
+                                    filenamePieces.join("''")
+                                );
+                                break;
+                            } else if (part.startsWith('filename=')) {
+                                const filenamePart = part.split('filename=')[1];
+                                filename = filenamePart.replace(/^["']|["']$/g, '');
+                                break;
+                            }
+                        }
+                    }
+
+                    // Fallback to extracting filename from URL
+                    if (!filename) {
+                        const parsedUrl = new URL(fileUrl);
+                        filename = parsedUrl.pathname.split('/').pop() || 'uploaded_file';
+                    }
+
+                    // Determine content type from headers or default
+                    const contentType = downloadResponse.headers['content-type'] || 'application/octet-stream';
+
+                    formData.append('file', fileBuffer, {
+                        filename: filename,
+                        contentType: contentType
+                    });
+                } catch (error) {
+                    throw new Error(`Failed to download file from URL: ${error.message}`);
+                }
+            }
 
             response = await gitlabAPI.post(path, formData, {
                 headers: {
-                    ...formData.getHeaders(), // Ensure proper multipart/form-data headers
+                    ...formData.getHeaders(),
                 },
             });
             break;

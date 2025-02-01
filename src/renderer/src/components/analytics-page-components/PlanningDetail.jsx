@@ -9,6 +9,9 @@ import {
   updateMilestonePlanningIssue
 } from '../../services/gitlabServices'
 import FrameWraper from '../frameWarper'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+
 import {
   Table,
   TableHeader,
@@ -28,7 +31,7 @@ import {
 import { useSingleProduct } from '../../contexts/singleProductContext'
 
 import frontMatter from 'front-matter'
-import { getColorForAuthor, timeAgo } from '@/lib/utils'
+import { cn, getColorForAuthor, timeAgo } from '@/lib/utils'
 import { StatusComponent } from '../TicketPage'
 
 import dayjs from 'dayjs'
@@ -38,11 +41,17 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import ProjectAnalytics from './ProjectAnalytics'
 import { MilestoneChart } from '../project-page/ProjectsPage'
+import { Input } from '../../../../components/ui/input'
 
 const PlanningDetail = ({ selectedPlan }) => {
   const { milestones } = useSingleProduct()
   const { milestoneProjectId, milestoneId } = selectedPlan || {}
   const [tickets, setTickets] = useState(selectedPlan?.tickets || [])
+  const [shouldRefresh, setShouldRefresh] = useState(true)
+
+  const [statusFilter, setStatusFilter] = useState(null) // "open", "closed", or null
+  const [assigneeFilter, setAssigneeFilter] = useState('')
+  const [labelFilter, setLabelFilter] = useState('')
 
   const childRefs = useRef([])
   const handleSaveAll = async () => {
@@ -51,7 +60,7 @@ const PlanningDetail = ({ selectedPlan }) => {
       .filter((ref) => ref !== null && ref !== undefined)
       .map((ref) => {
         const { ticket, getAnalyticsData } = ref || {}
-        const { iid, project_id, title } = ticket || {}
+        const { iid, project_id, title, assignee } = ticket || {}
 
         return {
           iid,
@@ -65,6 +74,7 @@ const PlanningDetail = ({ selectedPlan }) => {
       milestoneId,
       tickets: allAnalyticsData
     })
+    setShouldRefresh(true)
   }
 
   useEffect(() => {
@@ -88,15 +98,15 @@ const PlanningDetail = ({ selectedPlan }) => {
         const response = await getIssuesFromMilestone(milestoneProjectId, milestoneId)
         const mergedTickets = mergeTickets(savedTickets, response)
         setTickets(mergedTickets)
+        setShouldRefresh(false)
       }
 
       // Initially set tickets to saved data for immediate render
       setTickets(savedTickets)
-
       // Fetch updated tickets and merge
       getTickets()
     }
-  }, [selectedPlan, milestoneProjectId, milestoneId])
+  }, [selectedPlan, milestoneProjectId, milestoneId, shouldRefresh])
 
   if (!selectedPlan) {
     return null
@@ -137,6 +147,33 @@ const PlanningDetail = ({ selectedPlan }) => {
     }
   }
 
+  const handleStatusToggle = (status) => {
+    setStatusFilter((prev) => (prev === status ? null : status))
+  }
+
+  const filterFunction = (ticket) => {
+    // Status filter
+    if (statusFilter && ticket.state !== statusFilter) return false
+
+
+    // Assignee filter
+    // Assignee filter
+    if (
+      assigneeFilter.trim() &&
+      !ticket.assignee?.name?.toLowerCase().startsWith(assigneeFilter.trim().toLowerCase())
+    ) {
+      return false
+    }
+
+    // Label filter
+    if (labelFilter && !ticket.labels?.some((label) => label?.includes(labelFilter))) return false
+
+    // Commits check
+    return ticket
+  }
+
+  const filteredTickets = tickets.filter(filterFunction)
+
   return (
     <div className="px-4 space-y-2 py-4">
       <h2 className="text-2xl">Milestone: {milestoneName}</h2>
@@ -150,9 +187,37 @@ const PlanningDetail = ({ selectedPlan }) => {
       <div className="flex items-center gap-2">
         <Button onClick={getNotesAndLabelsForAllTickets}> Analyze Tickets</Button>
         <Button onClick={handleSaveAll}> Save Results</Button>
+        <RadioGroup
+          className="flex items-center gap-2"
+          value={statusFilter}
+          onValueChange={handleStatusToggle}
+        >
+          <div className="flex items-center space-x-1">
+            <RadioGroupItem value={null} id="all" />
+            <Label htmlFor="all">All</Label>
+          </div>
+          <div className="flex items-center space-x-1">
+            <RadioGroupItem value="opened" id="opened" />
+            <Label htmlFor="opened">Opened</Label>
+          </div>
+          <div className="flex items-center space-x-1">
+            <RadioGroupItem value="closed" id="closed" />
+            <Label htmlFor="closed">Closed</Label>
+          </div>
+        </RadioGroup>
+        <Input
+          value={assigneeFilter}
+          onChange={(e) => setAssigneeFilter(e.target.value)}
+          placeholder="Filter by assignee"
+        />
+        <Input
+          value={labelFilter}
+          onChange={(e) => setLabelFilter(e.target.value)}
+          placeholder="Filter by label"
+        />
       </div>
       <div>
-        <Table>
+        <Table frameClassName="min-h-[calc(100vh-100px)]">
           <TableHeader>
             <TableRow>
               <TableHead className="w-6">id</TableHead>
@@ -162,7 +227,7 @@ const PlanningDetail = ({ selectedPlan }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tickets
+            {filteredTickets
               .sort((a, b) => b.analytics?.totalCommits - a.analytics?.totalCommits)
               .map((ticket, index) => (
                 <TicketRow
@@ -188,7 +253,21 @@ const TicketRow = forwardRef(({ ticket }, ref) => {
         className="w-40 max-w-40 font-semibold overflow-clip hover:underline cursor-pointer"
         onClick={() => window.open(ticket.web_url)}
       >
-        {ticket.title}
+        <div className="flex flex-col gap-2">
+          <p>{ticket.title}</p>
+          {ticket.assignee && (
+            <div className="flex items-center text-muted-foreground">
+              <img
+                src={ticket.assignee.avatar_url}
+                alt={ticket.assignee.name}
+                className="w-6 h-6 rounded-full"
+              />
+              <p >
+                {ticket.assignee?.name}
+              </p>
+            </div>
+          )}
+        </div>
       </TableCell>
       <TableCell className="w-96">
         <CommitAnalytics ticket={ticket} ref={ref} />
@@ -339,7 +418,9 @@ const CommitAnalytics = forwardRef(({ ticket }, ref) => {
   const timeToFirstTestingAfterReview =
     firstReviewLabel && firstTestingLabel
       ? dayjs.duration(firstTestingLabel.created_at.diff(firstReviewLabel.created_at)).humanize()
-      : 'N/A'
+      : getFromAnalytics('timeToFirstTestingAfterReview')
+        ? getFromAnalytics('timeToFirstTestingAfterReview')
+        : 'N/A'
 
   const totalCommits = commits.length || getFromAnalytics('totalCommits')
 

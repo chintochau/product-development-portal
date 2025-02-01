@@ -185,7 +185,7 @@ export const getNotesFromTicket = async (iid, project = PRODUCT_PROJECTID, page 
     return data
 }
 
-export const getLabelsFromTicket = async(iid, project = PRODUCT_PROJECTID) => {
+export const getLabelsFromTicket = async (iid, project = PRODUCT_PROJECTID) => {
     const data = await window.api.gitlab(`projects/${project}/issues/${iid}/resource_label_events?per_page=100`, "GET");
     return data
 }
@@ -195,16 +195,21 @@ export const deleteNoteFromTicket = async (iid, noteId, project = PRODUCT_PROJEC
     return response
 }
 
-export const uploadPIFFile = async (iid, file) => {
-    const fileBuffer = await file.arrayBuffer(); // Convert the file to an ArrayBuffer
-    const fileData = {
-        name: file.name, // File name
-        type: file.type, // MIME type
-        size: file.size, // File size
-        buffer: Array.from(new Uint8Array(fileBuffer)), // Convert ArrayBuffer to an array
-    };
-
-    const response = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/uploads`, "UPLOAD", { file: fileData });
+export const uploadPIFFile = async (iid, file, fileUrl) => {
+    console.log('file', file)
+    console.log('fileUrl', fileUrl);
+    
+    let fileData,fileBuffer
+    if (file) {
+        fileBuffer = await file.arrayBuffer(); // Convert the file to an ArrayBuffer
+        fileData = {
+            name: file.name, // File name
+            type: file.type, // MIME type
+            size: file.size, // File size
+            buffer: Array.from(new Uint8Array(fileBuffer)), // Convert ArrayBuffer to an array
+        };
+    }
+    const response = await window.api.gitlab(`projects/${PRODUCT_PROJECTID}/uploads`, "UPLOAD", { file: fileData, fileUrl: fileUrl });
     return response;
 }
 
@@ -251,7 +256,7 @@ export const getIssuesFromMilestone = async (projectid, milestoneId) => {
  * @param {number} ticketIid - ticket id, 1 for feature, 2 for adhoc task
  * @returns {Promise<Array>} - array of feature requests issues
  */
-export const getFeaturesRequestsIssues = async (page = 1,ticketIid = 1) => {
+export const getFeaturesRequestsIssues = async (page = 1, ticketIid = 1) => {
     const data = await getNotesFromTicket(ticketIid, FEATURES_PROJECTID, page)
     const filteredData = data.filter(item => !item.system)
     return filteredData
@@ -263,7 +268,7 @@ export const getFeaturesRequestsIssues = async (page = 1,ticketIid = 1) => {
  * @param {number} ticketIid - ticket id, 1 for feature, 2 for adhoc task
  * @returns {Promise<Object>} - created feature request issue
  */
-export const createFeatureRequestIssue = async (data,ticketIid = 1) => {
+export const createFeatureRequestIssue = async (data, ticketIid = 1) => {
     const response = await postNotesToTicket(ticketIid, data, null, FEATURES_PROJECTID)
     return response
 }
@@ -275,8 +280,8 @@ export const createFeatureRequestIssue = async (data,ticketIid = 1) => {
  * @param {number} ticketIid - ticket id, 1 for feature, 2 for adhoc task
  * @returns {Promise<Object>} - updated feature request issue
  */
-export const updateFeatureRequestIssue = async (noteId, data,ticketIid = 1) => {
-    const response = await updateNotesToTicket( ticketIid, noteId, data, null, FEATURES_PROJECTID)
+export const updateFeatureRequestIssue = async (noteId, data, ticketIid = 1) => {
+    const response = await updateNotesToTicket(ticketIid, noteId, data, null, FEATURES_PROJECTID)
     return response
 }
 
@@ -286,8 +291,8 @@ export const updateFeatureRequestIssue = async (noteId, data,ticketIid = 1) => {
  * @param {number} ticketIid - ticket id, 1 for feature, 2 for adhoc task
  * @returns {Promise<Object>} - deleted feature request issue
  */
-export const deleteFeatureRequestIssue = async (noteId,ticketIid = 1) => {
-    const response = await deleteNoteFromTicket( ticketIid, noteId, FEATURES_PROJECTID)
+export const deleteFeatureRequestIssue = async (noteId, ticketIid = 1) => {
+    const response = await deleteNoteFromTicket(ticketIid, noteId, FEATURES_PROJECTID)
     return response
 }
 

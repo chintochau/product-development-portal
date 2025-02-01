@@ -3,9 +3,9 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { ScrollArea, ScrollBar } from "./scroll-area"
 
-const Table = React.forwardRef(({ className, ...props }, ref) => (
+const Table = React.forwardRef(({ className,frameClassName, ...props }, ref) => (
   <ScrollArea className="relative w-full rounded-lg border">
-    <div className="relative w-full max-h-[calc(100vh-100px)]">
+    <div className={cn("relative w-full max-h-[calc(100vh-100px)]", frameClassName)}>
       <table
         ref={ref}
         className={cn("w-full caption-bottom text-sm", className)}

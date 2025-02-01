@@ -13,48 +13,58 @@ import { useSingleProduct } from '../../contexts/singleProductContext'
 
 const TicketSection = ({ tickets, className }) => {
   return (
-    <Card className={cn('flex flex-col gap-2 flex-1 min-w-96', className)}> 
-      <CardHeader>
-        <CardTitle>Tickets</CardTitle>
-        <CardDescription>Ticket from Epic</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea>
-          <div className="max-h-[40vw]">
-            {tickets &&
-              tickets
-                .sort((a, b) => {
-                  // sort by state = opened, closed
-                  return a.state === 'closed' ? 1 : -1
-                })
-                .map((ticket) => (
+    <Card className={cn('flex flex-col flex-1 min-w-96', className)}>
+  {/* Card Header */}
+  <CardHeader className="pb-2">
+    <CardTitle className="text-lg">Tickets</CardTitle>
+  </CardHeader>
+
+  {/* Card Content */}
+  <CardContent className="p-0">
+    <ScrollArea className="h-[40vh]">
+      <div className=" pr-4">
+        {tickets &&
+          tickets
+            .sort((a, b) => (a.state === 'closed' ? 1 : -1)) // Sort by state
+            .map((ticket) => (
+              <div
+                key={ticket.iid}
+                className={cn(
+                  'flex flex-col gap-1 px-2 py-1 rounded-md transition-colors',
+                  'hover:bg-accent/50 cursor-pointer',
+                  ticket.state === 'closed' && 'opacity-60'
+                )}
+              >
+                {/* Ticket Header */}
+                <div className="flex items-center gap-2">
+                  {/* Status Indicator */}
                   <div
-                    key={ticket.iid}
                     className={cn(
-                      'flex flex-col text-xs py-1 border-b',
-                      ticket.state === 'closed' && 'text-accent-foreground/60'
+                      'w-3 h-3 rounded-full shrink-0',
+                      ticket.isBug ? 'bg-red-500' : 'bg-green-500'
                     )}
-                  >
-                    <div className="flex gap-2">
-                      <div
-                        className={cn(
-                          'w-4 h-4 rounded-full',
-                          ticket.isBug ? 'bg-red-500' : 'bg-green-500'
-                        )}
-                      ></div>
-                      <p>{ticket.iid}</p>
-                      <p>{ticket.state}</p>
-                    </div>
-                    <div className={cn('flex gap-2 text-sm')}>
-                      <p>{ticket.title}</p>
-                      <p>{ticket.link}</p>
-                    </div>
-                  </div>
-                ))}
-          </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+                  />
+                  {/* Ticket ID and State */}
+                  <p className="text-xs font-medium text-muted-foreground">
+                    #{ticket.iid} • {ticket.state}
+                  </p>
+                </div>
+
+                {/* Ticket Title and Link */}
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-medium line-clamp-1">
+                    {ticket.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground line-clamp-1">
+                    {ticket.link}
+                  </p>
+                </div>
+              </div>
+            ))}
+      </div>
+    </ScrollArea>
+  </CardContent>
+</Card>
   )
 }
 

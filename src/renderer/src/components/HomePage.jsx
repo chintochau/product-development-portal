@@ -19,6 +19,7 @@ import { columns } from './home/columns'
 import ScheduleChart from './home/ScheduleChart'
 import FrameWraper from './frameWarper'
 import { Checkbox } from '../../../components/ui/checkbox'
+import PIFSelectorDropdown from './product-page/PIFSelectorDropdown'
 
 
 const HomePage = () => {
