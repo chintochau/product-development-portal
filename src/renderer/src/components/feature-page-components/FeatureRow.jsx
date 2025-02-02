@@ -42,7 +42,7 @@ import dayjs from 'dayjs'
 
 function FeatureRow({ feature, index }) {
   const { developers } = useDevelopers()
-  const { setShouldRefresh, setLoading } = useTickets()
+  const { setShouldRefresh, setLoading,loading } = useTickets()
   const [showStatusBar, setShowStatusBar] = useState(false)
   const [selectedDevelopers, setSelectedDevelopers] = useState([])
   const [isEditing, setIsEditing] = useState(false)
@@ -416,6 +416,7 @@ function FeatureRow({ feature, index }) {
               size="sm"
               className="h-8 px-3 text-blue-600 hover:bg-blue-50"
               onClick={createChangeRequest}
+              disabled={loading}
             >
               Create
             </Button>

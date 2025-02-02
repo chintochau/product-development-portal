@@ -411,6 +411,9 @@ for (let year = startYear; year <= endYear; year++) {
                       onMouseEnter={(e) => {
                         setHoverBar(taskIndex)
                       }}
+                      onMouseLeave={() => {
+                        setHoverBar(null)
+                      }}
                     >
                       <rect
                         x={0}
@@ -449,6 +452,7 @@ for (let year = startYear; year <= endYear; year++) {
                           const color = getColorIntensityByLevel(overlap.overlap)
                           const overlapStart = xScale(overlap.start)
                           const overlapWidth = xScale(overlap.end) - overlapStart
+                          
                           return (
                             <Fragment key={index}>
                               <Bar
@@ -458,6 +462,7 @@ for (let year = startYear; year <= endYear; year++) {
                                 width={overlapWidth + 2}
                                 height={barHeight / numberOfBars - gap + 2}
                                 fill={color}
+                                opacity={overlap.overlap}
                                 onMouseMove={handleMouseMove}
                                 onMouseLeave={handleMouseLeave}
                                 onMouseOver={() => handleMouseOver({ task })}

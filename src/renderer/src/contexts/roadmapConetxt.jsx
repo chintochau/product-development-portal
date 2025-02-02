@@ -199,7 +199,7 @@ export const RoadmapProvider = ({ children }) => {
             name: item.developer?.name,
             start: startDate,
             end: endDate, // Date()
-            fill: 'hsl(var(--alternative))', // dark yellow color
+            fill: 'transparent', 
             subTasks: features,
             overlaps: overlaps
           }

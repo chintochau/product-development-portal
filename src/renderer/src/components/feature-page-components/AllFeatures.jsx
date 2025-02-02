@@ -41,7 +41,7 @@ const AllFeatures = ({ features, className }) => {
       <Table >
         <TableHeader className=" bg-secondary/10 text-secondary-foreground">
           <TableRow>
-            <TableHead className="w-60">Title</TableHead>
+            <TableHead className="w-60 flex items-center gap-2"><p>Title</p> {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}</TableHead>
             <TableHead>
               <Button variant="ghost" className="flex items-center">
                 <p>Product</p> <ArrowUpDown className="ml-2 h-4 w-4" />
