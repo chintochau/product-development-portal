@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword,updatePassword } from "firebase/auth"
 import { auth, db } from "./config/firebaseConfig"
 import { addDoc, collection, getDocs, updateDoc } from "firebase/firestore";
 
@@ -20,6 +20,20 @@ export const signinWithFirebaseEmail = async ({ email, password }) => {
         return false
     }
 }
+export const changePassword = async ({ email, password, newPassword }) => {
+    try {
+        // Sign in the user to re-authenticate
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+        // Update the password
+        await updatePassword(userCredential.user, newPassword);
+        console.log("Password updated successfully");
+        return true;
+    } catch (error) {
+        console.log("Error updating password", error);
+        return false;
+    }
+};
 
 export const signOut = () => {
     return auth.signOut()

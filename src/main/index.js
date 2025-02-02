@@ -6,7 +6,7 @@ import { gitlab, gitlabGet, gitlabWithHeaders } from './gitlabAPI'
 import fs from 'fs'
 import { wrike } from './wrikeAPI'
 import { readFromExcel } from './excelAPI'
-import { checkSignInStatus, createNewUser, getAllUsersFromFirestore, signinWithFirebaseEmail, signOut, updateUserInformation } from './firebaseAPI'
+import { changePassword, checkSignInStatus, createNewUser, getAllUsersFromFirestore, signinWithFirebaseEmail, signOut, updateUserInformation } from './firebaseAPI'
 import { graphGet } from './graphAPI'
 
 
@@ -138,4 +138,8 @@ ipcMain.handle("update-role", async (event,data) => {
 
 ipcMain.handle("graph-get", async (event,{endpoint}) => {
   return await graphGet(endpoint);
+})
+
+ipcMain.handle("change-password", async (event,data) => {
+  return await changePassword(data);
 })

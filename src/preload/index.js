@@ -14,6 +14,7 @@ const api = {
   checkSignIn: () => ipcRenderer.invoke('check-signin'),
   signOut: () => ipcRenderer.invoke('sign-out'),
   signinWithFirebaseEmail: (email,password) => ipcRenderer.invoke('sign-in', {email,password}),
+  changePassword:(email,password,newPassword) => ipcRenderer.invoke('change-password', {email,password,newPassword}),
   getAllUsers: () => ipcRenderer.invoke('get-all-users'),
   createNewUser: (email,password,role,name) => ipcRenderer.invoke('create-new-user', {email,password,role,name}),
   updateUserInformation: ({email,role,name}) => ipcRenderer.invoke('update-role', {email,role,name}),

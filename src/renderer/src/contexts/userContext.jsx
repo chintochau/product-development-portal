@@ -27,6 +27,10 @@ export const UserProvider = ({ children }) => {
 
   const signIn = async (email, password) => {
     const signInStatus = await window.api.signinWithFirebaseEmail(email, password)
+    if (!signInStatus) {
+      alert('Wrong email or password')
+      return
+    }
     setUser(signInStatus)
   }
 
