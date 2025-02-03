@@ -49,35 +49,38 @@ const BluOSFeatureRequest = ({ productIssueId, children, className }) => {
       </CardHeader>
 
       <CardContent className={productIssueId ? 'flex gap-3 flex-wrap w-full' : ''}>
-        <div className=" rounded-md overflow-hidden shadow flex-[4]">
-          <div className="w-full bg-secondary/20 px-2 py-2 text-sm text-secondary-foreground font-semibold">
-            Create a Feature Request
-          </div>
-          <div className="p-2">
-            <Label>Product</Label>
+      <div className="rounded-lg bg-white shadow p-4">
+          <h3 className="text-lg font-medium text-gray-800">Create a Feature Request</h3>
+          <div className="mt-4">
+            <Label className="block font-semibold text-gray-700">Product</Label>
             {productIssueId ? (
-              <p>{findProductsById(productIssueId)}</p>
+              <p className="mt-1 text-sm text-gray-600">{findProductsById(productIssueId)}</p>
             ) : (
               <ProductDropdown product={product} setProduct={setProduct} />
             )}
-            <form onSubmit={addFeature} className="flex w-full flex-col gap-2 pt-4">
-              <Label>Title</Label>
-              <Input
-                placeholder="Title"
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full"
-                value={title}
-              />
-              <Label>Description</Label>
-              <Textarea
-                placeholder="Description"
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full"
-                value={description}
-              />
+            <form onSubmit={addFeature} className="space-y-4 mt-4">
               <div>
-                <Button>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Create
+                <Label className="block font-semibold text-gray-700">Title</Label>
+                <Input
+                  placeholder="Enter feature title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full mt-1 border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <Label className="block font-semibold text-gray-700">Description</Label>
+                <Textarea
+                  placeholder="Enter feature description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full mt-1 border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="flex justify-end">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Create
                 </Button>
               </div>
             </form>
