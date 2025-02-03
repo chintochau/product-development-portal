@@ -83,7 +83,7 @@ const EstimateSlider = ({ days, setDays, startDate, setStartDate }) => {
                 className="bg-background hover:underline hover:cursor-pointer w-28"
                 selected={startDate}
                 onChange={(date) => setStartDate(date)}
-                dateFormat="MMM D, yyyy"
+                dateFormat="MMM dd, yyyy"
                 placeholderText="Select a date"
               />
               {startDate && (
