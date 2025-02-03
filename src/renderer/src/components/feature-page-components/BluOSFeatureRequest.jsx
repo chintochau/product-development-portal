@@ -49,7 +49,7 @@ const BluOSFeatureRequest = ({ productIssueId, children, className }) => {
       </CardHeader>
 
       <CardContent className={productIssueId ? 'flex gap-3 flex-wrap w-full' : ''}>
-      <div className="rounded-lg bg-white shadow p-4">
+      <div className="rounded-lg shadow p-4">
           <h3 className="text-lg font-medium text-gray-800">Create a Feature Request</h3>
           <div className="mt-4">
             <Label className="block font-semibold text-gray-700">Product</Label>
@@ -65,7 +65,7 @@ const BluOSFeatureRequest = ({ productIssueId, children, className }) => {
                   placeholder="Enter feature title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full mt-1 border-gray-300 rounded-md"
+                  className="w-full mt-1 rounded-md"
                 />
               </div>
               <div>
@@ -74,7 +74,7 @@ const BluOSFeatureRequest = ({ productIssueId, children, className }) => {
                   placeholder="Enter feature description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full mt-1 border-gray-300 rounded-md"
+                  className="w-full mt-1 rounded-md"
                 />
               </div>
               <div className="flex justify-end">

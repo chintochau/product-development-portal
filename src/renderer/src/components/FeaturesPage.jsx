@@ -95,7 +95,7 @@ const FeaturesPage = () => {
               </TabsContent>
             </Tabs>
             
-            <AllFeatures features={features}  />
+            <AllFeatures features={features} className="w-40"  />
           </div>
         </BluOSFeatureRequest>
 
