@@ -14,24 +14,37 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-  SelectLabel
-} from '../../../components/ui/select'
+  SelectValue
+} from '@/components/ui/select'
+
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { userRoles } from '../constant'
-import { Input } from '../../../components/ui/input'
-import { Button } from '../../../components/ui/button'
+
 
 const AdminPanel = () => {
+  const DEFAULT_ROLE = userRoles.find(role => role.role === 'User')?.role || ''
   const [allUsers, setAllUsers] = useState([])
-  const [role, setRole] = useState(userRoles[4].role)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
+  const [newUser, setNewUser] = useState({
+    email: '',
+    name: '',
+    role: DEFAULT_ROLE,
+    password: ''
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const getAllUsers = async () => {
-    window.api.getAllUsers().then((res) => {
-      setAllUsers(res)
-    })
+    try {
+      setIsLoading(true)
+      const users = await window.api.getAllUsers()
+      setAllUsers(users)
+    } catch (err) {
+      setError('Failed to fetch users')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -39,139 +52,197 @@ const AdminPanel = () => {
   }, [])
 
   const createNewUser = async () => {
-    await window.api.createNewUser(email, password, role, name)
-    getAllUsers()
+    if (!newUser.email || !newUser.password) {
+      setError('Email and password are required')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      await window.api.createNewUser(
+        newUser.email,
+        newUser.password,
+        newUser.role,
+        newUser.name
+      )
+      await getAllUsers()
+      setNewUser({ email: '', name: '', role: DEFAULT_ROLE, password: '' })
+      setError('')
+    } catch (err) {
+      setError('Failed to create user')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>
-            <div className="flex gap-2 items-center">
-              <p>Email</p>{' '}
-              <RefreshCcw
-                className="hover:animate-spin cursor-pointer size-4"
-                onClick={getAllUsers}
-              />
-            </div>
-          </TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Password</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {allUsers.map((user) => {
-          return (
-            <TableRow key={user.email}>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                <NameComponent user={user} />
-              </TableCell>
-              <TableCell>
-                <Select
-                  defaultValue={user.role}
-                  onValueChange={(role) => {
-                    console.log(role)
-                    window.api.updateUserInformation({ email: user.email, role: role })
-                  }}
-                >
-                  <SelectTrigger className="w-fit">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {userRoles.map((role) => (
-                      <SelectItem key={role.role} value={role.role}>
-                        {role.role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          )
-        })}
-        <TableRow>
-          <TableCell>
-            <Input
-              placeholder="Add new user"
-              className="w-fit"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-            />
-          </TableCell>
-          <TableCell>
-            <Input
-              placeholder="Name"
-              className="w-fit"
-              onChange={(e) => setName(e.target.value)}
-              value={name}
-            />
-          </TableCell>
-          <TableCell>
-            <Select onValueChange={setRole} value={role}>
-              <SelectTrigger className="w-fit">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {userRoles.map((role) => (
-                  <SelectItem key={role.role} value={role.role}>
-                    {role.role}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </TableCell>
-          <TableCell>
-            <div className="flex items-center gap-2">
+    <div className="p-6 max-w-6xl mx-auto">
+      <Table className="border rounded-lg">
+        <TableCaption className="my-4">User Management Dashboard (Only Visible to Admins & Platform Manager)</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="min-w-[200px]">Email</TableHead>
+            <TableHead className="min-w-[150px]">Name</TableHead>
+            <TableHead className="min-w-[150px]">Role</TableHead>
+            <TableHead className="min-w-[200px]">
+              <div className="flex justify-between items-center">
+                <span>Actions</span>
+                <RefreshCcw
+                  className={cn(
+                    'h-4 w-4 cursor-pointer transition-transform',
+                    isLoading && 'animate-spin'
+                  )}
+                  onClick={getAllUsers}
+                />
+              </div>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {allUsers.map((user) => (
+            <UserRow key={user.email} user={user} reloadUsers={getAllUsers} />
+          ))}
+          <TableRow className="bg-muted/50">
+            <TableCell>
               <Input
-                placeholder="Password"
-                className="w-fit"
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
+                placeholder="Email"
+                value={newUser.email}
+                onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                disabled={isLoading}
               />
-              <Button variant="outline" onClick={() => createNewUser()}>
-                Create
-              </Button>
-            </div>
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+            </TableCell>
+            <TableCell>
+              <Input
+                placeholder="Name"
+                value={newUser.name}
+                onChange={(e) => setNewUser(prev => ({ ...prev, name: e.target.value }))}
+                disabled={isLoading}
+              />
+            </TableCell>
+            <TableCell>
+              <RoleSelect
+                value={newUser.role}
+                onValueChange={(role) => setNewUser(prev => ({ ...prev, role }))}
+                disabled={isLoading}
+              />
+            </TableCell>
+            <TableCell>
+              <div className="flex gap-2">
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                  disabled={isLoading}
+                />
+                <Button
+                  onClick={createNewUser}
+                  disabled={isLoading || !newUser.email || !newUser.password}
+                >
+                  Create
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+      {error && <p className="mt-4 text-red-500">{error}</p>}
+    </div>
   )
 }
 
-const NameComponent = ({ user }) => {
-  const [name, setName] = useState(user.name)
+const UserRow = ({ user, reloadUsers }) => {
+  const [localName, setLocalName] = useState(user.name)
+  const [isSaving, setIsSaving] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
-  const handleSave = async () => {
-    console.log('name', name)
 
-    await window.api.updateUserInformation({ email: user.email, role: user.role, name: name })
-    setIsSaved(true)
-    setTimeout(() => setIsSaved(false), 2000)
+  useEffect(() => {
+    setLocalName(user.name)
+  }, [user.name])
+
+  const handleUpdate = async (field, value) => {
+    try {
+      setIsSaving(true)
+      await window.api.updateUserInformation({
+        email: user.email,
+        [field]: value
+      })
+      await reloadUsers()
+      if (field === 'name') {
+        setIsSaved(true)
+        setTimeout(() => setIsSaved(false), 2000)
+      }
+    } finally {
+      setIsSaving(false)
+    }
   }
+
   return (
-    <form
-      className="flex items-center gap-2"
-      onSubmit={(e) => {
-        e.preventDefault()
-        handleSave()
-      }}
-    >
-      <Input className="w-fit" value={name} onChange={(e) => setName(e.target.value)} />
-      <Button variant="outline" size="icon" type="submit">
-        {isSaved ? (
-          <Check className="size-4" />
-        ) : (
-          <Save className="hover:text-blue-500 cursor-pointer size-4" />
-        )}
-      </Button>
-    </form>
+    <TableRow>
+      <TableCell className="font-medium">{user.email}</TableCell>
+      <TableCell>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault()
+            await handleUpdate('name', localName)
+          }}
+        >
+          <div className="flex gap-2 items-center">
+            <Input
+              value={localName}
+              onChange={(e) => setLocalName(e.target.value)}
+              disabled={isSaving}
+              className="w-[180px]"
+            />
+            <Button
+              type="submit"
+              variant="ghost"
+              size="sm"
+              disabled={localName === user.name || isSaving}
+            >
+              {isSaved ? (
+                <Check className="h-4 w-4 text-green-500" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </form>
+      </TableCell>
+      <TableCell>
+        <RoleSelect
+          value={user.role}
+          onValueChange={(role) => handleUpdate('role', role)}
+          disabled={isSaving}
+        />
+      </TableCell>
+      <TableCell>
+        <Button
+          variant="ghost"
+          size="sm"
+          className=" cursor-not-allowed"
+          // onClick={() => handleUpdate('password', '')}
+        >
+          Reset Password
+        </Button>
+      </TableCell>
+    </TableRow>
   )
 }
+
+const RoleSelect = ({ value, onValueChange, disabled }) => (
+  <Select value={value} onValueChange={onValueChange} disabled={disabled}>
+    <SelectTrigger className="w-[160px]">
+      <SelectValue />
+    </SelectTrigger>
+    <SelectContent>
+      {userRoles.map((role) => (
+        <SelectItem key={role.role} value={role.role}>
+          {role.role}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+)
 
 export default AdminPanel

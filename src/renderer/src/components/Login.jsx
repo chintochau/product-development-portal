@@ -43,7 +43,7 @@ const UserProfile = () => {
     <div className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center p-8 space-y-10">
       <div className="w-full max-w-md rounded-xl shadow-2xl p-8 space-y-6 transform transition-all duration-300">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
             {user.name}, Welcome back
           </h1>
           <p>You're logged in as:</p>
@@ -68,7 +68,7 @@ const UserProfile = () => {
         {!isChangingPassword ? (
           <Button
             onClick={() => setIsChangingPassword(true)}
-            className="w-full py-3 text-base font-medium text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
+            className="w-full py-3 text-base font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg hover:from-blue-600 hover:to-blue-600 transition-all duration-300"
           >
             Change Password
           </Button>
@@ -107,7 +107,7 @@ const UserProfile = () => {
             <div className="flex space-x-2">
               <Button
                 type="submit"
-                className="w-full py-3 text-base font-medium   text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
+                className="w-full py-3 text-base font-medium   text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg hover:from-blue-600 hover:to-blue-600 transition-all duration-300"
               >
                 Save New Password
               </Button>
@@ -131,7 +131,7 @@ const UserProfile = () => {
         </button>
       </div>
 
-      <WithPermission requiredAccess={5}>
+      <WithPermission requiredAccess={2}>
         <AdminPanel />
       </WithPermission>
     </div>
