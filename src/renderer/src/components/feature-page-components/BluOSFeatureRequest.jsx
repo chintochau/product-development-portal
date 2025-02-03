@@ -49,7 +49,7 @@ const BluOSFeatureRequest = ({ productIssueId, children, className }) => {
       </CardHeader>
 
       <CardContent className={productIssueId ? 'flex gap-3 flex-wrap w-full' : ''}>
-      <div className="rounded-lg shadow p-4">
+        <div className="rounded-lg shadow p-4 min-w-60 flex-1">
           <h3 className="text-lg font-medium text-gray-800">Create a Feature Request</h3>
           <div className="mt-4">
             <Label className="block font-semibold text-gray-700">Product</Label>
