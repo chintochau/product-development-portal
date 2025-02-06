@@ -58,8 +58,6 @@ export function DataTable({ columns, data }) {
 
   const handleProductClick = (iid) => {
     if (!iid) return
-    setIid(iid)
-    setLoading(true)
     navigate(`/dashboard/${iid}`)
   }
 

@@ -29,10 +29,7 @@ const NotesCard = ({ className }) => {
 
 
   const canSendMessage = () => {
-    if (user.username && message && message.trim() !== '') {
-      return true
-    }
-    return false
+    return true
   }
 
   return (

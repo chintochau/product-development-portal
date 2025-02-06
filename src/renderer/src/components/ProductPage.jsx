@@ -43,13 +43,24 @@ import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
 import FrameWraper from './frameWarper'
 
 const ProductPage = () => {
-  const { productData, setTickets, tickets, loading, epics, selectedEpicId, setSelectedEpicId } = useSingleProduct() || {}
+  const { productData, setTickets, tickets, loading, epics, selectedEpicId, setSelectedEpicId,setIid,setLoading } =
+    useSingleProduct() || {}
   const { setShouldRefreshProducts } = useProducts() || {}
   const location = useLocation() || {}
   const { projectName, softwareSignoffDate, iid: productIid } = productData || {}
   const { features } = useTickets() || {}
 
   const featuresFilteredByIID = features?.filter((feature) => feature.product === productIid)
+
+  // find the path using react-router-dom
+  const productId = location.pathname.split('/').pop()
+
+  useEffect(() => {
+    if (productId) {
+      setLoading(true)
+      setIid(productId)
+    }
+  }, [productId])
 
   const loadTickets = async (epicId) => {
     const data = await getTicketsFromEpic(epicId)

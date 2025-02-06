@@ -64,7 +64,7 @@ const FeaturesPage = () => {
 
   return (
     <FrameWraper>
-      <div className="px-4 flex flex-col gap-6 pb-4">
+      <div className="px-4 flex flex-col gap-6">
         <div className="flex items-center">
           <h2 className="text-2xl">Features</h2>
           <Button

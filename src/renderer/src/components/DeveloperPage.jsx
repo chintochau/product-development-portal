@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/command'
 import { Checkbox } from '../../../components/ui/checkbox'
 import { Loader2, Search } from 'lucide-react'
-import { Input } from '../../../components/ui/input'
+
 import {
   Table,
   TableBody,
@@ -33,11 +33,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar'
-import { ScrollArea, ScrollBar } from '../../../components/ui/scroll-area'
-import { Badge } from '../../../components/ui/badge'
-import { cn } from '../../../lib/utils'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../../components/ui/hover-card'
 import { useTickets } from '../contexts/ticketsContext'
 import { useProducts } from '../contexts/productsContext'
 import BarChartComponent from './BarChartComponent'
@@ -174,8 +169,8 @@ const AdHocTasksTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {adhocTickets?.map((ticket) => (
-            <FeatureRow key={ticket.id} feature={ticket} />
+          {adhocTickets?.map((ticket, index) => (
+            <FeatureRow key={ticket.id} feature={ticket} index={index} />
           ))}
         </TableBody>
       </Table>
