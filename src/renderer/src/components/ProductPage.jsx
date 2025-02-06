@@ -43,8 +43,17 @@ import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
 import FrameWraper from './frameWarper'
 
 const ProductPage = () => {
-  const { productData, setTickets, tickets, loading, epics, selectedEpicId, setSelectedEpicId,setIid,setLoading } =
-    useSingleProduct() || {}
+  const {
+    productData,
+    setTickets,
+    tickets,
+    loading,
+    epics,
+    selectedEpicId,
+    setSelectedEpicId,
+    setIid,
+    setLoading
+  } = useSingleProduct() || {}
   const { setShouldRefreshProducts } = useProducts() || {}
   const location = useLocation() || {}
   const { projectName, softwareSignoffDate, iid: productIid } = productData || {}
@@ -56,10 +65,7 @@ const ProductPage = () => {
   const productId = location.pathname.split('/').pop()
 
   useEffect(() => {
-    if (productId) {
-      setLoading(true)
-      setIid(productId)
-    }
+    setIid(productId)
   }, [productId])
 
   const loadTickets = async (epicId) => {
@@ -82,9 +88,6 @@ const ProductPage = () => {
   if (loading) {
     return (
       <div className="px-4">
-        <div className="w-full flex items-center justify-between">
-          <h2 className="text-2xl">{projectName}</h2>
-        </div>
         <div className="flex justify-center items-center h-screen">
           <Loader2 className="animate-spin size-12" />
         </div>
