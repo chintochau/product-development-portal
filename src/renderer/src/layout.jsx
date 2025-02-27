@@ -20,7 +20,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import ProductPage from './components/ProductPage'
+import ProductDetailPage from './components/ProductDetailPage'
 import { useBrowsing } from './contexts/browsingContext'
 import { ScrollArea } from '../../components/ui/scroll-area'
 import ProductEditPage from './components/forms/EditProductPage'
@@ -107,8 +107,8 @@ const Layout = ({ children }) => {
             />
           ))}
           {/* Default redirect to /dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard/:id" element={<ProductPage editMode />} />{' '}
+          <Route path="/" />
+          <Route path="/dashboard/:id" element={<ProductDetailPage editMode />} />{' '}
           <Route path="/dashboard/:id/edit" element={<ProductEditPage editMode />} />
         </Routes>
       </WithPermission >

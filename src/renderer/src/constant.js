@@ -1,5 +1,5 @@
-import { BarChart, Calendar, ChevronDown, Edit, FileText, Home, Inbox, LayoutDashboard, List, Map, MapPin, Search, Settings, User } from "lucide-react"
-import HomePage from "./components/HomePage"
+import { BarChart, Calendar, ChevronDown, Edit, FileText, Home, Inbox, LayoutDashboard, List, Map, MapPin, Package, Search, Settings, Speaker, User } from "lucide-react"
+import ProductManagementPage from "./components/ProductManagementPage"
 import SettingsPage from "./components/settings/SettingsPage"
 import Login from "./components/Login"
 import ProductEditPage from "./components/forms/EditProductPage"
@@ -12,6 +12,7 @@ import TicketPage from "./components/TicketPage"
 import MilestonePage from "./components/MilestonePage"
 import ProjectsPage from "./components/project-page/ProjectsPage"
 import AnalyticsPage from "./components/AnalyticsPage"
+import HomePage from "./components/HomePage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -27,73 +28,106 @@ export const QUARTER_CONFIG = [
 
 export const navigationItems = [
     {
-        title: "Products",
-        url: "/dashboard",
+        title:"Home",
+        url: "/",
         icon: Home,
         element: HomePage,
         access: 99, // Product team and above
+        hide: true
+    },
+    {
+        title: "Products",
+        url: "/dashboard",
+        description: "Browse and manage all products",
+        icon: Speaker,
+        element: ProductManagementPage,
+        access: 99, // Product team and above
+        color: "bg-blue-500",
+
     },
     {
         title: "Features",
         url: "/features",
+        description: "View and manage feature requests",
         icon: FileText,
         element: FeaturesPage,
         access: 99, // Product team and above
+        color: "bg-green-500",
+
     },
     {
         title: "Developers",
         url: "/developers",
+        description: "Developer assignments and workload",
         icon: User,
         element: DeveloperPage,
         access: 2, // Admin, Platform, and Software Manager
+        color: "bg-purple-500",
     },
     {
         title: "Ticket Browser",
+        description: "Browse and manage all tickets",
         url: "/tickets",
         icon: List,
         element: TicketPage,
         access: 2, // Admin, Platform, and Software Manager
+        color: "bg-orange-500",
     },
     {
         title: "Roadmap",
         url: "/roadmap",
         icon: Map,
+        description: "View product development roadmap",
         element: RoadmapPage,
         access: 2, // Product team and above
+        color: "bg-green-500",
     },
     {
         title: "Project Hub",
         url: "/project-hub",
+        description: "Manage projects and milestones",
         icon: LayoutDashboard,
         element: ProjectsPage,
+        color: "bg-indigo-500",
+        access: 1, // Admin, Platform, and Software Manager
         nested: [
             {
                 title: "New Ticket",
                 url: "/features/new",
+                description: "Create a new feature request",
                 icon: Edit,
                 element: FeatureRequestForm,
+                access: 1, // Admin, Platform, and Software Manager
+                color: "bg-teal-500",
             },
             {
                 title: "Milestones",
                 url: "/milestones",
+                description: "Track project milestones",
                 icon: MapPin,
                 element: MilestonePage,
+                access: 1, // Admin, Platform, and Software Manager
+                color: "bg-amber-500",
             },
             {
                 title:"Analytics",
                 url:"/analytics",
+                description: "View project and feature analytics",
                 icon: BarChart,
-                element: AnalyticsPage
+                element: AnalyticsPage,
+                access: 1, // Admin, Platform, and Software Manager
+                color: "bg-cyan-500",
             }
         ],
-        access: 1, // Admin, Platform, and Software Manager
     },
     {
         title: "Settings",
         url: "/settings",
+        description: "Manage portal settings",
         icon: Settings,
         element: SettingsPage,
         access: 99, // Admin, Platform, and Software Manager
+        color: "bg-gray-500",
     },
 ];
 

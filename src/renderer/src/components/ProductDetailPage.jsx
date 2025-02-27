@@ -42,7 +42,7 @@ import { useTickets } from '../contexts/ticketsContext'
 import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
 import FrameWraper from './frameWarper'
 
-const ProductPage = () => {
+const ProductDetailPage = () => {
   const {
     productData,
     setTickets,
@@ -161,4 +161,4 @@ const ProductPage = () => {
   )
 }
 
-export default ProductPage
+export default ProductDetailPage
