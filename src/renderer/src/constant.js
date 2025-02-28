@@ -1,4 +1,4 @@
-import { BarChart, Calendar, ChevronDown, Edit, FileText, Home, Inbox, LayoutDashboard, List, Map, MapPin, Package, Search, Settings, Speaker, User } from "lucide-react"
+import { BarChart, Calendar, ChevronDown, Edit, Figma, FileText, Home, Inbox, LayoutDashboard, List, Map, MapPin, Package, Search, Settings, Speaker, User } from "lucide-react"
 import ProductManagementPage from "./components/ProductManagementPage"
 import SettingsPage from "./components/settings/SettingsPage"
 import Login from "./components/Login"
@@ -14,6 +14,7 @@ import ProjectsPage from "./components/project-page/ProjectsPage"
 import AnalyticsPage from "./components/AnalyticsPage"
 import HomePage from "./components/HomePage"
 import InteractiveRoadmap from "./components/NewRoadMap"
+import UiUxPage from "./components/UiUxPage"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -52,6 +53,16 @@ export const navigationItems = [
         description: "View and manage feature requests",
         icon: FileText,
         element: FeaturesPage,
+        access: 99, // Product team and above
+        color: "bg-green-500",
+
+    },
+    {
+        title: "UI/UX",
+        url: "/ui-ux",
+        description: "View and manage UI/UX designs",
+        icon: Figma,
+        element: UiUxPage,
         access: 99, // Product team and above
         color: "bg-green-500",
 
