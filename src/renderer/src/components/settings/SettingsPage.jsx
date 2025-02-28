@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { CloudDownload, Download, Rocket } from 'lucide-react'
+import { CloudDownload, Download, Loader2, Rocket } from 'lucide-react'
+import ReactMarkdown from "react-markdown";
 
 const SettingsPage = () => {
   const [appVersion, setAppVersion] = useState('')
@@ -23,6 +24,7 @@ const SettingsPage = () => {
 
   const [updateAvailable, setUpdateAvailable] = useState(false)
   const [updateObject, setUpdateObject] = useState(null)
+  const [downloadMessage, setDownloadMessage] = useState('')
 
   const checkForUpdate = async () => {
     const updateCheck = await window.api.checkForAppUpdate()
@@ -31,9 +33,8 @@ const SettingsPage = () => {
   }
 
   const handleUpdate = async () => {
+    setDownloadMessage("Download in progress...")
     const handleUpdate = await window.api.performAppUpdate()
-    console.log(handleUpdate);
-    
   }
 
   const getAppVersion = async () => {
@@ -99,16 +100,24 @@ const SettingsPage = () => {
             <Rocket className="h-4 w-4" />
             <AlertTitle>New Update Available!</AlertTitle>
             <AlertDescription>{updateObject?.message}</AlertDescription>
-            <Button size="sm" className="mt-4" onClick={handleUpdate}>
-              <CloudDownload className="mr-2 h-4 w-4" />
-              Update Now
-            </Button>
+            <div>
+              <Button size="sm" className="mt-4" onClick={handleUpdate}>
+                {downloadMessage ? <>
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  {downloadMessage}</> :
+                  <>
+                  <CloudDownload className="mr-2 h-4 w-4" />
+                  <p>Update Now</p>
+                  </>
+                }
+              </Button>
+            </div>
             {
               updateObject?.releaseNotes && (
-                <div className='mt-4 bg-accent/20 rounded-md p-4'>
-                  <p>
+                <div className='mt-4 bg-accent/20 rounded-md p-4 prose'>
+                  <ReactMarkdown >
                     {updateObject?.releaseNotes}
-                  </p>
+                  </ReactMarkdown>
                 </div >
               )
             }

@@ -1,6 +1,6 @@
 {
   "name": "product-development-portal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BluOS product development portal",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -74,6 +74,7 @@
     "react-datepicker": "^7.6.0",
     "react-day-picker": "^8.10.1",
     "react-hook-form": "^7.53.2",
+    "react-markdown": "^10.0.0",
     "react-router-dom": "^7.0.1",
     "recharts": "^2.13.3",
     "tailwind-merge": "^2.5.4",
