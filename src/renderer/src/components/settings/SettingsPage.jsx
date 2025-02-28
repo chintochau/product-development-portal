@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { ModeToggle } from '../../../../components/mode-toggle'
 import { Label } from '../../../../components/ui/label'
 import { Card } from '@/components/ui/card'
@@ -11,30 +11,40 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { CloudDownload, Download, Rocket } from 'lucide-react'
 
 const SettingsPage = () => {
-  const appVersion = '2.1.4'
+  const [appVersion, setAppVersion] = useState('')
+
   const changelog = [
     {
-      version: '2.1.4',
-      date: '2024-03-15',
-      changes: [
-        'Added dark mode support',
-        'Improved search performance',
-        'Fixed login authentication issue'
-      ]
-    },
-    {
-      version: '2.1.3',
-      date: '2024-03-10',
-      changes: ['Updated documentation', 'Enhanced security features', 'Minor UI improvements']
+      version: '1.0.1',
+      date: '2025-02-27',
+      changes: ['Home Page added', 'In-App Update support added']
     }
   ]
 
-  const handleUpdate = async () => {
-    // Simulate update process
-    console.log('Updating application...')
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    console.log('Update complete!')
+  const [updateAvailable, setUpdateAvailable] = useState(false)
+  const [updateObject, setUpdateObject] = useState(null)
+
+  const checkForUpdate = async () => {
+    const updateCheck = await window.api.checkForAppUpdate()
+    setUpdateObject(updateCheck)
+    setUpdateAvailable(updateCheck.updateAvailable)
   }
+
+  const handleUpdate = async () => {
+    const handleUpdate = await window.api.performAppUpdate()
+    console.log(handleUpdate);
+    
+  }
+
+  const getAppVersion = async () => {
+    const version = await window.api.getAppVersion()
+    setAppVersion(version)
+  }
+
+  useEffect(() => {
+    getAppVersion()
+    checkForUpdate()
+  }, [])
 
   return (
     <div className="min-h-screen bg-muted/40 p-8">
@@ -42,8 +52,7 @@ const SettingsPage = () => {
         <h1 className="text-3xl font-bold text-foreground">App Settings</h1>
 
         <Card className="p-6">
-
-        <h2 className="text-xl font-semibold mb-4">Theme</h2>
+          <h2 className="text-xl font-semibold mb-4">Theme</h2>
           <ModeToggle />
         </Card>
 
@@ -63,8 +72,8 @@ const SettingsPage = () => {
         {/* Changelog Card */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Recent Updates</h2>
-          <ScrollArea className="h-64 pr-4">
-            <div className="space-y-6">
+          <ScrollArea className=" pr-4">
+            <div className="max-h-64 space-y-6">
               {changelog.map((release, index) => (
                 <div key={index} className="border-l-2 pl-4 border-primary">
                   <div className="flex items-center gap-2">
@@ -85,17 +94,26 @@ const SettingsPage = () => {
         </Card>
 
         {/* Update Available Alert */}
-        <Alert>
-          <Rocket className="h-4 w-4" />
-          <AlertTitle>New Update Available!</AlertTitle>
-          <AlertDescription>
-            Version 2.2.0 is ready to install. Contains new features and improvements.
-          </AlertDescription>
-          <Button size="sm" className="mt-4" onClick={handleUpdate}>
-            <CloudDownload className="mr-2 h-4 w-4" />
-            Update Now
-          </Button>
-        </Alert>
+        {updateAvailable && (
+          <Alert>
+            <Rocket className="h-4 w-4" />
+            <AlertTitle>New Update Available!</AlertTitle>
+            <AlertDescription>{updateObject?.message}</AlertDescription>
+            <Button size="sm" className="mt-4" onClick={handleUpdate}>
+              <CloudDownload className="mr-2 h-4 w-4" />
+              Update Now
+            </Button>
+            {
+              updateObject?.releaseNotes && (
+                <div className='mt-4 bg-accent/20 rounded-md p-4'>
+                  <p>
+                    {updateObject?.releaseNotes}
+                  </p>
+                </div >
+              )
+            }
+          </Alert>
+        )}
 
         {/* Feature Request Form */}
         <Card className="p-6">

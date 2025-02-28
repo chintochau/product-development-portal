@@ -9,6 +9,14 @@ import { readFromExcel } from './excelAPI'
 import { changePassword, checkSignInStatus, createNewUser, getAllUsersFromFirestore, signinWithFirebaseEmail, signOut, updateUserInformation } from './firebaseAPI'
 import { graphGet } from './graphAPI'
 
+const { autoUpdater } = require('electron-updater');
+
+autoUpdater.logger = require('electron-log');
+autoUpdater.logger.transports.file.level = 'info'; // Log to file
+autoUpdater.logger.transports.console.level = 'info'; // Log to console
+
+// Set autoDownload to false
+autoUpdater.autoDownload = false;
 
 function createWindow() {
   // Create the browser window.
@@ -122,24 +130,102 @@ ipcMain.handle("sign-out", async () => {
   return await signOut();
 })
 
-ipcMain.handle("sign-in", async (event,emailAndPassword) => {
+ipcMain.handle("sign-in", async (event, emailAndPassword) => {
   return await signinWithFirebaseEmail(emailAndPassword);
 })
 
 ipcMain.handle("get-all-users", async () => {
   return await getAllUsersFromFirestore();
 })
-ipcMain.handle("create-new-user", async (event,email,password,role) => {
-  return await createNewUser(email,password,role);
+ipcMain.handle("create-new-user", async (event, email, password, role) => {
+  return await createNewUser(email, password, role);
 })
-ipcMain.handle("update-role", async (event,data) => {
+ipcMain.handle("update-role", async (event, data) => {
   return await updateUserInformation(data);
 })
 
-ipcMain.handle("graph-get", async (event,{endpoint}) => {
+ipcMain.handle("graph-get", async (event, { endpoint }) => {
   return await graphGet(endpoint);
 })
 
-ipcMain.handle("change-password", async (event,data) => {
+ipcMain.handle("change-password", async (event, data) => {
   return await changePassword(data);
+})
+
+
+// Handle in app update process
+
+
+ipcMain.handle("check-for-app-update", async (event) => {
+  try {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    if (isDevelopment) {
+      console.log('Update check skipped in development mode');
+      return {
+        message: "No update available in dev mode.",
+        releaseNotes: "No release notes available.",
+        updateAvailable: false
+      };
+    }
+    // Check for updates without notifying the user
+    const updateInfo = await autoUpdater.checkForUpdates();
+    if (updateInfo.updateInfo.version !== app.getVersion()) {
+      return {
+        message: "v" + updateInfo.updateInfo.version + " is available.",
+        releaseNotes: updateInfo.updateInfo?.releaseNotes || "No release notes available.",
+        updateAvailable: true
+      };
+    } else {
+      // No update is available
+      return { message: "No update available.", updateAvailable: false,
+        releaseNotes: "No release notes available.", };
+    }
+  } catch (error) {
+    console.error('Update error:', error);
+    throw new Error('Failed to initiate update: ' + error.message);
+  }
+})
+
+// Handle app update trigger
+ipcMain.handle('perform-app-update', async (event) => {
+  try {
+    // Check for updates without notifying the user
+    const updateInfo = await autoUpdater.checkForUpdates();
+    if (updateInfo.updateInfo.version !== app.getVersion()) {
+      // An update is available
+      autoUpdater.downloadUpdate(); // Start downloading the update
+      return { message: "Update available. Downloading..." };
+    } else {
+      // No update is available
+      return { message: "No update available." };
+    }
+  } catch (error) {
+    console.error('Update error:', error);
+    throw new Error('Failed to initiate update: ' + error.message);
+  }
+});
+autoUpdater.on("error", (error) => {
+  console.error('Update error:', error);
+  throw new Error('Failed to initiate update: ' + error.message);
+})
+autoUpdater.on("update-available", () => {
+  console.log("Update available");
+})
+autoUpdater.on("update-not-available", () => {
+  console.log("Update not available");
+})
+autoUpdater.on("update-downloaded", () => {
+  console.log("Update downloaded");
+  autoUpdater.quitAndInstall();
+})
+
+
+// Ensure your autoUpdater is set up properly to handle events
+autoUpdater.on('update-downloaded', (info) => {
+  // You can prompt the user or automatically quit and install here
+  autoUpdater.quitAndInstall();
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err)
 })

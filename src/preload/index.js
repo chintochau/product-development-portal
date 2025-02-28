@@ -19,6 +19,9 @@ const api = {
   createNewUser: (email,password,role,name) => ipcRenderer.invoke('create-new-user', {email,password,role,name}),
   updateUserInformation: ({email,role,name}) => ipcRenderer.invoke('update-role', {email,role,name}),
   graphGet: (endpoint) => ipcRenderer.invoke('graph-get', {endpoint}),
+  checkForAppUpdate: () => ipcRenderer.invoke('check-for-app-update'),
+  performAppUpdate: () => ipcRenderer.invoke('perform-app-update'),
+
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
