@@ -38,7 +38,7 @@ const AllFeatures = ({ features, className }) => {
   return (
     <div className={className}>
       {/* <DataTable columns={featureColumns} data={features} /> */}
-      <Table >
+      <Table frameClassName="min-h-[calc(100vh-600px)]" >
         <TableHeader className=" bg-secondary/10 text-secondary-foreground">
           <TableRow>
             <TableHead className="w-60 flex items-center gap-2"><p>Title</p> {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}</TableHead>

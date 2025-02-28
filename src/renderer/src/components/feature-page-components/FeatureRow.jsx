@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback, useMemo, memo } from 'react'
 import {
   Table,
   TableBody,
@@ -26,156 +26,231 @@ import { useUser } from '../../contexts/userContext'
 import { Label } from '../../../../components/ui/label'
 import dayjs from 'dayjs'
 
-function FeatureRow({ feature, index }) {
+const FeatureRow = memo(({ feature, index }) => {
   const { developers } = useDevelopers()
-  const { setShouldRefresh, setLoading,loading } = useTickets()
+  const { setShouldRefresh, setLoading, loading } = useTickets()
   const [showStatusBar, setShowStatusBar] = useState(false)
   const [selectedDevelopers, setSelectedDevelopers] = useState([])
   const [isEditing, setIsEditing] = useState(false)
   const [ticketUrl, setTicketUrl] = useState(feature?.ticket || '')
 
-  const { isAdhoc, changes } = feature || {}
+  const { isAdhoc, changes, assignee_ids, id, product: initialProduct, priority: initialPriority, type: initialType } = feature || {}
   const hasChanges = changes?.length > 0
   const [openChangeList, setOpenChangeList] = useState(false)
 
-  const { assignee_ids, id } = feature || {}
   const [title, setTitle] = useState(feature?.title)
   const [description, setDescription] = useState(feature?.description)
-
-  const [product, setProduct] = useState(feature?.product)
-  const [priority, setPriority] = useState(feature?.priority)
-  const [type, setType] = useState(feature?.type)
+  const [product, setProduct] = useState(initialProduct)
+  const [priority, setPriority] = useState(initialPriority)
+  const [type, setType] = useState(initialType)
 
   const { user } = useUser()
 
-  const isSelected = (id) => {
-    return selectedDevelopers.findIndex((dev) => dev.id === id) !== -1
-  }
-
-  const updateAssignees = async () => {
-    const response = await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        assignee_ids: selectedDevelopers.map((dev) => dev.id)
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
-  const handleDeleteTicket = async () => {
-    setLoading(true)
-    const response = await deleteFeatureRequestIssue(id, isAdhoc ? 3 : 1)
-    setShouldRefresh(true)
-  }
-
-  const handleEstimateChange = async (value) => {
-    setLoading(true)
-    const response = await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        estimate: value
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
-
-  const developersList = developers.filter((dev) =>
-    assignee_ids?.find((assignee) => assignee === dev.id)
+  // Memoize expensive calculations
+  const developersList = useMemo(() => 
+    developers.filter((dev) => assignee_ids?.find((assignee) => assignee === dev.id)),
+    [developers, assignee_ids]
   )
 
-  const handleDateChange = async (value) => {
-    setLoading(true)
-    const response = await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        startDate: value
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
+  const changeStats = useMemo(() => {
+    let pendingChange = 0, approvedChange = 0, rejectedChange = 0
+    
+    if (changes && changes.length > 0) {
+      changes.forEach((change) => {
+        if (change.status === 'pending') pendingChange++
+        else if (change.status === 'approved') approvedChange++
+        else if (change.status === 'rejected') rejectedChange++
+      })
+    }
+    
+    return { pendingChange, approvedChange, rejectedChange }
+  }, [changes])
 
-  const saveEditing = async () => {
-    setIsEditing(!isEditing)
-    setLoading(true)
-    const response = await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        title,
-        description
-      },
-      isAdhoc ? 3 : 1
-    )
-    setLoading(false)
-  }
+  const isSelected = useCallback((id) => {
+    return selectedDevelopers.findIndex((dev) => dev.id === id) !== -1
+  }, [selectedDevelopers])
 
-  const cancelEditing = () => {
-    setIsEditing(!isEditing)
+  const updateAssignees = useCallback(async () => {
+    if (selectedDevelopers.length === 0) return
+    
+    setLoading(true)
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          assignee_ids: selectedDevelopers.map((dev) => dev.id)
+        },
+        isAdhoc ? 3 : 1
+      )
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to update assignees:", error)
+    } finally {
+      setLoading(false)
+    }
+  }, [id, feature, selectedDevelopers, isAdhoc, setLoading, setShouldRefresh])
+
+  const handleDeleteTicket = useCallback(async () => {
+    if (loading) return
+    
+    setLoading(true)
+    try {
+      await deleteFeatureRequestIssue(id, isAdhoc ? 3 : 1)
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to delete ticket:", error)
+    }
+  }, [id, isAdhoc, loading, setLoading, setShouldRefresh])
+
+  const handleEstimateChange = useCallback(async (value) => {
+    if (loading) return
+    
+    setLoading(true)
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          estimate: value
+        },
+        isAdhoc ? 3 : 1
+      )
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to update estimate:", error)
+    }
+  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
+
+  const handleDateChange = useCallback(async (value) => {
+    if (loading) return
+    
+    setLoading(true)
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          startDate: value
+        },
+        isAdhoc ? 3 : 1
+      )
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to update date:", error)
+    }
+  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
+
+  const saveEditing = useCallback(async () => {
+    if (loading) return
+    
+    setLoading(true)
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          title,
+          description
+        },
+        isAdhoc ? 3 : 1
+      )
+      setIsEditing(false)
+    } catch (error) {
+      console.error("Failed to save edits:", error)
+    } finally {
+      setLoading(false)
+    }
+  }, [id, feature, title, description, isAdhoc, loading, setLoading])
+
+  const cancelEditing = useCallback(() => {
+    setIsEditing(false)
     setTitle(feature?.title)
     setDescription(feature?.description)
-  }
+  }, [feature])
 
-  const handleTicketChange = async (value) => {
+  const handleTicketChange = useCallback(async (value) => {
+    if (loading || !value) return
+    
     setLoading(true)
-    const response = await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        ticket: value
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          ticket: value
+        },
+        isAdhoc ? 3 : 1
+      )
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to update ticket:", error)
+    }
+  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
 
-  const handleProductChange = async (value) => {
+  const handleProductChange = useCallback(async (value) => {
+    if (loading) return
+    
     setLoading(true)
     setProduct(value)
-    const response = await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        product: value
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          product: value
+        },
+        isAdhoc ? 3 : 1
+      )
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to update product:", error)
+    }
+  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
 
-  const handlePriorityChange = async (value) => {
+  const handlePriorityChange = useCallback(async (value) => {
+    if (loading) return
+    
     setLoading(true)
     setPriority(value)
-    const response = await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        priority: value
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          priority: value
+        },
+        isAdhoc ? 3 : 1
+      )
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to update priority:", error)
+    }
+  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
 
-  const handleTypeChange = async (value) => {
+  const handleTypeChange = useCallback(async (value) => {
+    if (loading) return
+    
     setLoading(true)
     setType(value)
-    const response = await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        type: value
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          type: value
+        },
+        isAdhoc ? 3 : 1
+      )
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to update type:", error)
+    }
+  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
 
-  const handleChangeRequestStatus = async (changeIndex, newStatus) => {
+  const handleChangeRequestStatus = useCallback(async (changeIndex, newStatus) => {
+    if (loading) return
+    
     setLoading(true)
     const updatedChanges = feature.changes.map((change, index) =>
       index === changeIndex
@@ -183,56 +258,69 @@ function FeatureRow({ feature, index }) {
         : change
     )
 
-    await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        changes: updatedChanges
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          changes: updatedChanges
+        },
+        isAdhoc ? 3 : 1
+      )
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to update change request status:", error)
+    }
+  }, [id, feature, user, isAdhoc, loading, setLoading, setShouldRefresh])
 
-  const createChangeRequest = async () => {
+  const createChangeRequest = useCallback(async () => {
+    if (loading) return
+    
     setLoading(true)
     setOpenChangeList(true)
-    const response = await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        changes: [
-          ...(feature.changes || []),
-          {
-            type: 'change',
-            id: Date.now(),
-            status: 'draft',
-            createdAt: new Date().toISOString(),
-            createdBy: user?.name // Replace with actual user context
-          }
-        ]
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
+    try {
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          changes: [
+            ...(feature.changes || []),
+            {
+              type: 'change',
+              id: Date.now(),
+              status: 'draft',
+              createdAt: new Date().toISOString(),
+              createdBy: user?.name
+            }
+          ]
+        },
+        isAdhoc ? 3 : 1
+      )
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Failed to create change request:", error)
+    }
+  }, [id, feature, user, isAdhoc, loading, setLoading, setShouldRefresh])
 
-  let pendingChange = 0,
-    approvedChange = 0,
-    rejectedChange = 0
+  const toggleEditing = useCallback(() => {
+    setIsEditing(prev => !prev)
+  }, [])
 
-  if (feature?.changes && feature.changes.length > 0) {
-    feature.changes.forEach((change) => {
-      if (change.status === 'pending') {
-        pendingChange++
-      } else if (change.status === 'approved') {
-        approvedChange++
-      } else if (change.status === 'rejected') {
-        rejectedChange++
+  const toggleChangeList = useCallback(() => {
+    setOpenChangeList(prev => !prev)
+  }, [])
+
+  const handleDeveloperSelect = useCallback((id) => {
+    setSelectedDevelopers(prev => {
+      if (prev.findIndex(dev => dev.id === id) !== -1) {
+        return prev.filter(dev => dev.id !== id)
+      } else {
+        return [...prev, developers.find(dev => dev.id === id)]
       }
     })
-  }
+  }, [developers])
 
+  const { pendingChange, approvedChange, rejectedChange } = changeStats
   
   return (
     <>
@@ -265,14 +353,16 @@ function FeatureRow({ feature, index }) {
                   <Button
                     onClick={saveEditing}
                     className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    disabled={loading}
                   >
-                    <Check className="h-4 w-4" />
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                     Save Changes
                   </Button>
                   <Button
                     variant="outline"
                     onClick={cancelEditing}
                     className="gap-2 text-red-600 hover:bg-red-50"
+                    disabled={loading}
                   >
                     <X className="h-4 w-4" />
                     Cancel
@@ -290,7 +380,7 @@ function FeatureRow({ feature, index }) {
                   {hasChanges && (
                     <div 
                       className="flex items-center gap-2 mt-2 w-fit hover:bg-muted/50 rounded-full px-3 py-1 transition-colors cursor-pointer"
-                      onClick={() => setOpenChangeList(!openChangeList)}
+                      onClick={toggleChangeList}
                     >
                       <Badge variant="outline" className="border-muted-foreground/30">
                         Change Requests
@@ -312,7 +402,7 @@ function FeatureRow({ feature, index }) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setIsEditing(!isEditing)}
+                  onClick={toggleEditing}
                   className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary"
                 >
                   <Edit className="h-4 w-4" />
@@ -332,24 +422,11 @@ function FeatureRow({ feature, index }) {
           <DeveloperDropdown
             showStatusBar={showStatusBar}
             setShowStatusBar={setShowStatusBar}
-            selectedDevelopers={developers.filter((dev) =>
-              assignee_ids?.find((assignee) => assignee.id === dev.id)
-            )}
-            selectDeveloper={(id) => {
-              if (isSelected(id)) {
-                setSelectedDevelopers(selectedDevelopers.filter((dev) => dev.id !== id))
-              } else {
-                setSelectedDevelopers([
-                  ...selectedDevelopers,
-                  developers.find((dev) => dev.id === id)
-                ])
-              }
-            }}
+            selectedDevelopers={developersList}
+            selectDeveloper={handleDeveloperSelect}
             isSelected={isSelected}
-            onClick={() => {
-              updateAssignees()
-            }}
-            loading={false}
+            onClick={updateAssignees}
+            loading={loading}
           >
             <div className="cursor-pointer hover:underline flex-col flex">
               {assignee_ids && assignee_ids.length ? (
@@ -406,8 +483,8 @@ function FeatureRow({ feature, index }) {
                   placeholder="Ticket URL"
                   className="flex-1"
                 />
-                <Button size="icon" className="shrink-0">
-                  <Check className="h-4 w-4" />
+                <Button size="icon" className="shrink-0" disabled={loading}>
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                 </Button>
               </div>
             </form>
@@ -423,7 +500,7 @@ function FeatureRow({ feature, index }) {
               onClick={createChangeRequest}
               disabled={loading}
             >
-              + Change
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : '+ Change'}
             </Button>
           </TableCell>
         )}
@@ -435,8 +512,9 @@ function FeatureRow({ feature, index }) {
               size="icon"
               className="text-red-600 hover:bg-red-50"
               onClick={handleDeleteTicket}
+              disabled={loading}
             >
-              <Trash2 className="h-4 w-4" />
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </Button>
           </WithPermission>
         </TableCell>
@@ -445,7 +523,7 @@ function FeatureRow({ feature, index }) {
       {/* Change Request Rows */}
       {hasChanges && openChangeList && feature?.changes?.map((change, index) => (
         <ChangeRequestRow
-          key={index}
+          key={`change-${index}-${id}`}
           change={change}
           onChangeStatus={(status) => handleChangeRequestStatus(index, status)}
           changeIndex={index}
@@ -454,14 +532,10 @@ function FeatureRow({ feature, index }) {
       ))}
     </>
   )
-}
+})
 
-export default FeatureRow
-
-// ChangeRequestRow Component
-
-
-const ChangeRequestRow = ({ change, onChangeStatus, feature, changeIndex }) => {
+// Memoize the ChangeRequestRow component to prevent unnecessary re-renders
+const ChangeRequestRow = memo(({ change, onChangeStatus, feature, changeIndex }) => {
   const statusConfig = {
     pending: { color: 'bg-amber-100 text-amber-800', icon: Clock },
     approved: { color: 'bg-emerald-100 text-emerald-800', icon: CheckCircle },
@@ -469,48 +543,60 @@ const ChangeRequestRow = ({ change, onChangeStatus, feature, changeIndex }) => {
     draft: { color: 'bg-slate-100 text-slate-800', icon: DraftingCompass }
   }[change.status];
 
-  const [title, setTitle] = useState(change.title);
-  const [description, setDescription] = useState(change.description);
+  const [title, setTitle] = useState(change.title || '');
+  const [description, setDescription] = useState(change.description || '');
   const { id, isAdhoc } = feature || {};
   const { loading, setLoading, setShouldRefresh } = useTickets();
   const { user } = useUser();
 
-  const handleChangeRequestUpdate = async (data) => {
+  const StatusIcon = statusConfig.icon;
+  const isDraft = change.status === 'draft';
+  const isPending = change.status === 'pending';
+  const isAuthor = change.createdBy === user?.name;
 
-    setLoading(true)
-    const updatedChanges = feature.changes.map((change, index) =>
-      index === changeIndex ? { ...change, ...data } : change
-    )
+  const handleChangeRequestUpdate = useCallback(async (data) => {
+    if (loading) return;
+    
+    setLoading(true);
+    try {
+      const updatedChanges = feature.changes.map((change, index) =>
+        index === changeIndex ? { ...change, ...data } : change
+      );
 
-    await updateFeatureRequestIssue(
-      id,
-      {
-        ...feature,
-        changes: updatedChanges
-      },
-      isAdhoc ? 3 : 1
-    )
-    setShouldRefresh(true)
-  }
+      await updateFeatureRequestIssue(
+        id,
+        {
+          ...feature,
+          changes: updatedChanges
+        },
+        isAdhoc ? 3 : 1
+      );
+      setShouldRefresh(true);
+    } catch (error) {
+      console.error("Failed to update change request:", error);
+    }
+  }, [id, feature, changeIndex, isAdhoc, loading, setLoading, setShouldRefresh]);
 
-  const submitChangeRequest = async () => {
+  const submitChangeRequest = useCallback(async () => {
     await handleChangeRequestUpdate({
       title,
       description,
       status: 'pending'
-    })
-  }
+    });
+  }, [handleChangeRequestUpdate, title, description]);
 
-  const handleChangeRequestDelete = async () => {
-    setLoading(true)
-    const updatedChanges = feature.changes.filter((_, index) => index !== changeIndex)
-    await updateFeatureRequestIssue(id, { ...feature, changes: updatedChanges }, isAdhoc ? 3 : 1)
-    setShouldRefresh(true)
-  }
-
-  const isDraft = change.status === 'draft'
-  const isPending = change.status === 'pending'
-  const isAuthor = change.createdBy === user?.name
+  const handleChangeRequestDelete = useCallback(async () => {
+    if (loading) return;
+    
+    setLoading(true);
+    try {
+      const updatedChanges = feature.changes.filter((_, index) => index !== changeIndex);
+      await updateFeatureRequestIssue(id, { ...feature, changes: updatedChanges }, isAdhoc ? 3 : 1);
+      setShouldRefresh(true);
+    } catch (error) {
+      console.error("Failed to delete change request:", error);
+    }
+  }, [id, feature, changeIndex, isAdhoc, loading, setLoading, setShouldRefresh]);
 
   return (
     <TableRow className="group hover:bg-muted/20 transition-colors border-b border-muted">
@@ -519,7 +605,7 @@ const ChangeRequestRow = ({ change, onChangeStatus, feature, changeIndex }) => {
           {isDraft ? (
             <div className="space-y-4 max-w-3xl">
               <div className="flex items-center gap-3">
-                <statusConfig.icon className="h-5 w-5 text-slate-500" />
+                <StatusIcon className="h-5 w-5 text-slate-500" />
                 <h3 className="font-semibold text-lg">Change Request Draft</h3>
                 <span className="text-sm text-muted-foreground">by {user?.name}</span>
               </div>
@@ -554,7 +640,7 @@ const ChangeRequestRow = ({ change, onChangeStatus, feature, changeIndex }) => {
                       disabled={loading}
                       className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                     >
-                      <Check className="h-4 w-4" />
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                       Submit for Approval
                     </Button>
                     <Button
@@ -595,7 +681,7 @@ const ChangeRequestRow = ({ change, onChangeStatus, feature, changeIndex }) => {
 
                 <div className="space-y-2">
                   <div className={`${statusConfig.color} inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm`}>
-                    <statusConfig.icon className="h-4 w-4" />
+                    <StatusIcon className="h-4 w-4" />
                     <span className="capitalize">{change.status}</span>
                   </div>
                   {change.statusBy && (
@@ -614,7 +700,7 @@ const ChangeRequestRow = ({ change, onChangeStatus, feature, changeIndex }) => {
                     disabled={loading}
                     className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
-                    <Check className="h-4 w-4" />
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                     Approve
                   </Button>
                   <Button
@@ -646,4 +732,9 @@ const ChangeRequestRow = ({ change, onChangeStatus, feature, changeIndex }) => {
       </TableCell>
     </TableRow>
   )
-}
+});
+
+FeatureRow.displayName = 'FeatureRow';
+ChangeRequestRow.displayName = 'ChangeRequestRow';
+
+export default FeatureRow;

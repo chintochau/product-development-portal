@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
   Table,
   TableBody,
@@ -6,12 +6,12 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from '../../../components/ui/table';
-import FrameWraper from './frameWarper';
-import { Button } from '../../../components/ui/button';
-import { getGroupIssuesWithQuery } from '../services/gitlabServices';
-import { Input } from '../../../components/ui/input';
+  TableRow
+} from '../../../components/ui/table'
+import FrameWraper from './frameWarper'
+import { Button } from '../../../components/ui/button'
+import { getGroupIssuesWithQuery } from '../services/gitlabServices'
+import { Input } from '../../../components/ui/input'
 import {
   Loader2,
   Search,
@@ -23,10 +23,10 @@ import {
   ChevronDown,
   Clock,
   Calendar
-} from 'lucide-react';
-import { useTickets } from '../contexts/ticketsContext';
-import { Checkbox } from '../../../components/ui/checkbox';
-import { Badge } from '../../../components/ui/badge';
+} from 'lucide-react'
+import { useTickets } from '../contexts/ticketsContext'
+import { Checkbox } from '../../../components/ui/checkbox'
+import { Badge } from '../../../components/ui/badge'
 import {
   Select,
   SelectContent,
@@ -35,20 +35,16 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue
-} from "../../../components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../../components/ui/popover";
+} from '../../../components/ui/select'
+import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover'
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
-} from "../../../components/ui/card";
+  CardTitle
+} from '../../../components/ui/card'
 import {
   Sheet,
   SheetContent,
@@ -58,51 +54,59 @@ import {
   SheetTrigger,
   SheetFooter,
   SheetClose
-} from "../../../components/ui/sheet";
+} from '../../../components/ui/sheet'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../../../components/ui/dropdown-menu";
-import { ScrollArea } from "../../../components/ui/scroll-area";
-import { Separator } from "../../../components/ui/separator";
-import { useDevelopers } from '../contexts/developerContext';
-import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
+  DropdownMenuTrigger
+} from '../../../components/ui/dropdown-menu'
+import { ScrollArea } from '../../../components/ui/scroll-area'
+import { Separator } from '../../../components/ui/separator'
+import { useDevelopers } from '../contexts/developerContext'
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator
+} from '@/components/ui/command'
 
 const TicketPage = () => {
-  const { tickets, setTickets } = useTickets();
+  const { tickets, setTickets } = useTickets()
   const { developers } = useDevelopers()
-  const [searchText, setSearchText] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [openOnly, setOpenOnly] = useState(true);
-  const [viewMode, setViewMode] = useState('table');
-  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined });
-  const [activeFilters, setActiveFilters] = useState([]);
-  const [ticketType, setTicketType] = useState('all');
-  const [priority, setPriority] = useState('all');
-  const [milestone, setMilestone] = useState('all');
-  const [assignees, setAssignees] = useState([]);
-  const [workflowStatus, setWorkflowStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('desc');
-  const [lastRefreshed, setLastRefreshed] = useState(new Date());
-  const {milestones} = useSingleProduct()
+  const [searchText, setSearchText] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [openOnly, setOpenOnly] = useState(true)
+  const [viewMode, setViewMode] = useState('table')
+  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined })
+  const [activeFilters, setActiveFilters] = useState([])
+  const [ticketType, setTicketType] = useState('all')
+  const [priority, setPriority] = useState('all')
+  const [milestone, setMilestone] = useState('all')
+  const [assignees, setAssignees] = useState([])
+  const [workflowStatus, setWorkflowStatus] = useState('all')
+  const [sortBy, setSortBy] = useState('desc')
+  const [lastRefreshed, setLastRefreshed] = useState(new Date())
+  const { milestones } = useSingleProduct()
 
   // Common milestone options for your projects
   const milestoneOptions = [
-    {value:"None", label:"None"},
-    {value:"Upcoming", label:"Upcoming"},
-    {value:"Started", label:"Started"},
-
+    { value: 'None', label: 'None' },
+    { value: 'Upcoming', label: 'Upcoming' },
+    { value: 'Started', label: 'Started' }
   ]
-  
+
   // Workflow options based on your current code
   const workflowOptions = [
     { value: 'all', label: 'All Statuses' },
     { value: 'workflow:: 2 doing', label: 'Doing' },
     { value: 'workflow:: 3 review', label: 'Review' },
     { value: 'workflow:: 4 testing', label: 'Testing' }
-  ];
+  ]
 
   // Priority options
   const priorityOptions = [
@@ -111,53 +115,66 @@ const TicketPage = () => {
     { value: 'priority::high', label: 'High' },
     { value: 'priority::medium', label: 'Medium' },
     { value: 'priority::low', label: 'Low' }
-  ];
+  ]
 
   // Type options
   const typeOptions = [
     { value: 'all', label: 'All Types' },
     { value: 'type::bug', label: 'Bug' },
-    { value: 'type::feature', label: 'Feature' },
-  ];
+    { value: 'type::feature', label: 'Feature' }
+  ]
 
   // Sort options
   const sortOptions = [
     { value: 'asc', label: 'Oldest' },
-    { value: 'desc', label: 'Latest' },
-  ];
+    { value: 'desc', label: 'Latest' }
+  ]
 
   // Add active filters to display
   useEffect(() => {
-    const filters = [];
+    const filters = []
 
     if (openOnly) {
-      filters.push({ id: 'status', label: 'Open Only', value: 'open' });
+      filters.push({ id: 'status', label: 'Open Only', value: 'open' })
     }
 
     if (ticketType !== 'all') {
-      filters.push({ id: 'type', label: 'Type', value: typeOptions.find(t => t.value === ticketType)?.label });
+      filters.push({
+        id: 'type',
+        label: 'Type',
+        value: typeOptions.find((t) => t.value === ticketType)?.label
+      })
     }
 
     if (priority !== 'all') {
-      filters.push({ id: 'priority', label: 'Priority', value: priorityOptions.find(p => p.value === priority)?.label });
+      filters.push({
+        id: 'priority',
+        label: 'Priority',
+        value: priorityOptions.find((p) => p.value === priority)?.label
+      })
     }
 
     if (milestone !== 'all') {
-      filters.push({ id: 'milestone', label: 'Milestone', value: milestone });
+      filters.push({ id: 'milestone', label: 'Milestone', value: milestone })
     }
 
     if (assignees.length > 0) {
       filters.push({
         id: 'assignees',
         label: 'Assignees',
-        value: assignees.length === 1
-          ? developers.find(d => d.id === assignees[0])?.name
-          : `${assignees.length} developers`
-      });
+        value:
+          assignees.length === 1
+            ? developers.find((d) => d.id === assignees[0])?.name
+            : `${assignees.length} developers`
+      })
     }
 
     if (workflowStatus !== 'all') {
-      filters.push({ id: 'workflow', label: 'Workflow', value: workflowOptions.find(w => w.value === workflowStatus)?.label });
+      filters.push({
+        id: 'workflow',
+        label: 'Workflow',
+        value: workflowOptions.find((w) => w.value === workflowStatus)?.label
+      })
     }
 
     if (dateRange.from) {
@@ -165,132 +182,142 @@ const TicketPage = () => {
         id: 'dateRange',
         label: 'Date Range',
         value: `${dateRange.from.toLocaleDateString()} - ${dateRange.to ? dateRange.to.toLocaleDateString() : 'now'}`
-      });
+      })
     }
 
-    setActiveFilters(filters);
-  }, [openOnly, ticketType, priority, milestone, assignees, workflowStatus, dateRange, developers]);
+    setActiveFilters(filters)
+  }, [openOnly, ticketType, priority, milestone, assignees, workflowStatus, dateRange, developers])
 
   const buildQuery = (assignee = null) => {
     const query = {
       search: searchText,
       sort: sortBy,
       per_page: 100
-    };
-  
-    if (openOnly) query.state = 'opened';
-  
-    if (ticketType !== 'all') query.labels = [...(query.labels || []), ticketType];
-  
-    if (priority !== 'all') query.labels = [...(query.labels || []), priority];
-  
-    if (workflowStatus !== 'all') query.labels = [...(query.labels || []), workflowStatus];
-  
-    if (milestone !== 'all') query.milestone_id = milestone;
-  
-    if (assignee) query.assignee_id = assignee; // Add assignee only if provided
-  
-    if (dateRange.from) {
-      query.created_after = dateRange.from.toISOString();
-      if (dateRange.to) query.created_before = dateRange.to.toISOString();
     }
-  
-    console.log("Query:", query);
-    
-    return query;
-  };
-  
+
+    if (openOnly) query.state = 'opened'
+
+    if (ticketType !== 'all') query.labels = [...(query.labels || []), ticketType]
+
+    if (priority !== 'all') query.labels = [...(query.labels || []), priority]
+
+    if (workflowStatus !== 'all') query.labels = [...(query.labels || []), workflowStatus]
+
+    if (milestone !== 'all') query.milestone_id = milestone
+
+    if (assignee) query.assignee_id = assignee // Add assignee only if provided
+
+    if (dateRange.from) {
+      query.created_after = dateRange.from.toISOString()
+      if (dateRange.to) query.created_before = dateRange.to.toISOString()
+    }
+
+    console.log('Query:', query)
+
+    return query
+  }
+
   // Fetch tickets based on search and filter
   const getTickets = async () => {
-    setLoading(true);
-    
+    setLoading(true)
+
     try {
-      let tickets = new Set();
-  
+      let tickets = new Set()
+
       if (assignees.length === 0) {
         // No assignee selected, fetch all tickets
-        const query = buildQuery(); // No assignee_id filter
-        const response = await getGroupIssuesWithQuery(query);
-        tickets = new Set(response.map(ticket => JSON.stringify(ticket)));
+        const query = buildQuery() // No assignee_id filter
+        const response = await getGroupIssuesWithQuery(query)
+        tickets = new Set(response.map((ticket) => JSON.stringify(ticket)))
       } else if (assignees.length === 1) {
         // Single assignee case
-        const query = buildQuery(assignees[0]);
-        const response = await getGroupIssuesWithQuery(query);
-        tickets = new Set(response.map(ticket => JSON.stringify(ticket)));
+        const query = buildQuery(assignees[0])
+        const response = await getGroupIssuesWithQuery(query)
+        tickets = new Set(response.map((ticket) => JSON.stringify(ticket)))
       } else {
         // Multiple assignees case
         for (const assignee of assignees) {
-          const query = buildQuery(assignee);
-          const response = await getGroupIssuesWithQuery(query);
-          response.forEach(ticket => tickets.add(JSON.stringify(ticket))); // Ensure uniqueness
+          const query = buildQuery(assignee)
+          const response = await getGroupIssuesWithQuery(query)
+          response.forEach((ticket) => tickets.add(JSON.stringify(ticket))) // Ensure uniqueness
         }
       }
-  
-      setTickets(Array.from(tickets).map(ticket => JSON.parse(ticket))); // Convert back to objects
-      setLastRefreshed(new Date());
+
+      setTickets(Array.from(tickets).map((ticket) => JSON.parse(ticket))) // Convert back to objects
+      setLastRefreshed(new Date())
     } catch (error) {
-      console.error("Error fetching tickets:", error);
+      console.error('Error fetching tickets:', error)
       // You can add a toast notification here for error handling
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-  
+  }
+
   // Reset all filters
   const resetFilters = () => {
-    setSearchText('');
-    setOpenOnly(true);
-    setTicketType('all');
-    setPriority('all');
-    setMilestone('all');
-    setAssignees([]);
-    setWorkflowStatus('all');
-    setDateRange({ from: undefined, to: undefined });
-    setSortBy('created_at');
-  };
+    setSearchText('')
+    setOpenOnly(true)
+    setTicketType('all')
+    setPriority('all')
+    setMilestone('all')
+    setAssignees([])
+    setWorkflowStatus('all')
+    setDateRange({ from: undefined, to: undefined })
+    setSortBy('created_at')
+  }
 
   // Remove specific filter
   const removeFilter = (filterId) => {
     switch (filterId) {
       case 'status':
-        setOpenOnly(false);
-        break;
+        setOpenOnly(false)
+        break
       case 'type':
-        setTicketType('all');
-        break;
+        setTicketType('all')
+        break
       case 'priority':
-        setPriority('all');
-        break;
+        setPriority('all')
+        break
       case 'milestone':
-        setMilestone('all');
-        break;
+        setMilestone('all')
+        break
       case 'assignees':
-        setAssignees([]);
-        break;
+        setAssignees([])
+        break
       case 'workflow':
-        setWorkflowStatus('all');
-        break;
+        setWorkflowStatus('all')
+        break
       case 'dateRange':
-        setDateRange({ from: undefined, to: undefined });
-        break;
+        setDateRange({ from: undefined, to: undefined })
+        break
       default:
-        break;
+        break
     }
-  };
+  }
 
   // Export tickets to CSV
   const exportToCSV = () => {
-    const headers = ["ID", "Title", "Assignee", "Epic", "Milestone", "Status", "Priority", "Created At"];
+    const headers = [
+      'ID',
+      'Title',
+      'Assignee',
+      'Epic',
+      'Milestone',
+      'Status',
+      'Priority',
+      'Created At'
+    ]
 
     const csvRows = [
       headers.join(','),
-      ...tickets.map(ticket => {
-        const assigneeName = ticket.assignee?.name || 'Unassigned';
-        const epicTitle = ticket.epic?.title || '';
-        const milestoneTitle = ticket.milestone?.title || '';
-        const status = ticket.state === 'opened' ? 'Open' : 'Closed';
-        const priority = ticket.labels?.find(l => l.startsWith('priority::'))?.replace('priority::', '') || '';
-        const createdAt = new Date(ticket.created_at).toLocaleDateString();
+      ...tickets.map((ticket) => {
+        const assigneeName = ticket.assignee?.name || 'Unassigned'
+        const epicTitle = ticket.epic?.title || ''
+        const milestoneTitle = ticket.milestone?.title || ''
+        const status = ticket.state === 'opened' ? 'Open' : 'Closed'
+        const priority =
+          ticket.labels?.find((l) => l.startsWith('priority::'))?.replace('priority::', '') || ''
+        const createdAt = new Date(ticket.created_at).toLocaleDateString()
 
         return [
           ticket.references?.relative || ticket.iid,
@@ -301,29 +328,29 @@ const TicketPage = () => {
           status,
           priority,
           createdAt
-        ].join(',');
+        ].join(',')
       })
-    ].join('\n');
+    ].join('\n')
 
-    const blob = new Blob([csvRows], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', `gitlab-tickets-${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
+    const blob = new Blob([csvRows], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.setAttribute('hidden', '')
+    a.setAttribute('href', url)
+    a.setAttribute('download', `gitlab-tickets-${new Date().toISOString().slice(0, 10)}.csv`)
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
 
   // Toggle assignee selection
   const toggleAssignee = (developerId) => {
     if (assignees.includes(developerId)) {
-      setAssignees(assignees.filter(id => id !== developerId));
+      setAssignees(assignees.filter((id) => id !== developerId))
     } else {
-      setAssignees([...assignees, developerId]);
+      setAssignees([...assignees, developerId])
     }
-  };
+  }
 
   return (
     <FrameWraper>
@@ -357,9 +384,7 @@ const TicketPage = () => {
                   <DropdownMenuItem onClick={() => setViewMode('table')}>
                     Table View
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setViewMode('card')}>
-                    Card View
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setViewMode('card')}>Card View</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -379,8 +404,8 @@ const TicketPage = () => {
           <form
             className="flex flex-col gap-3"
             onSubmit={(e) => {
-              e.preventDefault();
-              getTickets();
+              e.preventDefault()
+              getTickets()
             }}
           >
             <div className="flex gap-2">
@@ -391,12 +416,12 @@ const TicketPage = () => {
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
-              <Button
-                onClick={getTickets}
-                variant="default"
-                disabled={loading}
-              >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
+              <Button onClick={getTickets} variant="default" disabled={loading}>
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Search className="h-4 w-4 mr-2" />
+                )}
                 Search
               </Button>
 
@@ -444,7 +469,7 @@ const TicketPage = () => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {typeOptions.map(option => (
+                                {typeOptions.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
                                     {option.label}
                                   </SelectItem>
@@ -463,7 +488,7 @@ const TicketPage = () => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {priorityOptions.map(option => (
+                                {priorityOptions.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
                                     {option.label}
                                   </SelectItem>
@@ -482,7 +507,7 @@ const TicketPage = () => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {workflowOptions.map(option => (
+                                {workflowOptions.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
                                     {option.label}
                                   </SelectItem>
@@ -496,7 +521,7 @@ const TicketPage = () => {
                         <div className="space-y-2">
                           <h3 className="text-sm font-medium">Assignees</h3>
 
-                          <DropdownMenu >
+                          <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="outline"
@@ -506,9 +531,9 @@ const TicketPage = () => {
                                 {assignees.length === 0
                                   ? 'Select developers'
                                   : assignees.length === 1
-                                    ? developers.find(d => d.id === assignees[0])?.name || 'Developer'
-                                    : `${assignees.length} developers selected`
-                                }
+                                    ? developers.find((d) => d.id === assignees[0])?.name ||
+                                      'Developer'
+                                    : `${assignees.length} developers selected`}
                                 <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -521,9 +546,7 @@ const TicketPage = () => {
                                     {developers?.map((developer) => (
                                       <CommandItem
                                         key={developer.id}
-                                        onSelect={
-                                          () => toggleAssignee(developer.id)
-                                        }
+                                        onSelect={() => toggleAssignee(developer.id)}
                                       >
                                         <Checkbox
                                           id={`dev-${developer.id}`}
@@ -550,7 +573,7 @@ const TicketPage = () => {
                             <SelectContent className="max-w-60">
                               <SelectGroup>
                                 <SelectItem value="all">All Milestones</SelectItem>
-                                {milestoneOptions.map(option => (
+                                {milestoneOptions.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
                                     {option.label}
                                   </SelectItem>
@@ -576,7 +599,7 @@ const TicketPage = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
-                                  {sortOptions.map(option => (
+                                  {sortOptions.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
                                       {option.label}
                                     </SelectItem>
@@ -584,7 +607,6 @@ const TicketPage = () => {
                                 </SelectGroup>
                               </SelectContent>
                             </Select>
-
                           </div>
                         </div>
                       </div>
@@ -606,7 +628,7 @@ const TicketPage = () => {
             {/* Active Filters Display */}
             {activeFilters.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
-                {activeFilters.map(filter => (
+                {activeFilters.map((filter) => (
                   <Badge
                     key={filter.id}
                     variant="secondary"
@@ -625,12 +647,7 @@ const TicketPage = () => {
                   </Badge>
                 ))}
 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-6"
-                  onClick={resetFilters}
-                >
+                <Button variant="ghost" size="sm" className="text-xs h-6" onClick={resetFilters}>
                   Clear All
                 </Button>
               </div>
@@ -641,13 +658,13 @@ const TicketPage = () => {
         {/* Tickets Display */}
         <div className="p-4">
           {viewMode === 'table' ? (
-            <Table>
+            <Table frameClassName="h-[calc(100vh-200px)]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[100px]">ID</TableHead>
                   <TableHead>Title</TableHead>
+                  <TableHead>Created</TableHead>
                   <TableHead>Assignee</TableHead>
-                  <TableHead>Epic</TableHead>
                   <TableHead>Milestone</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -706,12 +723,12 @@ const TicketPage = () => {
         </div>
       </div>
     </FrameWraper>
-  );
-};
+  )
+}
 
 // Status Component for rendering badges
 export const StatusComponent = ({ ticket }) => {
-  const { labels } = ticket || {};
+  const { labels } = ticket || {}
 
   // Define label mappings
   const labelMappings = {
@@ -725,20 +742,20 @@ export const StatusComponent = ({ ticket }) => {
     'priority::critical': { label: 'Critical', color: 'bg-red-500 text-red-50' },
     'priority::high': { label: 'High', color: 'bg-yellow-500 text-yellow-50' },
     'priority::medium': { label: 'Medium', color: 'bg-blue-300 text-blue-800' },
-    'priority::low': { label: 'Low', color: 'bg-green-300 text-green-800' },
-  };
+    'priority::low': { label: 'Low', color: 'bg-green-300 text-green-800' }
+  }
 
   // Ticket status
   const ticketStatus =
     ticket.state === 'opened'
       ? { label: 'Open', color: 'bg-green-500 text-green-50' }
-      : { label: 'Closed', color: 'bg-gray-500 text-gray-50' };
+      : { label: 'Closed', color: 'bg-gray-500 text-gray-50' }
 
   // Combine all labels
-  const labelsArray = [ticketStatus, ...(labels || [])
-    .map((label) => labelMappings[label])
-    .filter(Boolean)
-  ];
+  const labelsArray = [
+    ticketStatus,
+    ...(labels || []).map((label) => labelMappings[label]).filter(Boolean)
+  ]
 
   return (
     <div className="flex flex-wrap gap-1">
@@ -751,23 +768,23 @@ export const StatusComponent = ({ ticket }) => {
         </Badge>
       ))}
     </div>
-  );
-};
+  )
+}
 
 // Ticket Row Component
-const TicketRow = ({ ticket }) => {
+export const TicketRow = ({ ticket }) => {
   const ticketAge = () => {
-    const created = new Date(ticket.created_at);
-    const now = new Date();
-    const diffTime = Math.abs(now - created);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const created = new Date(ticket.created_at)
+    const now = new Date()
+    const diffTime = Math.abs(now - created)
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
-  };
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Yesterday'
+    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
+    return `${Math.floor(diffDays / 30)} months ago`
+  }
 
   return (
     <TableRow className="hover:bg-gray-50 transition-colors">
@@ -778,12 +795,31 @@ const TicketRow = ({ ticket }) => {
       >
         <div>
           {ticket.title}
-          <span className="text-xs text-muted-foreground ml-2 opacity-60">
-            {ticketAge()}
-          </span>
+          <span className="text-xs text-muted-foreground ml-2 opacity-60">{ticketAge()}</span>
         </div>
         <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10"></div>
       </TableCell>
+      <TableCell>
+        {ticket.author ? (
+          <div className="flex items-center gap-2">
+            {ticket.author.avatar_url ? (
+              <img
+                src={ticket.author.avatar_url}
+                alt={ticket.author.name}
+                className="w-6 h-6 rounded-full"
+              />
+            ) : (
+              <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-semibold">
+                {ticket.author.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <span>{ticket.author.name}</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground">Unassigned</span>
+        )}
+      </TableCell>
+
       <TableCell>
         {ticket.assignee ? (
           <div className="flex items-center gap-2">
@@ -808,7 +844,7 @@ const TicketRow = ({ ticket }) => {
         {ticket.epic?.url ? (
           <p
             className="cursor-pointer hover:underline text-sm flex items-center"
-            onClick={() => window.open("https://gitlab.com/" + ticket.epic.url)}
+            onClick={() => window.open('https://gitlab.com/' + ticket.epic.url)}
           >
             <span className="inline-block w-2 h-2 rounded-full bg-purple-400 mr-2"></span>
             {ticket.epic.title}
@@ -816,8 +852,6 @@ const TicketRow = ({ ticket }) => {
         ) : (
           <span className="text-muted-foreground">—</span>
         )}
-      </TableCell>
-      <TableCell>
         {ticket.milestone?.web_url ? (
           <p
             className="cursor-pointer hover:underline flex items-center"
@@ -834,35 +868,36 @@ const TicketRow = ({ ticket }) => {
         <StatusComponent ticket={ticket} />
       </TableCell>
     </TableRow>
-  );
-};
+  )
+}
 
 // Ticket Card Component for card view
 const TicketCard = ({ ticket }) => {
   const ticketAge = () => {
-    const created = new Date(ticket.created_at);
-    const now = new Date();
-    const diffTime = Math.abs(now - created);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const created = new Date(ticket.created_at)
+    const now = new Date()
+    const diffTime = Math.abs(now - created)
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
-  };
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Yesterday'
+    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
+    return `${Math.floor(diffDays / 30)} months ago`
+  }
 
   const truncate = (str, n) => {
-    return (str.length > n) ? str.slice(0, n - 1) + '...' : str;
-  };
+    return str.length > n ? str.slice(0, n - 1) + '...' : str
+  }
 
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md cursor-pointer" onClick={() => window.open(ticket.web_url)}>
+    <Card
+      className="overflow-hidden transition-all hover:shadow-md cursor-pointer"
+      onClick={() => window.open(ticket.web_url)}
+    >
       <CardHeader className="p-4 pb-2">
         <div className="flex justify-between items-start gap-2">
-          <CardTitle className="text-base">
-            #{ticket.references?.relative || ticket.iid}
-          </CardTitle>
+          <CardTitle className="text-base">#{ticket.references?.relative || ticket.iid}</CardTitle>
           <StatusComponent ticket={ticket} />
         </div>
         <div className="flex justify-between items-center mt-2">
@@ -879,7 +914,6 @@ const TicketCard = ({ ticket }) => {
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <h3 className="font-medium text-base mb-2">{truncate(ticket.title, 70)}</h3>
-
         <div className="flex justify-between items-center mt-3">
           <div>
             {ticket.epic?.title && (
@@ -913,20 +947,18 @@ const TicketCard = ({ ticket }) => {
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-
-
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { useSingleProduct } from '../contexts/singleProductContext';
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { useSingleProduct } from '../contexts/singleProductContext'
 
 const DatePickerWithRange = ({ date, setDate }) => {
   const handleChange = (dates) => {
-    const [start, end] = dates;
-    setDate({ from: start, to: end });
-  };
+    const [start, end] = dates
+    setDate({ from: start, to: end })
+  }
 
   return (
     <div className="relative w-full">
@@ -941,8 +973,7 @@ const DatePickerWithRange = ({ date, setDate }) => {
         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
-  );
-};
+  )
+}
 
-
-export default TicketPage;
+export default TicketPage

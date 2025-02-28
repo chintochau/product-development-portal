@@ -44,7 +44,7 @@ import { cn, daysFromToday } from '../../../../lib/utils'
 import { Checkbox } from '../../../../components/ui/checkbox'
 import { Button } from '../../../../components/ui/button'
 import { Badge } from '../../../../components/ui/badge'
-import { StatusComponent } from '../TicketPage'
+import { StatusComponent, TicketRow } from '../TicketPage'
 import { Input } from '../../../../components/ui/input'
 
 const ticketStates = ['opened', 'closed']
@@ -150,8 +150,7 @@ const ProjectsPage = () => {
                 <TableHead>Creator</TableHead>
                 <TableHead>Assignee</TableHead>
                 <TableHead>Gitlab</TableHead>
-                <TableHead>Milestone</TableHead>
-                <TableHead>State</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -162,25 +161,7 @@ const ProjectsPage = () => {
                     selectedState.includes(issue.state)
                 )
                 .map((issue) => (
-                  <TableRow
-                    key={issue.id}
-                    className={cn(issue.state === 'closed' ? ' text-muted-foreground/50' : '')}
-                  >
-                    <TableCell className="w-44">{issue.references.relative}</TableCell>
-                    <TableCell>{issue.title}</TableCell>
-                    <TableCell>{issue.author?.name}</TableCell>
-                    <TableCell>{issue.assignee?.name}</TableCell>
-                    <TableCell
-                      onClick={() => window.open(issue.web_url)}
-                      className="cursor-pointer hover:underline"
-                    >
-                      Link
-                    </TableCell>
-                    <TableCell className="w-44">{issue.milestone?.title}</TableCell>
-                    <TableCell>
-                      <StatusComponent ticket={issue} />
-                    </TableCell>
-                  </TableRow>
+                  <TicketRow key={issue.id} ticket={issue} />
                 ))}
             </TableBody>
           </Table>

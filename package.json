@@ -71,6 +71,7 @@
     "firebase": "^11.1.0",
     "firebase-admin": "^13.0.2",
     "form-data": "^4.0.1",
+    "framer-motion": "^12.4.7",
     "front-matter": "^4.0.2",
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.0",

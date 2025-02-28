@@ -75,7 +75,7 @@ export const navigationItems = [
         color: "bg-orange-500",
     },
     {
-        title: "Roadmap",
+        title: "Roadmap-1",
         url: "/roadmap",
         icon: Map,
         description: "View product development roadmap",
@@ -84,7 +84,7 @@ export const navigationItems = [
         color: "bg-green-500",
     },
     {
-        title: "Roadmap",
+        title: "Roadmap-2",
         url: "/old-roadmap",
         icon: Map,
         description: "View product development roadmap",
