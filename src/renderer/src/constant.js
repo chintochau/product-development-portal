@@ -13,6 +13,7 @@ import MilestonePage from "./components/MilestonePage"
 import ProjectsPage from "./components/project-page/ProjectsPage"
 import AnalyticsPage from "./components/AnalyticsPage"
 import HomePage from "./components/HomePage"
+import InteractiveRoadmap from "./components/NewRoadMap"
 
 export const CREATE_NEW_PRODUCT_ROUTE = "/dashboard/new-product"
 
@@ -76,6 +77,15 @@ export const navigationItems = [
     {
         title: "Roadmap",
         url: "/roadmap",
+        icon: Map,
+        description: "View product development roadmap",
+        element: InteractiveRoadmap,
+        access: 2, // Product team and above
+        color: "bg-green-500",
+    },
+    {
+        title: "Roadmap",
+        url: "/old-roadmap",
         icon: Map,
         description: "View product development roadmap",
         element: RoadmapPage,
