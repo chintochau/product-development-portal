@@ -13,6 +13,7 @@ import { DeveloperProvider } from './contexts/developerContext'
 import { RoadmapProvider } from './contexts/roadmapConetxt'
 import { ProjectsProvider } from './contexts/projecstContext'
 import { AuthPermissionWrapper } from './contexts/permissionContext'
+import { UiuxProvider } from './contexts/uiuxContext'
 
 function App() {
   return (
@@ -27,12 +28,14 @@ function App() {
                       <SingleProductProvider>
                         <BrowsingProvider>
                           <SidebarProvider>
-                            <ProjectsProvider>
-                              <RoadmapProvider>
-                                <AppSidebar />
-                                <Layout />
-                              </RoadmapProvider>
-                            </ProjectsProvider>
+                            <UiuxProvider>
+                              <ProjectsProvider>
+                                <RoadmapProvider>
+                                  <AppSidebar />
+                                  <Layout />
+                                </RoadmapProvider>
+                              </ProjectsProvider>
+                            </UiuxProvider>
                           </SidebarProvider>
                         </BrowsingProvider>
                       </SingleProductProvider>

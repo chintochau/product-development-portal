@@ -303,7 +303,7 @@ const FeatureCard = ({ feature, onUpdate, onDelete }) => {
   )
 }
 
-const CreateFeatureDialog = ({ onSubmit }) => {
+export const CreateFeatureDialog = ({ onSubmit, title, description }) => {
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState(null)
 
@@ -322,15 +322,15 @@ const CreateFeatureDialog = ({ onSubmit }) => {
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          New Feature
+         {title || "New Feature"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Create New Feature</DialogTitle>
+            <DialogTitle>Create {title || "New Feature"}</DialogTitle>
             <DialogDescription>
-              Add a new feature to the product management system.
+              {description || "Add a new feature to the product management system."}
             </DialogDescription>
           </DialogHeader>
 

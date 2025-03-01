@@ -317,3 +317,24 @@ export const deleteMilestonePlanningIssue = async (noteId) => {
     return response
 }
 
+// uiux request, with id 4
+export const createUiUxRequestIssue = async (data) => {
+    const response = await postNotesToTicket(4, data, null, FEATURES_PROJECTID)
+    return response
+}
+
+export const updateUiUxRequestIssue = async (noteId, data) => {
+    const response = await updateNotesToTicket(4, noteId, data, null, FEATURES_PROJECTID)
+    return response
+}
+
+export const deleteUiUxRequestIssue = async (noteId) => {
+    const response = await deleteNoteFromTicket(4, noteId, FEATURES_PROJECTID)
+    return response
+}
+
+export const getUiUxRequestIssues = async (page = 1) => {
+    const data = await getNotesFromTicket(4, FEATURES_PROJECTID, page)
+    const filteredData = data.filter(item => !item.system)
+    return filteredData
+}
