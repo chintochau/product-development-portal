@@ -16,7 +16,7 @@ import {
   UserCircle
 } from 'lucide-react'
 import { useUser } from '../contexts/userContext'
-import { usePermissions } from '../contexts/permissionContext'
+import { usePermissions, WithPermission } from '../contexts/permissionContext'
 import { useNavigate } from 'react-router-dom'
 import { navigationItems } from '../constant'
 import { useTickets } from '../contexts/ticketsContext'
@@ -133,75 +133,77 @@ const HomePage = () => {
         </div>
 
         {/* Recent activity section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Recent features */}
-          <div className=" rounded-lg shadow p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">Recent Features</h3>
-              <button
-                className="text-blue-500 text-sm font-medium flex items-center"
-                onClick={() => handleNavigation('/features')}
-              >
-                View all <ChevronRight size={16} />
-              </button>
-            </div>
-            <div className="space-y-4">
-              {features?.slice(0, 5).map((feature) => (
-                <div
-                  key={feature.id}
-                  className="p-4 border rounded-lg"
-                //   onClick={() => handleNavigation(`/features/${feature.id}`)}
+        <WithPermission requiredAccess={9}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Recent features */}
+            <div className=" rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">Recent Features</h3>
+                <button
+                  className="text-blue-500 text-sm font-medium flex items-center"
+                  onClick={() => handleNavigation('/features')}
                 >
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">{feature.title}</h4>
-                    {/* <ChevronRight size={16} className="text-gray-400" /> */}
+                  View all <ChevronRight size={16} />
+                </button>
+              </div>
+              <div className="space-y-4">
+                {features?.slice(0, 5).map((feature) => (
+                  <div
+                    key={feature.id}
+                    className="p-4 border rounded-lg"
+                  //   onClick={() => handleNavigation(`/features/${feature.id}`)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-medium">{feature.title}</h4>
+                      {/* <ChevronRight size={16} className="text-gray-400" /> */}
+                    </div>
                   </div>
-                </div>
-              ))}
-              <button
-                className="w-full py-2 border border-dashed rounded-lg text-gray-500 hover:bg-gray-50 flex items-center justify-center space-x-2"
-                onClick={() => handleNavigation('/features')}
-              >
-                <Edit size={16} />
-                <span>New Feature Request</span>
-              </button>
+                ))}
+                <button
+                  className="w-full py-2 border border-dashed rounded-lg text-gray-500 hover:bg-gray-50 flex items-center justify-center space-x-2"
+                  onClick={() => handleNavigation('/features')}
+                >
+                  <Edit size={16} />
+                  <span>New Feature Request</span>
+                </button>
+              </div>
+            </div>
+  
+            {/* Recent projects */}
+            <div className=" rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">Recent Projects</h3>
+                <button
+                  className="text-blue-500 text-sm font-medium flex items-center"
+                  onClick={() => handleNavigation('/project-hub')}
+                >
+                  View all <ChevronRight size={16} />
+                </button>
+              </div>
+              <div className="space-y-4">
+                {user.recentProjects?.map((project) => (
+                  <div
+                    key={project.id}
+                    className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                    onClick={() => handleNavigation(`/project-hub/${project.id}`)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-medium">{project.title}</h4>
+                      <ChevronRight size={16} className="text-gray-400" />
+                    </div>
+                  </div>
+                ))}
+                <button
+                  className="w-full py-2 border border-dashed rounded-lg text-gray-500 hover:bg-gray-50 flex items-center justify-center space-x-2"
+                  onClick={() => handleNavigation('/project-hub/new')}
+                >
+                  <LayoutDashboard size={16} />
+                  <span>Create New Project</span>
+                </button>
+              </div>
             </div>
           </div>
-
-          {/* Recent projects */}
-          <div className=" rounded-lg shadow p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">Recent Projects</h3>
-              <button
-                className="text-blue-500 text-sm font-medium flex items-center"
-                onClick={() => handleNavigation('/project-hub')}
-              >
-                View all <ChevronRight size={16} />
-              </button>
-            </div>
-            <div className="space-y-4">
-              {user.recentProjects?.map((project) => (
-                <div
-                  key={project.id}
-                  className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
-                  onClick={() => handleNavigation(`/project-hub/${project.id}`)}
-                >
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">{project.title}</h4>
-                    <ChevronRight size={16} className="text-gray-400" />
-                  </div>
-                </div>
-              ))}
-              <button
-                className="w-full py-2 border border-dashed rounded-lg text-gray-500 hover:bg-gray-50 flex items-center justify-center space-x-2"
-                onClick={() => handleNavigation('/project-hub/new')}
-              >
-                <LayoutDashboard size={16} />
-                <span>Create New Project</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        </WithPermission >
       </main>
     </div>
   )

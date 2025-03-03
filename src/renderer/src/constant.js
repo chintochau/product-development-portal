@@ -43,7 +43,7 @@ export const navigationItems = [
         description: "Browse and manage all products",
         icon: Speaker,
         element: ProductManagementPage,
-        access: 99, // Product team and above
+        access: 9, // Product team and above
         color: "bg-blue-500",
 
     },
@@ -53,7 +53,7 @@ export const navigationItems = [
         description: "View and manage feature requests",
         icon: FileText,
         element: FeaturesPage,
-        access: 99, // Product team and above
+        access: 9, // Product team and above
         color: "bg-green-500",
 
     },
@@ -63,7 +63,7 @@ export const navigationItems = [
         description: "View and manage UI/UX designs",
         icon: Figma,
         element: UiUxPage,
-        access: 99, // Product team and above
+        access: 10, // Product team and above
         color: "bg-green-500",
 
     },
@@ -308,7 +308,8 @@ export const userRoles = [
     { role: "Bluesound Manager", access: 3, team:"BLS" },
     { role: "Bluesound Pro Manager", access: 3, team:"BPR" },
     { role: "NAD Manager", access: 3, team:"NAD" },
-    { role: "PSB Manager", access: 3, team:"PSB" }
+    { role: "PSB Manager", access: 3, team:"PSB" },
+    { role: "UI/UX Designer", access: 10 }
 ]
 
 export const defaultBrands = [
