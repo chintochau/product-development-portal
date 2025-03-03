@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo, useCallback, memo } from 'react'
 import {
   Card,
   CardContent,
@@ -65,26 +65,121 @@ import ProductDropdown from './feature-page-components/ProductDropdown'
 import { useProducts } from '../contexts/productsContext'
 import { defaultPlatforms } from '../constant'
 import PriorityDropdown from './feature-page-components/PriorityDropdown'
+import TimelineProgress, { uiuxSteps } from './uiux-page-components/UIUXProgressBar'
+import FrameWraper from './frameWarper'
+import { CreateFeatureDialog } from './FeaturesPage'
+
+// Memoized components to prevent unnecessary re-renders
+const MemoizedProductDropdown = memo(ProductDropdown)
+const MemoizedPriorityDropdown = memo(PriorityDropdown)
+const MemoizedTimelineProgress = memo(TimelineProgress)
+
+// Memoized StatusBadge component
+const StatusBadge = memo(({ status }) => {
+  if (!status) return null;
+
+  const colors = {
+    todo: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
+    'in-progress': 'bg-blue-200 text-blue-800 hover:bg-blue-300',
+    review: 'bg-purple-200 text-purple-800 hover:bg-purple-300',
+    completed: 'bg-green-200 text-green-800 hover:bg-green-300'
+  };
+
+  return (
+    <Badge className={colors[status] || 'bg-gray-200'}>
+      {status
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')}
+    </Badge>
+  );
+});
+
+// Memoized TableRow component to prevent re-renders of unchanged rows
+const RequestTableRow = memo(({ request, onUpdate, onDelete }) => {
+  const handleProductChange = useCallback(
+    (product) => onUpdate(request.id, { product }), 
+    [request.id, onUpdate]
+  );
+  
+  const handlePriorityChange = useCallback(
+    (priority) => onUpdate(request.id, { priority }),
+    [request.id, onUpdate]
+  );
+
+  const handleDelete = useCallback(
+    () => onDelete(request.id),
+    [request.id, onDelete]
+  );
+
+  return (
+    <TableRow className="cursor-pointer hover:bg-gray-50">
+      <TableCell>
+        <MemoizedProductDropdown
+          product={request.product}
+          includingApps={true}
+          setProduct={handleProductChange}
+        />
+      </TableCell>
+      <TableCell>{request.title}</TableCell>
+      <TableCell className="text-muted-foreground whitespace-pre-line">
+        {request.description}
+      </TableCell>
+      <TableCell>
+        <MemoizedPriorityDropdown
+          priority={request.priority}
+          setPriority={handlePriorityChange}
+        />
+      </TableCell>
+      <TableCell><StatusBadge status={request.status} /></TableCell>
+      <TableCell><MemoizedTimelineProgress /></TableCell>
+      <TableCell>{request.by}</TableCell>
+      <TableCell>
+        <Trash2
+          className="cursor-pointer text-red-100 hover:opacity-70 size-4 transition-all hover:text-red-500"
+          onClick={handleDelete}
+        />
+      </TableCell>
+    </TableRow>
+  );
+});
+
+// Memoized StatCard component
+const StatCard = memo(({ title, value, percentage }) => (
+  <Card>
+    <CardHeader className="pb-2">
+      <CardTitle className="text-sm font-medium text-gray-500">{title}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="text-2xl font-bold">{value}</div>
+      {percentage !== undefined && (
+        <div className="text-xs text-gray-500">{percentage}% of total</div>
+      )}
+    </CardContent>
+  </Card>
+));
 
 const UiUxManagementDashboard = () => {
-  // Mock data - these would be replaced with your actual data fetching
+  // State
   const [requestFilter, setRequestFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedView, setSelectedView] = useState('list')
   const [showFilterDialog, setShowFilterDialog] = useState(false)
   const { uiuxRequests, loading, setLoading, setShouldRefresh } = useUiux()
 
-  // Filter and search logic
-  const filteredRequests = uiuxRequests.filter((request) => {
-    const matchesFilter = requestFilter === 'all' || request.status === requestFilter
-    const matchesSearch =
-      request.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      request.title?.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesFilter && matchesSearch
-  }).sort((a, b) => (a.priority ?? 99) - (b.priority ?? 99))
+  // Memoize filtered requests to prevent recalculation on every render
+  const filteredRequests = useMemo(() => {
+    return uiuxRequests.filter((request) => {
+      const matchesFilter = requestFilter === 'all' || request.status === requestFilter
+      const matchesSearch =
+        request.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        request.title?.toLowerCase().includes(searchQuery.toLowerCase())
+      return matchesFilter && matchesSearch
+    }).sort((a, b) => (a.priority ?? 99) - (b.priority ?? 99))
+  }, [uiuxRequests, requestFilter, searchQuery]);
 
-  // Statistics for dashboard
-  const stats = {
+  // Memoize statistics to prevent recalculation on every render
+  const stats = useMemo(() => ({
     totalRequests: uiuxRequests.length,
     inProgress: uiuxRequests.filter((r) => r.status === 'in-progress').length,
     completed: uiuxRequests.filter((r) => r.status === 'completed').length,
@@ -94,88 +189,52 @@ const UiUxManagementDashboard = () => {
       medium: uiuxRequests.filter((r) => r.priority === 'medium').length,
       low: uiuxRequests.filter((r) => r.priority === 'low').length
     }
-  }
+  }), [uiuxRequests]);
 
-  const handleCreateUiUxRequestIssue = async (newRequest) => {
+  // Memoized callback handlers to prevent new function creation on each render
+  const handleCreateUiUxRequestIssue = useCallback(async (newRequest) => {
     setLoading(true)
-    const response = await createUiUxRequestIssue(newRequest)
+    await createUiUxRequestIssue(newRequest)
     setShouldRefresh(true)
-  }
+  }, [setLoading, setShouldRefresh]);
 
-  const handleUpdateUiUxRequestIssue = async (id, newData) => {
+  const handleUpdateUiUxRequestIssue = useCallback(async (id, newData) => {
     const request = uiuxRequests.find((r) => r.id === id)
     if (!request || !newData) return
     setLoading(true)
-    const response = await updateUiUxRequestIssue(id, { ...request, ...newData })
+    await updateUiUxRequestIssue(id, { ...request, ...newData })
     setShouldRefresh(true)
-  }
-  const handleDeleteUiUxRequestIssue = async (id) => {
+  }, [uiuxRequests, setLoading, setShouldRefresh]);
+  
+  const handleDeleteUiUxRequestIssue = useCallback(async (id) => {
     setLoading(true)
-    const response = await deleteUiUxRequestIssue(id)
+    await deleteUiUxRequestIssue(id)
     setShouldRefresh(true)
-  }
+  }, [setLoading, setShouldRefresh]);
 
-  // Helper for rendering priority badges
-  const getPriorityBadge = (priority) => {
-    if (!priority) return null
-    const colors = {
-      critical: 'bg-red-500 hover:bg-red-600',
-      high: 'bg-orange-500 hover:bg-orange-600',
-      medium: 'bg-yellow-500 hover:bg-yellow-600',
-      low: 'bg-blue-500 hover:bg-blue-600'
-    }
+  // Handler for search input changes
+  const handleSearchChange = useCallback((e) => {
+    setSearchQuery(e.target.value)
+  }, []);
 
-    return (
-      <Badge className={colors[priority] || 'bg-gray-500'}>
-        {priority.charAt(0).toUpperCase() + priority.slice(1)}
-      </Badge>
-    )
-  }
+  // Handler for filter changes
+  const handleFilterChange = useCallback((value) => {
+    setRequestFilter(value)
+  }, []);
 
-  // Helper for rendering status badges
-  const getStatusBadge = (status) => {
-    if (!status) return null
+  // Handler for view changes
+  const handleViewChange = useCallback((view) => {
+    setSelectedView(view)
+  }, []);
 
-    const colors = {
-      todo: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
-      'in-progress': 'bg-blue-200 text-blue-800 hover:bg-blue-300',
-      review: 'bg-purple-200 text-purple-800 hover:bg-purple-300',
-      completed: 'bg-green-200 text-green-800 hover:bg-green-300'
-    }
+  // Handler for filter dialog
+  const handleFilterDialogToggle = useCallback((open) => {
+    setShowFilterDialog(open)
+  }, []);
 
-    return (
-      <Badge className={colors[status] || 'bg-gray-200'}>
-        {status
-          .split('-')
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ')}
-      </Badge>
-    )
-  }
-
-  // Helper for rendering source badges
-  const getSourceBadge = (source) => {
-    if (!source) return null
-    const colors = {
-      'uiux-db': 'bg-indigo-200 text-indigo-800 hover:bg-indigo-300',
-      gitlab: 'bg-orange-200 text-orange-800 hover:bg-orange-300',
-      'product-db': 'bg-teal-200 text-teal-800 hover:bg-teal-300'
-    }
-
-    return (
-      <Badge className={colors[source] || 'bg-gray-200'}>
-        {source === 'uiux-db'
-          ? 'UI/UX DB'
-          : source === 'product-db'
-            ? 'Product DB'
-            : source.charAt(0).toUpperCase() + source.slice(1)}
-      </Badge>
-    )
-  }
-
-  // Render the Kanban board view
-  const renderKanbanView = () => {
-    const columns = ['todo', 'in-progress', 'review', 'completed']
+  // Memoized render functions to prevent recalculation on every render
+  const renderKanbanView = useMemo(() => {
+    const columns = uiuxSteps
     const columnTitles = {
       todo: 'To Do',
       'in-progress': 'In Progress',
@@ -204,7 +263,7 @@ const UiUxManagementDashboard = () => {
                     <CardHeader className="p-3 pb-0">
                       <div className="flex justify-between">
                         <span className="text-xs text-gray-600">{request.id}</span>
-                        {getPriorityBadge(request.priority)}
+                        <StatusBadge status={request.priority} />
                       </div>
                       <CardTitle className="text-sm font-medium mt-1">{request.title}</CardTitle>
                     </CardHeader>
@@ -224,7 +283,7 @@ const UiUxManagementDashboard = () => {
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {request.tags.map((tag) => (
+                        {request.tags && request.tags.map((tag) => (
                           <Badge key={tag} variant="outline" className="text-xs px-1 py-0">
                             {tag}
                           </Badge>
@@ -246,440 +305,235 @@ const UiUxManagementDashboard = () => {
         ))}
       </div>
     )
-  }
+  }, [uiuxRequests]);
 
-  // Render the list view
-  const renderListView = () => {
-    return (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Product</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>References</TableHead>
-            <TableHead>Request Date</TableHead>
-            <TableHead>By</TableHead>
-            <TableHead></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {loading && (
-            <TableRow>
-              <TableCell colSpan={7}>
-                <div className="flex items-center justify-center">
-                  <Loader2 className="size-8 animate-spin" />
-                </div>
-              </TableCell>
-            </TableRow>
-          )}
-          {filteredRequests.map((request, index) => (
-            <TableRow key={request.id} className="cursor-pointer hover:bg-gray-50">
-              <TableCell>
-                <ProductDropdown
-                  product={request.product}
-                  includingApps={true}
-                  setProduct={(product) => handleUpdateUiUxRequestIssue(request.id, { product })}
-                />
-              </TableCell>
-              <TableCell>{request.title}</TableCell>
-              <TableCell className="text-muted-foreground  whitespace-pre-line">
-                {request.description}
-              </TableCell>
-              <TableCell>
-                <PriorityDropdown
-                  priority={request.priority}
-                  setPriority={(priority) => handleUpdateUiUxRequestIssue(request.id, { priority })}
-                />
-              </TableCell>
-              <TableCell>{getStatusBadge(request.status)}</TableCell>
-              <TableCell>{getSourceBadge(request.source)}</TableCell>
-              <TableCell>{request.by}</TableCell>
-              <TableCell>
-                <Trash2
-                  className="cursor-pointer text-red-100 hover:opacity-70 size-4 transition-all hover:text-red-500"
-                  onClick={() => handleDeleteUiUxRequestIssue(request.id)}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    )
-  }
-
-  // Render a simple stats dashboard
-  const renderStatsDashboard = () => {
+  // Memoized stats dashboard to prevent recalculation on every render
+  const renderStatsDashboard = useMemo(() => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Requests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalRequests}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">In Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.inProgress}</div>
-            <div className="text-xs text-gray-500">
-              {Math.round((stats.inProgress / stats.totalRequests) * 100)}% of total
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Completed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.completed}</div>
-            <div className="text-xs text-gray-500">
-              {Math.round((stats.completed / stats.totalRequests) * 100)}% of total
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Critical Priority</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.priority.critical}</div>
-            <div className="text-xs text-gray-500">
-              {Math.round((stats.priority.critical / stats.totalRequests) * 100)}% of total
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard 
+          title="Total Requests" 
+          value={stats.totalRequests} 
+        />
+        <StatCard 
+          title="In Progress" 
+          value={stats.inProgress} 
+          percentage={stats.totalRequests ? Math.round((stats.inProgress / stats.totalRequests) * 100) : 0} 
+        />
+        <StatCard 
+          title="Completed" 
+          value={stats.completed} 
+          percentage={stats.totalRequests ? Math.round((stats.completed / stats.totalRequests) * 100) : 0}
+        />
+        <StatCard 
+          title="Critical Priority" 
+          value={stats.priority.critical} 
+          percentage={stats.totalRequests ? Math.round((stats.priority.critical / stats.totalRequests) * 100) : 0}
+        />
       </div>
     )
-  }
+  }, [stats]);
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">UI/UX Request Management</h1>
-          <p className="text-gray-500">Manage and track design requests across all projects</p>
-        </div>
-
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowFilterDialog(true)}>
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-          </Button>
-          <CreateUIUXDialog onSubmit={handleCreateUiUxRequestIssue} />
-        </div>
-      </div>
-
-      {renderStatsDashboard()}
-
-      <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative w-full md:w-64">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search requests..."
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+    <FrameWraper>
+      <div className="container mx-auto p-4 ">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">UI/UX Request Management</h1>
+            <p className="text-gray-500">Manage and track design requests across all projects</p>
           </div>
-
-          <Select value={requestFilter} onValueChange={setRequestFilter}>
-            <SelectTrigger className="w-full md:w-40">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="todo">To Do</SelectItem>
-              <SelectItem value="in-progress">In Progress</SelectItem>
-              <SelectItem value="review">Review</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant={selectedView === 'kanban' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedView('kanban')}
-          >
-            <GitPullRequest className="h-4 w-4 mr-2" />
-            Kanban
-          </Button>
-          <Button
-            variant={selectedView === 'list' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedView('list')}
-          >
-            <BarChart2 className="h-4 w-4 mr-2" />
-            List
-          </Button>
-        </div>
-      </div>
-
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          {selectedView === 'kanban' ? renderKanbanView() : renderListView()}
-        </CardContent>
-      </Card>
-
-      {/* Advanced Filter Dialog */}
-      <Dialog open={showFilterDialog} onOpenChange={setShowFilterDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Advanced Filters</DialogTitle>
-            <DialogDescription>Filter UI/UX requests by multiple criteria.</DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="priority" className="text-right">
-                Priority
-              </Label>
-              <Select defaultValue="all">
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="All Priorities" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Priorities</SelectItem>
-                  <SelectItem value="critical">Critical</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="source" className="text-right">
-                Source
-              </Label>
-              <Select defaultValue="all">
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="All Sources" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sources</SelectItem>
-                  <SelectItem value="uiux-db">UI/UX Database</SelectItem>
-                  <SelectItem value="gitlab">GitLab</SelectItem>
-                  <SelectItem value="product-db">Product Database</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="assignee" className="text-right">
-                Assignee
-              </Label>
-              <Select defaultValue="all">
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="All Assignees" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Assignees</SelectItem>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                  <SelectItem value="jane">Jane Cooper</SelectItem>
-                  <SelectItem value="alex">Alex Morgan</SelectItem>
-                  <SelectItem value="maria">Maria Rodriguez</SelectItem>
-                  <SelectItem value="john">John Smith</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="dueDate" className="text-right">
-                Due Date
-              </Label>
-              <Select defaultValue="all">
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="All Dates" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Dates</SelectItem>
-                  <SelectItem value="overdue">Overdue</SelectItem>
-                  <SelectItem value="today">Due Today</SelectItem>
-                  <SelectItem value="this-week">Due This Week</SelectItem>
-                  <SelectItem value="next-week">Due Next Week</SelectItem>
-                  <SelectItem value="later">Due Later</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setShowFilterDialog(false)}>
-              Cancel
+  
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => handleFilterDialogToggle(true)}>
+              <Filter className="mr-2 h-4 w-4" />
+              Filters
             </Button>
-            <Button onClick={() => setShowFilterDialog(false)}>Apply Filters</Button>
+            <CreateFeatureDialog onSubmit={handleCreateUiUxRequestIssue} />
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+  
+        {renderStatsDashboard}
+  
+        <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative w-full md:w-64">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search requests..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+            </div>
+  
+            <Select value={requestFilter} onValueChange={handleFilterChange}>
+              <SelectTrigger className="w-full md:w-40">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="todo">To Do</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="review">Review</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+  
+          <div className="flex gap-2">
+            <Button
+              variant={selectedView === 'kanban' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleViewChange('kanban')}
+            >
+              <GitPullRequest className="h-4 w-4 mr-2" />
+              Kanban
+            </Button>
+            <Button
+              variant={selectedView === 'list' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleViewChange('list')}
+            >
+              <BarChart2 className="h-4 w-4 mr-2" />
+              List
+            </Button>
+          </div>
+        </div>
+  
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            {selectedView === 'kanban' ? renderKanbanView : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Priority</TableHead>
+                    <TableHead>References</TableHead>
+                    <TableHead>Stage</TableHead>
+                    <TableHead>By</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading && (
+                    <TableRow>
+                      <TableCell colSpan={8}>
+                        <div className="flex items-center justify-center">
+                          <Loader2 className="size-8 animate-spin" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {filteredRequests.map((request) => (
+                    <RequestTableRow
+                      key={request.id}
+                      request={request}
+                      onUpdate={handleUpdateUiUxRequestIssue}
+                      onDelete={handleDeleteUiUxRequestIssue}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+  
+        {/* Advanced Filter Dialog */}
+        <Dialog open={showFilterDialog} onOpenChange={handleFilterDialogToggle}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Advanced Filters</DialogTitle>
+              <DialogDescription>Filter UI/UX requests by multiple criteria.</DialogDescription>
+            </DialogHeader>
+  
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="priority" className="text-right">
+                  Priority
+                </Label>
+                <Select defaultValue="all">
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="All Priorities" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+  
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="source" className="text-right">
+                  Source
+                </Label>
+                <Select defaultValue="all">
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="All Sources" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sources</SelectItem>
+                    <SelectItem value="uiux-db">UI/UX Database</SelectItem>
+                    <SelectItem value="gitlab">GitLab</SelectItem>
+                    <SelectItem value="product-db">Product Database</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+  
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="assignee" className="text-right">
+                  Assignee
+                </Label>
+                <Select defaultValue="all">
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="All Assignees" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Assignees</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    <SelectItem value="jane">Jane Cooper</SelectItem>
+                    <SelectItem value="alex">Alex Morgan</SelectItem>
+                    <SelectItem value="maria">Maria Rodriguez</SelectItem>
+                    <SelectItem value="john">John Smith</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+  
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="dueDate" className="text-right">
+                  Due Date
+                </Label>
+                <Select defaultValue="all">
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="All Dates" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Dates</SelectItem>
+                    <SelectItem value="overdue">Overdue</SelectItem>
+                    <SelectItem value="today">Due Today</SelectItem>
+                    <SelectItem value="this-week">Due This Week</SelectItem>
+                    <SelectItem value="next-week">Due Next Week</SelectItem>
+                    <SelectItem value="later">Due Later</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+  
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => handleFilterDialogToggle(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => handleFilterDialogToggle(false)}>Apply Filters</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </FrameWraper>
   )
 }
 
 export default UiUxManagementDashboard
-
-const CreateUIUXDialog = ({ onSubmit }) => {
-  const [open, setOpen] = useState(false)
-  const [date, setDate] = useState(null)
-  const [selectedProduct, setSelectedProduct] = useState('')
-
-  const { products } = useProducts()
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // TODO: Form validation and data gathering
-    const formData = new FormData(e.target)
-    const featureData = Object.fromEntries(formData)
-    onSubmit(featureData)
-    setOpen(false)
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New UI/UX Request
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Create New UI/UX Request</DialogTitle>
-            <DialogDescription>Add a new UI/UX request to the list.</DialogDescription>
-          </DialogHeader>
-
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label className="text-right font-medium col-span-1">Product</label>
-
-            <Select name="product" value={selectedProduct} onValueChange={setSelectedProduct}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select product" />
-              </SelectTrigger>
-              <SelectContent>
-                {['Apps', ...defaultPlatforms].map((platform) => (
-                  <SelectItem key={platform} value={platform}>
-                    {platform}
-                  </SelectItem>
-                ))}
-                {products
-                  .filter((product) => product.bluos)
-                  .map((product) => (
-                    <SelectItem key={product.iid} value={product.iid.toString()}>
-                      {product.projectName}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-6 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="title" className="text-right font-medium col-span-1">
-                Title
-              </label>
-              <Input
-                id="title"
-                name="title"
-                placeholder="Feature title"
-                className="col-span-3"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="description" className="text-right font-medium col-span-1">
-                Description
-              </label>
-              <Textarea
-                id="description"
-                name="description"
-                placeholder="Describe the feature..."
-                className="col-span-3"
-                rows={3}
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="by" className="text-right font-medium col-span-1">
-                By
-              </label>
-              <Input
-                id="by"
-                name="by"
-                placeholder="Enter name..."
-                className="col-span-3"
-
-              />
-            </div>
-
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label className="text-right font-medium col-span-1">Type</label>
-              <div className="col-span-3 flex gap-4">
-                <div className="flex items-center">
-                  <input type="checkbox" id="app" name="app" className="mr-2" />
-                  <label htmlFor="app">App</label>
-                </div>
-                <div className="flex items-center">
-                  <input type="checkbox" id="hardware" name="hardware" className="mr-2" />
-                  <label htmlFor="hardware">Hardware</label>
-                </div>
-                <div className="flex items-center">
-                  <input type="checkbox" id="documentation" name="documentation" className="mr-2" />
-                  <label htmlFor="documentation">Documentation</label>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label className="text-right font-medium col-span-1">Start Date</label>
-              <div className="col-span-3">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, 'PPP') : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
-                  </PopoverContent>
-                </Popover>
-                <input type="hidden" name="startDate" value={date ? date.toISOString() : ''} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="estimate" className="text-right font-medium col-span-1">
-                Estimate (days)
-              </label>
-              <Input id="estimate" name="estimate" type="number" min="1" className="col-span-3" />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">Create Feature</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
