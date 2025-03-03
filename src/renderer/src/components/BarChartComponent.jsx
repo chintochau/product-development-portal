@@ -55,28 +55,31 @@ const BarChartComponent = ({ chartData, developerChart }) => {
   // Process developer-specific data
   if (developerChart) {
     const developerData = chartData.flatMap((item) => {
-      const developerStart = item.features.reduce((acc, feature) => (
-        Math.min(acc, feature.startDate ? feature.startDate : new Date())
+      // Combine features and adhoc tasks for start/end date calculations
+      const allTasks = [...item.features, ...item.adhoc];
+    
+      const developerStart = allTasks.reduce((acc, task) => (
+        Math.min(acc, task.startDate ? task.startDate : new Date().valueOf())
       ), Infinity);
-
-      const developerEnd = item.features.reduce((acc, feature) => (
-        feature.startDate && feature.estimate
-          ? Math.max(acc, dayjs(feature.startDate).add(feature.estimate, 'day').valueOf())
+    
+      const developerEnd = allTasks.reduce((acc, task) => (
+        task.startDate && task.estimate
+          ? Math.max(acc, dayjs(task.startDate).add(task.estimate, 'day').valueOf())
           : acc
       ), dayjs().add(1, 'day').valueOf());
-
+    
       const features = item.features.map((feature) => ({
         name: feature.title,
         period1: [feature.startDate || dayjs().valueOf(), dayjs(feature.startDate).add(feature.estimate, 'day').valueOf()],
         type: 'feature',
       }));
-
+    
       const adhocTasks = item.adhoc.map((task) => ({
         name: task.title,
         period1: [task.startDate || dayjs().valueOf(), dayjs(task.startDate).add(task.estimate, 'day').valueOf()],
         type: 'adhoc',
       }));
-
+    
       return [
         {
           name: item.developer?.name,

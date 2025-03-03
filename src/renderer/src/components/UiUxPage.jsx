@@ -408,86 +408,70 @@ const UiUxManagementDashboard = () => {
               </SelectContent>
             </Select>
           </div>
-
-          <div className="flex gap-2">
-            <Button
-              variant={selectedView === 'kanban' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleViewChange('kanban')}
-            >
-              <GitPullRequest className="h-4 w-4 mr-2" />
-              Kanban
-            </Button>
-            <Button
-              variant={selectedView === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleViewChange('list')}
-            >
-              <BarChart2 className="h-4 w-4 mr-2" />
-              List
-            </Button>
-          </div>
         </div>
+        <Tabs defaultValue="list">
+          <TabsList>
+            <TabsTrigger value="list">List</TabsTrigger>
+            <TabsTrigger value="kanban">Kanban</TabsTrigger>
+            <TabsTrigger value="gitlab">Gitlab</TabsTrigger>
+          </TabsList>
 
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            {selectedView === 'kanban' ? (
-              renderKanbanView
-            ) : (
-              <>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>References</TableHead>
-                      <TableHead>Stage</TableHead>
-                      <TableHead>By</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {loading && (
-                      <TableRow>
-                        <TableCell colSpan={8}>
-                          <div className="flex items-center justify-center">
-                            <Loader2 className="size-8 animate-spin" />
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {filteredRequests.map((request) => (
-                      <RequestTableRow
-                        key={request.id}
-                        request={request}
-                        onUpdate={handleUpdateUiUxRequestIssue}
-                        onDelete={handleDeleteUiUxRequestIssue}
-                      />
-                    ))}
-                  </TableBody>
-                </Table>
-                <div className="py-4" />
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead></TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Reference</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {uiuxTickets.map((ticket) => (
-                      <TicketRow key={ticket.id} ticket={ticket} isDesignTicket={true} />
-                    ))}
-                  </TableBody>
-                </Table>
-              </>
-            )}
-          </CardContent>
-        </Card>
+          <TabsContent value="list">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Priority</TableHead>
+                  <TableHead>References</TableHead>
+                  <TableHead>Stage</TableHead>
+                  <TableHead>By</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading && (
+                  <TableRow>
+                    <TableCell colSpan={8}>
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="size-8 animate-spin" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+                {filteredRequests.map((request) => (
+                  <RequestTableRow
+                    key={request.id}
+                    request={request}
+                    onUpdate={handleUpdateUiUxRequestIssue}
+                    onDelete={handleDeleteUiUxRequestIssue}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+
+          <TabsContent value="gitlab">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead></TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Reference</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {uiuxTickets.map((ticket) => (
+                  <TicketRow key={ticket.id} ticket={ticket} isDesignTicket={true} />
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+
+          <TabsContent value="kanban">{renderKanbanView}</TabsContent>
+        </Tabs>
 
         {/* Advanced Filter Dialog */}
         <Dialog open={showFilterDialog} onOpenChange={handleFilterDialogToggle}>

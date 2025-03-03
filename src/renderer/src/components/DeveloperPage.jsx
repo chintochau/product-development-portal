@@ -42,15 +42,6 @@ import FrameWraper from './frameWarper'
 import { useRoadmap } from '../contexts/roadmapConetxt'
 
 const DeveloperPage = () => {
-  const {
-    isSelected,
-    selectDeveloper,
-    selectedDevelopers,
-    tickets,
-    getTicketsForSelectedDevelopers,
-    loading
-  } = useDevelopers()
-  const [showStatusBar, setShowStatusBar] = React.useState(false)
   const { findProductsById } = useProducts()
   const { featuersByDevelopers } = useRoadmap()
 
@@ -60,78 +51,81 @@ const DeveloperPage = () => {
         <h1 className="text-2xl">Developers</h1>
         <BarChartComponent chartData={featuersByDevelopers} developerChart />
         <Table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-  <TableHeader className="bg-gray-100">
-    <TableRow>
-      <TableHead className="w-96 py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-        Developer
-      </TableHead>
-      <TableHead className="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-        Task Count
-      </TableHead>
-      <TableHead className="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-        Features
-      </TableHead>
-      <TableHead className="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-        Ad Hoc Tasks
-      </TableHead>
-      <TableHead className="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-        Status
-      </TableHead>
-    </TableRow>
-  </TableHeader>
-  <TableBody className="divide-y divide-gray-200">
-    {featuersByDevelopers?.map((developer) => (
-      <TableRow key={developer.developer?.id} className="hover:bg-gray-50 transition-colors">
-        <TableCell className="py-4 px-4 align-top">
-          <div className="flex items-center gap-3">
-            <img
-              src={developer.developer?.avatar_url}
-              alt={developer.developer?.name}
-              className="w-8 h-8 rounded-full"
-            />
-            <span className="font-medium text-gray-900">{developer.developer?.name}</span>
-          </div>
-        </TableCell>
-        <TableCell className="py-4 px-4 align-top text-gray-700">
-          {developer.features?.length + developer.adhoc?.length}
-        </TableCell>
-        <TableCell className="py-4 px-4 align-top">
-          {developer.features?.length > 0 ? (
-            developer.features.map((feature, idx) => (
-              <div key={feature.id + idx} className="flex flex-col gap-1 mb-2">
-                <span className="text-sm font-medium text-gray-900">
-                  {findProductsById(feature.product)}
-                </span>
-                <span className="text-sm text-gray-600">{feature.title}</span>
-              </div>
-            ))
-          ) : (
-            <span className="text-sm text-gray-500">No features assigned</span>
-          )}
-        </TableCell>
-        <TableCell className="py-4 px-4 align-top">
-          {developer.adhoc?.length > 0 ? (
-            developer.adhoc.map((task, idx) => (
-              <div key={task.id + idx} className="flex flex-col gap-1 mb-2">
-                <span className="text-sm font-medium text-gray-900">
-                  {findProductsById(task.product)}
-                </span>
-                <span className="text-sm text-gray-600">{task.title}</span>
-              </div>
-            ))
-          ) : (
-            <span className="text-sm text-gray-500">No ad hoc tasks</span>
-          )}
-        </TableCell>
-        <TableCell className="py-4 px-4 align-top">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-            Active
-          </span>
-        </TableCell>
-      </TableRow>
-    ))}
-  </TableBody>
-</Table>
+          <TableHeader className="bg-gray-100">
+            <TableRow>
+              <TableHead className="w-96 py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                Developer
+              </TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                Task Count
+              </TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                Features
+              </TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                Ad Hoc Tasks
+              </TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                Status
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-gray-200">
+            {featuersByDevelopers?.map((developer) => (
+              <TableRow
+                key={developer.developer?.id}
+                className="hover:bg-gray-50 transition-colors"
+              >
+                <TableCell className="py-4 px-4 align-top">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={developer.developer?.avatar_url}
+                      alt={developer.developer?.name}
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span className="font-medium text-gray-900">{developer.developer?.name}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="py-4 px-4 align-top text-gray-700">
+                  {developer.features?.length + developer.adhoc?.length}
+                </TableCell>
+                <TableCell className="py-4 px-4 align-top">
+                  {developer.features?.length > 0 ? (
+                    developer.features.map((feature, idx) => (
+                      <div key={feature.id + idx} className="flex flex-col gap-1 mb-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          {findProductsById(feature.product)}
+                        </span>
+                        <span className="text-sm text-gray-600">{feature.title}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-sm text-gray-500">No features assigned</span>
+                  )}
+                </TableCell>
+                <TableCell className="py-4 px-4 align-top">
+                  {developer.adhoc?.length > 0 ? (
+                    developer.adhoc.map((task, idx) => (
+                      <div key={task.id + idx} className="flex flex-col gap-1 mb-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          {findProductsById(task.product)}
+                        </span>
+                        <span className="text-sm text-gray-600">{task.title}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-sm text-gray-500">No ad hoc tasks</span>
+                  )}
+                </TableCell>
+                <TableCell className="py-4 px-4 align-top">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    Active
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
         <AdHocTasksTable />
       </div>
@@ -170,7 +164,7 @@ const AdHocTasksTable = () => {
         </TableHeader>
         <TableBody>
           {adhocTickets?.map((ticket, index) => (
-            <FeatureRow key={ticket.id} feature={ticket} index={index} />
+            <FeatureRow key={ticket.id} feature={ticket} index={index} adhoc />
           ))}
         </TableBody>
       </Table>
