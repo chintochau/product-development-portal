@@ -13,13 +13,13 @@ export const uiuxSteps = [
     "Deployment",
   ];
 
-const TimelineProgress = ({ initialStep = 0 }) => {
+const TimelineProgress = ({ step=0, onStepChange }) => {
 
   
   // Short labels for compact display
   const shortLabels = ["BL", "RQ", "WF", "UI", "DV", "TS", "DP"];
 
-  const [activeStep, setActiveStep] = useState(initialStep);
+  const [activeStep, setActiveStep] = useState(step);
 
   return (
     <div className="w-80">
@@ -50,7 +50,12 @@ const TimelineProgress = ({ initialStep = 0 }) => {
                 {uiuxSteps.map((step, index) => (
                   <button
                     key={index}
-                    onClick={() => setActiveStep(index)}
+                    onClick={() => {
+                      setActiveStep(index);
+                      if (onStepChange) {
+                        onStepChange(index);
+                      }
+                    }}
                     className="group flex flex-col items-center transform -translate-x-1/2"
                     style={{ 
                       left: `${(index / (uiuxSteps.length - 1)) * 100}%`,
@@ -83,7 +88,12 @@ const TimelineProgress = ({ initialStep = 0 }) => {
               <div 
                 key={index} 
                 className="flex items-center gap-2 p-1 rounded hover:bg-gray-50 cursor-pointer"
-                onClick={() => setActiveStep(index)}
+                onClick={() => {
+                  setActiveStep(index);
+                  if (onStepChange) {
+                    onStepChange(index);
+                  }
+                }}
               >
                 {index <= activeStep ? (
                   <CheckCircle className="h-4 w-4 text-blue-500" />

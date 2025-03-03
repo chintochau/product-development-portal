@@ -91,7 +91,6 @@ const TicketPage = () => {
   const [workflowStatus, setWorkflowStatus] = useState('all')
   const [sortBy, setSortBy] = useState('desc')
   const [lastRefreshed, setLastRefreshed] = useState(new Date())
-  const { milestones } = useSingleProduct()
 
   // Common milestone options for your projects
   const milestoneOptions = [
@@ -211,8 +210,6 @@ const TicketPage = () => {
       query.created_after = dateRange.from.toISOString()
       if (dateRange.to) query.created_before = dateRange.to.toISOString()
     }
-
-    console.log('Query:', query)
 
     return query
   }
@@ -772,7 +769,7 @@ export const StatusComponent = ({ ticket }) => {
 }
 
 // Ticket Row Component
-export const TicketRow = ({ ticket }) => {
+export const TicketRow = ({ ticket, isDesignTicket = false }) => {
   const ticketAge = () => {
     const created = new Date(ticket.created_at)
     const now = new Date()
@@ -799,6 +796,8 @@ export const TicketRow = ({ ticket }) => {
         </div>
         <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10"></div>
       </TableCell>
+      {!isDesignTicket && (
+        <>
       <TableCell>
         {ticket.author ? (
           <div className="flex items-center gap-2">
@@ -820,50 +819,53 @@ export const TicketRow = ({ ticket }) => {
         )}
       </TableCell>
 
-      <TableCell>
-        {ticket.assignee ? (
-          <div className="flex items-center gap-2">
-            {ticket.assignee.avatar_url ? (
-              <img
-                src={ticket.assignee.avatar_url}
-                alt={ticket.assignee.name}
-                className="w-6 h-6 rounded-full"
-              />
-            ) : (
-              <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-semibold">
-                {ticket.assignee.name.charAt(0).toUpperCase()}
+
+          <TableCell>
+            {ticket.assignee ? (
+              <div className="flex items-center gap-2">
+                {ticket.assignee.avatar_url ? (
+                  <img
+                    src={ticket.assignee.avatar_url}
+                    alt={ticket.assignee.name}
+                    className="w-6 h-6 rounded-full"
+                  />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-semibold">
+                    {ticket.assignee.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span>{ticket.assignee.name}</span>
               </div>
+            ) : (
+              <span className="text-muted-foreground text-sm">Unassigned</span>
             )}
-            <span>{ticket.assignee.name}</span>
-          </div>
-        ) : (
-          <span className="text-muted-foreground text-sm">Unassigned</span>
-        )}
-      </TableCell>
-      <TableCell>
-        {ticket.epic?.url ? (
-          <p
-            className="cursor-pointer hover:underline text-sm flex items-center"
-            onClick={() => window.open('https://gitlab.com/' + ticket.epic.url)}
-          >
-            <span className="inline-block w-2 h-2 rounded-full bg-purple-400 mr-2"></span>
-            {ticket.epic.title}
-          </p>
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
-        {ticket.milestone?.web_url ? (
-          <p
-            className="cursor-pointer hover:underline flex items-center"
-            onClick={() => window.open(ticket.milestone.web_url)}
-          >
-            <Calendar className="h-3 w-3 mr-1 opacity-70" />
-            <span className="text-sm">{ticket.milestone.title}</span>
-          </p>
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
-      </TableCell>
+          </TableCell>
+            </>
+          )}
+          <TableCell className="w-48">
+            {ticket.epic?.url ? (
+              <p
+                className="cursor-pointer hover:underline text-sm flex items-center"
+                onClick={() => window.open('https://gitlab.com/' + ticket.epic.url)}
+              >
+                <span className="inline-block w-2 h-2 rounded-full bg-purple-400 mr-2"></span>
+                {ticket.epic.title}
+              </p>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+            {ticket.milestone?.web_url ? (
+              <p
+                className="cursor-pointer hover:underline flex items-center"
+                onClick={() => window.open(ticket.milestone.web_url)}
+              >
+                <Calendar className="h-3 w-3 mr-1 opacity-70" />
+                <span className="text-sm">{ticket.milestone.title}</span>
+              </p>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+          </TableCell>
       <TableCell>
         <StatusComponent ticket={ticket} />
       </TableCell>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { getUiUxRequestIssues } from '../services/gitlabServices'
+import { getGroupIssuesWithQuery, getUiUxRequestIssues } from '../services/gitlabServices'
 import frontMatter from 'front-matter'
 
 const UiuxContext = createContext()
@@ -8,6 +8,17 @@ export const UiuxProvider = ({ children }) => {
   const [uiuxRequests, setUiuxRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [shouldRefresh, setShouldRefresh] = useState(true)
+  const [uiuxTickets,setUiuxTickets] = useState([])
+
+  const getUIUXTickets = async () => {
+    const response = await getGroupIssuesWithQuery({
+      assignee_id:10957472,
+      state:'opened',
+      per_page:100
+    })
+    
+    setUiuxTickets(response)
+  }
 
   useEffect(() => {
     const fetchUiux = async () => {
@@ -22,6 +33,7 @@ export const UiuxProvider = ({ children }) => {
       setShouldRefresh(false)
     }
     fetchUiux()
+    getUIUXTickets()
   }, [shouldRefresh])
 
   return (
@@ -32,7 +44,9 @@ export const UiuxProvider = ({ children }) => {
         loading,
         setLoading,
         shouldRefresh,
-        setShouldRefresh
+        setShouldRefresh,
+        uiuxTickets,
+        setUiuxTickets
       }}
     >
       {children}
