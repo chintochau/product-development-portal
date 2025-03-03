@@ -16,6 +16,11 @@ const SettingsPage = () => {
 
   const changelog = [
     {
+      version: '1.0.2',
+      date: '2025-03-3',
+      changes: ['UIUX Page added']
+    },
+    {
       version: '1.0.1',
       date: '2025-02-27',
       changes: ['Home Page added', 'In-App Update support added']

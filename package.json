@@ -1,6 +1,6 @@
 {
   "name": "product-development-portal",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "BluOS product development portal",
   "main": "./out/main/index.js",
   "author": "example.com",
