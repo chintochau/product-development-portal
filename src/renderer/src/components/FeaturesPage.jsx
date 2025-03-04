@@ -68,28 +68,38 @@ import { useRoadmap } from '../contexts/roadmapConetxt'
 import { useSidebar } from '../../../components/ui/sidebar'
 import { cn } from '../../../lib/utils'
 import FrameWraper from './frameWarper'
+import { createFeatureRequestIssue, deleteFeatureRequestIssue, updateFeatureRequestIssue } from '../services/gitlabServices'
 
 const FeatureManagementPortal = () => {
-  const { features } = useTickets()
+  const { features, setShouldRefresh } = useTickets()
   const { getFeatureEpics } = useSingleProduct()
   const { featureChartData, featuersByDevelopers } = useRoadmap()
   const [filter, setFilter] = useState('all')
   const [sortBy, setSortBy] = useState('newest')
   const [searchText, setSearchText] = useState('')
 
-  const createNewFeature = (featureData) => {
+  const createNewFeature = async (featureData) => {
     // TODO: Implement create feature functionality
     console.log('Creating new feature:', featureData)
+    const response = await createFeatureRequestIssue(featureData)
+    setShouldRefresh(true)
+    return response
   }
 
-  const updateFeature = (id, updatedData) => {
+  const updateFeature = async (id, updatedData) => {
     // TODO: Implement update feature functionality
     console.log('Updating feature:', id, updatedData)
+    const response = await updateFeatureRequestIssue(id, updatedData)
+    setShouldRefresh(true)
+    return response
   }
 
-  const deleteFeature = (id) => {
+  const deleteFeature = async (id) => {
     // TODO: Implement delete feature functionality
     console.log('Deleting feature:', id)
+    const response = await deleteFeatureRequestIssue(id)
+    setShouldRefresh(true)
+    return response
   }
 
   // Filter features based on selected filter
