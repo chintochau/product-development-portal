@@ -79,24 +79,18 @@ const FeatureManagementPortal = () => {
   const [searchText, setSearchText] = useState('')
 
   const createNewFeature = async (featureData) => {
-    // TODO: Implement create feature functionality
-    console.log('Creating new feature:', featureData)
     const response = await createFeatureRequestIssue(featureData)
     setShouldRefresh(true)
     return response
   }
 
   const updateFeature = async (id, updatedData) => {
-    // TODO: Implement update feature functionality
-    console.log('Updating feature:', id, updatedData)
     const response = await updateFeatureRequestIssue(id, updatedData)
     setShouldRefresh(true)
     return response
   }
 
   const deleteFeature = async (id) => {
-    // TODO: Implement delete feature functionality
-    console.log('Deleting feature:', id)
     const response = await deleteFeatureRequestIssue(id)
     setShouldRefresh(true)
     return response
@@ -111,6 +105,7 @@ const FeatureManagementPortal = () => {
       if (filter === 'software') return feature.type?.software
       return true
     })
+    .filter((feature) => feature.archived !== true)
 
   // Sort features based on selected sort method
   const sortedFeatures = [...filteredFeatures].sort((a, b) => {
@@ -208,6 +203,7 @@ const FeatureManagementPortal = () => {
             <TabsList >
               <TabsTrigger value="list">List View</TabsTrigger>
               <TabsTrigger value="grid">Grid View</TabsTrigger>
+              <TabsTrigger value="archived">Archived</TabsTrigger>
             </TabsList>
             <CreateFeatureDialog onSubmit={createNewFeature} />
           </div>
@@ -215,6 +211,13 @@ const FeatureManagementPortal = () => {
           <TabsContent value="list">
             <div className="flex flex-col gap-2 py-4">
               <AllFeatures features={sortedFeatures} />
+            </div>
+          </TabsContent>         
+          
+          
+          <TabsContent value="archived">
+            <div className="flex flex-col gap-2 py-4">
+              <AllFeatures features={features.filter((feature) => feature.archived === true)} />
             </div>
           </TabsContent>
 

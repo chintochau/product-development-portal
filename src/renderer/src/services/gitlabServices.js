@@ -36,6 +36,7 @@ const projectConfig = [
     { id: 8, name: "Desktop", project_id: DESKTOP_PROJECTID, color: "hsl(var(--chart-4))" },
 ];
 
+
 export function getProjectNamesAndIds(issues) {
     // Use a Map to ensure unique project names and IDs
     const projectMap = new Map();
@@ -81,6 +82,25 @@ export const getNameForProject = (id) => {
 import yaml from "js-yaml"
 import frontMatter from 'front-matter'
 import { toQueryString } from "../../../lib/utils"
+
+
+export const addLabelToTicket = async (label, ticketInfo) => {
+    const { iid, project_id } = ticketInfo
+    const issue = await window.api.gitlab(`projects/${project_id}/issues/${iid}`, "GET");
+    const labels = [...issue.labels, label]
+    const response = await window.api.gitlab(`projects/${project_id}/issues/${iid}?labels=${labels.join(",")}`, "PUT");
+    return response
+}
+
+export const removeLabelFromTicket = async (label, ticketInfo) => {
+    const { iid, project_id } = ticketInfo
+    const issue = await window.api.gitlab(`projects/${project_id}/issues/${iid}`, "GET");
+    const labels = [...issue.labels, label]
+    const response = await window.api.gitlab(`projects/${project_id}/issues/${iid}?labels=${labels.join(",")}`, "PUT");
+    return response
+
+}
+
 
 
 export const getProductsLog = async () => {
@@ -198,8 +218,8 @@ export const deleteNoteFromTicket = async (iid, noteId, project = PRODUCT_PROJEC
 export const uploadPIFFile = async (iid, file, fileUrl) => {
     console.log('file', file)
     console.log('fileUrl', fileUrl);
-    
-    let fileData,fileBuffer
+
+    let fileData, fileBuffer
     if (file) {
         fileBuffer = await file.arrayBuffer(); // Convert the file to an ArrayBuffer
         fileData = {

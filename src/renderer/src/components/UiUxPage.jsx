@@ -69,6 +69,7 @@ import TimelineProgress, { uiuxSteps } from './uiux-page-components/UIUXProgress
 import FrameWraper from './frameWarper'
 import { CreateFeatureDialog } from './FeaturesPage'
 import { TicketRow } from './TicketPage'
+import UIUXGitlabTicketsTable from './uiux-page-components/UIUXGitlabTicketsTable'
 
 // Memoized components to prevent unnecessary re-renders
 const MemoizedProductDropdown = memo(ProductDropdown)
@@ -97,7 +98,9 @@ const StatusBadge = memo(({ status }) => {
 })
 
 // Memoized TableRow component to prevent re-renders of unchanged rows
-const RequestTableRow = memo(({ request, onUpdate, onDelete }) => {
+const UIUXRequestTableRow = memo(({ request, onUpdate, onDelete }) => {
+  const { uiuxTickets } = useUiux()
+
   const handleProductChange = useCallback(
     (product) => onUpdate(request.id, { product }),
     [request.id, onUpdate]
@@ -115,8 +118,19 @@ const RequestTableRow = memo(({ request, onUpdate, onDelete }) => {
     [request.id, onUpdate]
   )
 
+  const ticketMap = useMemo(() => {
+    return new Map(uiuxTickets.map((ticket) => [ticket.id, ticket]))
+  }, [uiuxTickets])
+
+  const ticketTitles = useMemo(() => {
+    return request.gitlabTickets?.map((ticketId) => {
+      const ticket = ticketMap.get(ticketId)
+      return { ticket: ticket ? ticket.title : 'Unknown Ticket', url: ticket?.web_url }
+    })
+  }, [request.gitlabTickets, ticketMap])
+
   return (
-    <TableRow className="cursor-pointer hover:bg-gray-50">
+    <TableRow >
       <TableCell>
         <MemoizedProductDropdown
           product={request.product}
@@ -132,7 +146,18 @@ const RequestTableRow = memo(({ request, onUpdate, onDelete }) => {
         <MemoizedPriorityDropdown priority={request.priority} setPriority={handlePriorityChange} />
       </TableCell>
       <TableCell>
-        <StatusBadge status={request.status} />
+        <div className="flex flex-wrap gap-2">
+          {ticketTitles?.map((title, index) => (
+            <Badge
+              key={index}
+              variant="outline"
+              className="bg-blue-100 text-blue-800 hover:bg-blue-200 hover:underline cursor-pointer"
+              onClick={() => window.open(title.url)}
+            >
+              {title.ticket}
+            </Badge>
+          ))}
+        </div>
       </TableCell>
       <TableCell>
         <MemoizedTimelineProgress step={request.step} onStepChange={handleStepChange} />
@@ -243,11 +268,6 @@ const UiUxManagementDashboard = () => {
   // Handler for filter changes
   const handleFilterChange = useCallback((value) => {
     setRequestFilter(value)
-  }, [])
-
-  // Handler for view changes
-  const handleViewChange = useCallback((view) => {
-    setSelectedView(view)
   }, [])
 
   // Handler for filter dialog
@@ -410,11 +430,23 @@ const UiUxManagementDashboard = () => {
           </div>
         </div>
         <Tabs defaultValue="list">
-          <TabsList>
-            <TabsTrigger value="list">List</TabsTrigger>
-            <TabsTrigger value="kanban">Kanban</TabsTrigger>
-            <TabsTrigger value="gitlab">Gitlab</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-4">
+            <TabsList>
+              <TabsTrigger value="list">List</TabsTrigger>
+              {/* <TabsTrigger value="kanban">Kanban</TabsTrigger> */}
+              <TabsTrigger value="gitlab">Gitlab</TabsTrigger>
+            </TabsList>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setLoading(true)
+                setShouldRefresh(true)
+              }}
+            >
+              {!loading ? 'Refresh' : <Loader2 className="animate-spin" />}
+            </Button>
+          </div>
 
           <TabsContent value="list">
             <Table>
@@ -441,7 +473,7 @@ const UiUxManagementDashboard = () => {
                   </TableRow>
                 )}
                 {filteredRequests.map((request) => (
-                  <RequestTableRow
+                  <UIUXRequestTableRow
                     key={request.id}
                     request={request}
                     onUpdate={handleUpdateUiUxRequestIssue}
@@ -453,21 +485,11 @@ const UiUxManagementDashboard = () => {
           </TabsContent>
 
           <TabsContent value="gitlab">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead></TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Reference</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {uiuxTickets.map((ticket) => (
-                  <TicketRow key={ticket.id} ticket={ticket} isDesignTicket={true} />
-                ))}
-              </TableBody>
-            </Table>
+            <UIUXGitlabTicketsTable
+              tickets={uiuxTickets}
+              uiuxRequests={uiuxRequests}
+              handleUpdateUiUxRequestIssue={handleUpdateUiUxRequestIssue}
+            />
           </TabsContent>
 
           <TabsContent value="kanban">{renderKanbanView}</TabsContent>

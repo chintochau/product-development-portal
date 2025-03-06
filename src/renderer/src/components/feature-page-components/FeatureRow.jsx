@@ -9,7 +9,22 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { Calendar, Check, CheckCircle, Clock, Cross, DraftingCompass, Edit, Loader2, PlusCircle, ThumbsUp, Trash, Trash2, X, XCircle } from 'lucide-react'
+import {
+  Calendar,
+  Check,
+  CheckCircle,
+  Clock,
+  Cross,
+  DraftingCompass,
+  Edit,
+  Loader2,
+  PlusCircle,
+  ThumbsUp,
+  Trash,
+  Trash2,
+  X,
+  XCircle
+} from 'lucide-react'
 import { useDevelopers } from '../../contexts/developerContext'
 import { useTickets } from '../../contexts/ticketsContext'
 import { DeveloperDropdown } from '../DeveloperPage'
@@ -34,7 +49,15 @@ const FeatureRow = memo(({ feature, index }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [ticketUrl, setTicketUrl] = useState(feature?.ticket || '')
 
-  const { isAdhoc, changes, assignee_ids, id, product: initialProduct, priority: initialPriority, type: initialType } = feature || {}
+  const {
+    isAdhoc,
+    changes,
+    assignee_ids,
+    id,
+    product: initialProduct,
+    priority: initialPriority,
+    type: initialType
+  } = feature || {}
   const hasChanges = changes?.length > 0
   const [openChangeList, setOpenChangeList] = useState(false)
 
@@ -47,14 +70,16 @@ const FeatureRow = memo(({ feature, index }) => {
   const { user } = useUser()
 
   // Memoize expensive calculations
-  const developersList = useMemo(() => 
-    developers.filter((dev) => assignee_ids?.find((assignee) => assignee === dev.id)),
+  const developersList = useMemo(
+    () => developers.filter((dev) => assignee_ids?.find((assignee) => assignee === dev.id)),
     [developers, assignee_ids]
   )
 
   const changeStats = useMemo(() => {
-    let pendingChange = 0, approvedChange = 0, rejectedChange = 0
-    
+    let pendingChange = 0,
+      approvedChange = 0,
+      rejectedChange = 0
+
     if (changes && changes.length > 0) {
       changes.forEach((change) => {
         if (change.status === 'pending') pendingChange++
@@ -62,17 +87,20 @@ const FeatureRow = memo(({ feature, index }) => {
         else if (change.status === 'rejected') rejectedChange++
       })
     }
-    
+
     return { pendingChange, approvedChange, rejectedChange }
   }, [changes])
 
-  const isSelected = useCallback((id) => {
-    return selectedDevelopers.findIndex((dev) => dev.id === id) !== -1
-  }, [selectedDevelopers])
+  const isSelected = useCallback(
+    (id) => {
+      return selectedDevelopers.findIndex((dev) => dev.id === id) !== -1
+    },
+    [selectedDevelopers]
+  )
 
   const updateAssignees = useCallback(async () => {
     if (selectedDevelopers.length === 0) return
-    
+
     setLoading(true)
     try {
       await updateFeatureRequestIssue(
@@ -85,7 +113,7 @@ const FeatureRow = memo(({ feature, index }) => {
       )
       setShouldRefresh(true)
     } catch (error) {
-      console.error("Failed to update assignees:", error)
+      console.error('Failed to update assignees:', error)
     } finally {
       setLoading(false)
     }
@@ -93,57 +121,75 @@ const FeatureRow = memo(({ feature, index }) => {
 
   const handleDeleteTicket = useCallback(async () => {
     if (loading) return
-    
     setLoading(true)
     try {
       await deleteFeatureRequestIssue(id, isAdhoc ? 3 : 1)
       setShouldRefresh(true)
     } catch (error) {
-      console.error("Failed to delete ticket:", error)
+      console.error('Failed to delete ticket:', error)
     }
   }, [id, isAdhoc, loading, setLoading, setShouldRefresh])
 
-  const handleEstimateChange = useCallback(async (value) => {
+  const handleClosingTicket = useCallback(async () => {
     if (loading) return
-    
     setLoading(true)
     try {
-      await updateFeatureRequestIssue(
-        id,
-        {
-          ...feature,
-          estimate: value
-        },
-        isAdhoc ? 3 : 1
-      )
+      await updateFeatureRequestIssue(id, { ...feature, archived: true }, isAdhoc ? 3 : 1)
       setShouldRefresh(true)
     } catch (error) {
-      console.error("Failed to update estimate:", error)
+      console.error('Failed to close ticket:', error)
+    } finally {
+      setLoading(false)
     }
   }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
 
-  const handleDateChange = useCallback(async (value) => {
-    if (loading) return
-    
-    setLoading(true)
-    try {
-      await updateFeatureRequestIssue(
-        id,
-        {
-          ...feature,
-          startDate: value
-        },
-        isAdhoc ? 3 : 1
-      )
-      setShouldRefresh(true)
-    } catch (error) {
-      console.error("Failed to update date:", error)
-    }
-  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
+  const handleEstimateChange = useCallback(
+    async (value) => {
+      if (loading) return
+
+      setLoading(true)
+      try {
+        await updateFeatureRequestIssue(
+          id,
+          {
+            ...feature,
+            estimate: value
+          },
+          isAdhoc ? 3 : 1
+        )
+        setShouldRefresh(true)
+      } catch (error) {
+        console.error('Failed to update estimate:', error)
+      }
+    },
+    [id, feature, isAdhoc, loading, setLoading, setShouldRefresh]
+  )
+
+  const handleDateChange = useCallback(
+    async (value) => {
+      if (loading) return
+
+      setLoading(true)
+      try {
+        await updateFeatureRequestIssue(
+          id,
+          {
+            ...feature,
+            startDate: value
+          },
+          isAdhoc ? 3 : 1
+        )
+        setShouldRefresh(true)
+      } catch (error) {
+        console.error('Failed to update date:', error)
+      }
+    },
+    [id, feature, isAdhoc, loading, setLoading, setShouldRefresh]
+  )
 
   const saveEditing = useCallback(async () => {
     if (loading) return
-    
+
     setLoading(true)
     try {
       await updateFeatureRequestIssue(
@@ -157,7 +203,7 @@ const FeatureRow = memo(({ feature, index }) => {
       )
       setIsEditing(false)
     } catch (error) {
-      console.error("Failed to save edits:", error)
+      console.error('Failed to save edits:', error)
     } finally {
       setLoading(false)
     }
@@ -169,113 +215,133 @@ const FeatureRow = memo(({ feature, index }) => {
     setDescription(feature?.description)
   }, [feature])
 
-  const handleTicketChange = useCallback(async (value) => {
-    if (loading || !value) return
-    
-    setLoading(true)
-    try {
-      await updateFeatureRequestIssue(
-        id,
-        {
-          ...feature,
-          ticket: value
-        },
-        isAdhoc ? 3 : 1
-      )
-      setShouldRefresh(true)
-    } catch (error) {
-      console.error("Failed to update ticket:", error)
-    }
-  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
+  const handleTicketChange = useCallback(
+    async (value) => {
+      if (loading || !value) return
 
-  const handleProductChange = useCallback(async (value) => {
-    if (loading) return
-    
-    setLoading(true)
-    setProduct(value)
-    try {
-      await updateFeatureRequestIssue(
-        id,
-        {
-          ...feature,
-          product: value
-        },
-        isAdhoc ? 3 : 1
-      )
-      setShouldRefresh(true)
-    } catch (error) {
-      console.error("Failed to update product:", error)
-    }
-  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
+      setLoading(true)
+      try {
+        await updateFeatureRequestIssue(
+          id,
+          {
+            ...feature,
+            ticket: value
+          },
+          isAdhoc ? 3 : 1
+        )
+        setShouldRefresh(true)
+      } catch (error) {
+        console.error('Failed to update ticket:', error)
+      }
+    },
+    [id, feature, isAdhoc, loading, setLoading, setShouldRefresh]
+  )
 
-  const handlePriorityChange = useCallback(async (value) => {
-    if (loading) return
-    
-    setLoading(true)
-    setPriority(value)
-    try {
-      await updateFeatureRequestIssue(
-        id,
-        {
-          ...feature,
-          priority: value
-        },
-        isAdhoc ? 3 : 1
-      )
-      setShouldRefresh(true)
-    } catch (error) {
-      console.error("Failed to update priority:", error)
-    }
-  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
+  const handleProductChange = useCallback(
+    async (value) => {
+      if (loading) return
 
-  const handleTypeChange = useCallback(async (value) => {
-    if (loading) return
-    
-    setLoading(true)
-    setType(value)
-    try {
-      await updateFeatureRequestIssue(
-        id,
-        {
-          ...feature,
-          type: value
-        },
-        isAdhoc ? 3 : 1
-      )
-      setShouldRefresh(true)
-    } catch (error) {
-      console.error("Failed to update type:", error)
-    }
-  }, [id, feature, isAdhoc, loading, setLoading, setShouldRefresh])
+      setLoading(true)
+      setProduct(value)
+      try {
+        await updateFeatureRequestIssue(
+          id,
+          {
+            ...feature,
+            product: value
+          },
+          isAdhoc ? 3 : 1
+        )
+        setShouldRefresh(true)
+      } catch (error) {
+        console.error('Failed to update product:', error)
+      }
+    },
+    [id, feature, isAdhoc, loading, setLoading, setShouldRefresh]
+  )
 
-  const handleChangeRequestStatus = useCallback(async (changeIndex, newStatus) => {
-    if (loading) return
-    
-    setLoading(true)
-    const updatedChanges = feature.changes.map((change, index) =>
-      index === changeIndex
-        ? { ...change, status: newStatus, statusBy: user?.name, statusAt: dayjs().format("MMM DD, YYYY") }
-        : change
-    )
+  const handlePriorityChange = useCallback(
+    async (value) => {
+      if (loading) return
 
-    try {
-      await updateFeatureRequestIssue(
-        id,
-        {
-          ...feature,
-          changes: updatedChanges
-        },
-        isAdhoc ? 3 : 1
+      setLoading(true)
+      setPriority(value)
+      try {
+        await updateFeatureRequestIssue(
+          id,
+          {
+            ...feature,
+            priority: value
+          },
+          isAdhoc ? 3 : 1
+        )
+        setShouldRefresh(true)
+      } catch (error) {
+        console.error('Failed to update priority:', error)
+      }
+    },
+    [id, feature, isAdhoc, loading, setLoading, setShouldRefresh]
+  )
+
+  const handleTypeChange = useCallback(
+    async (value) => {
+      if (loading) return
+
+      setLoading(true)
+      setType(value)
+      try {
+        await updateFeatureRequestIssue(
+          id,
+          {
+            ...feature,
+            type: value
+          },
+          isAdhoc ? 3 : 1
+        )
+        setShouldRefresh(true)
+      } catch (error) {
+        console.error('Failed to update type:', error)
+      }
+    },
+    [id, feature, isAdhoc, loading, setLoading, setShouldRefresh]
+  )
+
+  const handleChangeRequestStatus = useCallback(
+    async (changeIndex, newStatus) => {
+      if (loading) return
+
+      setLoading(true)
+      const updatedChanges = feature.changes.map((change, index) =>
+        index === changeIndex
+          ? {
+              ...change,
+              status: newStatus,
+              statusBy: user?.name,
+              statusAt: dayjs().format('MMM DD, YYYY')
+            }
+          : change
       )
-      setShouldRefresh(true)
-    } catch (error) {
-      console.error("Failed to update change request status:", error)
-    }
-  }, [id, feature, user, isAdhoc, loading, setLoading, setShouldRefresh])
+
+      try {
+        await updateFeatureRequestIssue(
+          id,
+          {
+            ...feature,
+            changes: updatedChanges
+          },
+          isAdhoc ? 3 : 1
+        )
+        setShouldRefresh(true)
+      } catch (error) {
+        console.error('Failed to update change request status:', error)
+      }
+    },
+    [id, feature, user, isAdhoc, loading, setLoading, setShouldRefresh]
+  )
 
   const createChangeRequest = useCallback(async () => {
     if (loading) return
-    
+
     setLoading(true)
     setOpenChangeList(true)
     try {
@@ -298,33 +364,38 @@ const FeatureRow = memo(({ feature, index }) => {
       )
       setShouldRefresh(true)
     } catch (error) {
-      console.error("Failed to create change request:", error)
+      console.error('Failed to create change request:', error)
     }
   }, [id, feature, user, isAdhoc, loading, setLoading, setShouldRefresh])
 
   const toggleEditing = useCallback(() => {
-    setIsEditing(prev => !prev)
+    setIsEditing((prev) => !prev)
   }, [])
 
   const toggleChangeList = useCallback(() => {
-    setOpenChangeList(prev => !prev)
+    setOpenChangeList((prev) => !prev)
   }, [])
 
-  const handleDeveloperSelect = useCallback((id) => {
-    setSelectedDevelopers(prev => {
-      if (prev.findIndex(dev => dev.id === id) !== -1) {
-        return prev.filter(dev => dev.id !== id)
-      } else {
-        return [...prev, developers.find(dev => dev.id === id)]
-      }
-    })
-  }, [developers])
+  const handleDeveloperSelect = useCallback(
+    (id) => {
+      setSelectedDevelopers((prev) => {
+        if (prev.findIndex((dev) => dev.id === id) !== -1) {
+          return prev.filter((dev) => dev.id !== id)
+        } else {
+          return [...prev, developers.find((dev) => dev.id === id)]
+        }
+      })
+    },
+    [developers]
+  )
 
   const { pendingChange, approvedChange, rejectedChange } = changeStats
-  
+
   return (
     <>
       <TableRow className="group hover:bg-muted/10 transition-colors border-b border-muted">
+
+
         <TableCell className="py-4">
           <div className="flex items-center justify-between gap-4">
             {isEditing ? (
@@ -338,7 +409,7 @@ const FeatureRow = memo(({ feature, index }) => {
                     autoHeight
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Description</Label>
                   <Textarea
@@ -355,7 +426,11 @@ const FeatureRow = memo(({ feature, index }) => {
                     className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                     disabled={loading}
                   >
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
                     Save Changes
                   </Button>
                   <Button
@@ -372,13 +447,14 @@ const FeatureRow = memo(({ feature, index }) => {
             ) : (
               <>
                 <div className="flex-1 space-y-2">
+                  {feature.archived && <p className="text-sm text-muted-foreground">Archived : {dayjs(feature.updatedAt).format('MMM DD, YYYY')}</p>}
                   <h3 className="font-semibold text-primary/90 capitalize">{title}</h3>
-                  {description &&<p className="text-sm text-muted-foreground line-clamp-2">
-                    {description }
-                  </p>}
-                  
+                  {description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
+                  )}
+
                   {hasChanges && (
-                    <div 
+                    <div
                       className="flex items-center gap-2 mt-2 w-fit hover:bg-muted/50 rounded-full px-3 py-1 transition-colors cursor-pointer"
                       onClick={toggleChangeList}
                     >
@@ -457,11 +533,7 @@ const FeatureRow = memo(({ feature, index }) => {
 
         {/* Type Column */}
         <TableCell>
-          <FeatureTypeSelector 
-            type={type} 
-            handleTypeChange={handleTypeChange} 
-            rowIndex={index} 
-          />
+          <FeatureTypeSelector type={type} handleTypeChange={handleTypeChange} rowIndex={index} />
         </TableCell>
 
         {/* Ticket Column */}
@@ -475,7 +547,12 @@ const FeatureRow = memo(({ feature, index }) => {
               #{feature.ticket.split('/').pop()}
             </Button>
           ) : (
-            <form onSubmit={(e) => { e.preventDefault(); handleTicketChange(ticketUrl) }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleTicketChange(ticketUrl)
+              }}
+            >
               <div className="flex gap-2">
                 <Input
                   value={ticketUrl}
@@ -484,7 +561,11 @@ const FeatureRow = memo(({ feature, index }) => {
                   className="flex-1"
                 />
                 <Button size="icon" className="shrink-0" disabled={loading}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Check className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </form>
@@ -507,29 +588,44 @@ const FeatureRow = memo(({ feature, index }) => {
 
         <TableCell>
           <WithPermission requiredAccess={2}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-red-600 hover:bg-red-50"
-              onClick={handleDeleteTicket}
-              disabled={loading}
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            </Button>
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-green-600 hover:bg-green-50"
+                  onClick={handleClosingTicket}
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-600 hover:bg-red-50"
+                  onClick={handleDeleteTicket}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            )}
           </WithPermission>
         </TableCell>
       </TableRow>
 
       {/* Change Request Rows */}
-      {hasChanges && openChangeList && feature?.changes?.map((change, index) => (
-        <ChangeRequestRow
-          key={`change-${index}-${id}`}
-          change={change}
-          onChangeStatus={(status) => handleChangeRequestStatus(index, status)}
-          changeIndex={index}
-          feature={feature}
-        />
-      ))}
+      {hasChanges &&
+        openChangeList &&
+        feature?.changes?.map((change, index) => (
+          <ChangeRequestRow
+            key={`change-${index}-${id}`}
+            change={change}
+            onChangeStatus={(status) => handleChangeRequestStatus(index, status)}
+            changeIndex={index}
+            feature={feature}
+          />
+        ))}
     </>
   )
 })
@@ -541,62 +637,65 @@ const ChangeRequestRow = memo(({ change, onChangeStatus, feature, changeIndex })
     approved: { color: 'bg-emerald-100 text-emerald-800', icon: CheckCircle },
     rejected: { color: 'bg-red-100 text-red-800', icon: XCircle },
     draft: { color: 'bg-slate-100 text-slate-800', icon: DraftingCompass }
-  }[change.status];
+  }[change.status]
 
-  const [title, setTitle] = useState(change.title || '');
-  const [description, setDescription] = useState(change.description || '');
-  const { id, isAdhoc } = feature || {};
-  const { loading, setLoading, setShouldRefresh } = useTickets();
-  const { user } = useUser();
+  const [title, setTitle] = useState(change.title || '')
+  const [description, setDescription] = useState(change.description || '')
+  const { id, isAdhoc } = feature || {}
+  const { loading, setLoading, setShouldRefresh } = useTickets()
+  const { user } = useUser()
 
-  const StatusIcon = statusConfig.icon;
-  const isDraft = change.status === 'draft';
-  const isPending = change.status === 'pending';
-  const isAuthor = change.createdBy === user?.name;
+  const StatusIcon = statusConfig.icon
+  const isDraft = change.status === 'draft'
+  const isPending = change.status === 'pending'
+  const isAuthor = change.createdBy === user?.name
 
-  const handleChangeRequestUpdate = useCallback(async (data) => {
-    if (loading) return;
-    
-    setLoading(true);
-    try {
-      const updatedChanges = feature.changes.map((change, index) =>
-        index === changeIndex ? { ...change, ...data } : change
-      );
+  const handleChangeRequestUpdate = useCallback(
+    async (data) => {
+      if (loading) return
 
-      await updateFeatureRequestIssue(
-        id,
-        {
-          ...feature,
-          changes: updatedChanges
-        },
-        isAdhoc ? 3 : 1
-      );
-      setShouldRefresh(true);
-    } catch (error) {
-      console.error("Failed to update change request:", error);
-    }
-  }, [id, feature, changeIndex, isAdhoc, loading, setLoading, setShouldRefresh]);
+      setLoading(true)
+      try {
+        const updatedChanges = feature.changes.map((change, index) =>
+          index === changeIndex ? { ...change, ...data } : change
+        )
+
+        await updateFeatureRequestIssue(
+          id,
+          {
+            ...feature,
+            changes: updatedChanges
+          },
+          isAdhoc ? 3 : 1
+        )
+        setShouldRefresh(true)
+      } catch (error) {
+        console.error('Failed to update change request:', error)
+      }
+    },
+    [id, feature, changeIndex, isAdhoc, loading, setLoading, setShouldRefresh]
+  )
 
   const submitChangeRequest = useCallback(async () => {
     await handleChangeRequestUpdate({
       title,
       description,
       status: 'pending'
-    });
-  }, [handleChangeRequestUpdate, title, description]);
+    })
+  }, [handleChangeRequestUpdate, title, description])
 
   const handleChangeRequestDelete = useCallback(async () => {
-    if (loading) return;
-    
-    setLoading(true);
+    if (loading) return
+
+    setLoading(true)
     try {
-      const updatedChanges = feature.changes.filter((_, index) => index !== changeIndex);
-      await updateFeatureRequestIssue(id, { ...feature, changes: updatedChanges }, isAdhoc ? 3 : 1);
-      setShouldRefresh(true);
+      const updatedChanges = feature.changes.filter((_, index) => index !== changeIndex)
+      await updateFeatureRequestIssue(id, { ...feature, changes: updatedChanges }, isAdhoc ? 3 : 1)
+      setShouldRefresh(true)
     } catch (error) {
-      console.error("Failed to delete change request:", error);
+      console.error('Failed to delete change request:', error)
     }
-  }, [id, feature, changeIndex, isAdhoc, loading, setLoading, setShouldRefresh]);
+  }, [id, feature, changeIndex, isAdhoc, loading, setLoading, setShouldRefresh])
 
   return (
     <TableRow className="group hover:bg-muted/20 transition-colors border-b border-muted">
@@ -609,7 +708,7 @@ const ChangeRequestRow = memo(({ change, onChangeStatus, feature, changeIndex })
                 <h3 className="font-semibold text-lg">Change Request Draft</h3>
                 <span className="text-sm text-muted-foreground">by {user?.name}</span>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <Label className="text-sm font-medium mb-1 block">Title</Label>
@@ -640,7 +739,11 @@ const ChangeRequestRow = memo(({ change, onChangeStatus, feature, changeIndex })
                       disabled={loading}
                       className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                     >
-                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                      {loading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="h-4 w-4" />
+                      )}
                       Submit for Approval
                     </Button>
                     <Button
@@ -664,12 +767,10 @@ const ChangeRequestRow = memo(({ change, onChangeStatus, feature, changeIndex })
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      {dayjs(change.createdAt).format("MMM DD, YYYY")}
+                      {dayjs(change.createdAt).format('MMM DD, YYYY')}
                     </span>
                   </div>
-                  <span className="text-sm font-medium block mt-1">
-                    {change.createdBy}
-                  </span>
+                  <span className="text-sm font-medium block mt-1">{change.createdBy}</span>
                 </div>
 
                 <div className="space-y-3">
@@ -680,14 +781,16 @@ const ChangeRequestRow = memo(({ change, onChangeStatus, feature, changeIndex })
                 </div>
 
                 <div className="space-y-2">
-                  <div className={`${statusConfig.color} inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm`}>
+                  <div
+                    className={`${statusConfig.color} inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm`}
+                  >
                     <StatusIcon className="h-4 w-4" />
                     <span className="capitalize">{change.status}</span>
                   </div>
                   {change.statusBy && (
                     <div className="text-sm text-muted-foreground space-y-1">
                       <p>By {change.statusBy}</p>
-                      <p>{dayjs(change.statusAt).format("MMM DD, YYYY")}</p>
+                      <p>{dayjs(change.statusAt).format('MMM DD, YYYY')}</p>
                     </div>
                   )}
                 </div>
@@ -700,7 +803,11 @@ const ChangeRequestRow = memo(({ change, onChangeStatus, feature, changeIndex })
                     disabled={loading}
                     className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
                     Approve
                   </Button>
                   <Button
@@ -732,9 +839,9 @@ const ChangeRequestRow = memo(({ change, onChangeStatus, feature, changeIndex })
       </TableCell>
     </TableRow>
   )
-});
+})
 
-FeatureRow.displayName = 'FeatureRow';
-ChangeRequestRow.displayName = 'ChangeRequestRow';
+FeatureRow.displayName = 'FeatureRow'
+ChangeRequestRow.displayName = 'ChangeRequestRow'
 
-export default FeatureRow;
+export default FeatureRow
