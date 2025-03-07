@@ -14,6 +14,7 @@ import { RoadmapProvider } from './contexts/roadmapConetxt'
 import { ProjectsProvider } from './contexts/projecstContext'
 import { AuthPermissionWrapper } from './contexts/permissionContext'
 import { UiuxProvider } from './contexts/uiuxContext'
+import { AnalyticsProvider } from './contexts/analyticsContext'
 
 function App() {
   return (
@@ -31,8 +32,10 @@ function App() {
                             <UiuxProvider>
                               <ProjectsProvider>
                                 <RoadmapProvider>
-                                  <AppSidebar />
-                                  <Layout />
+                                  <AnalyticsProvider>
+                                    <AppSidebar />
+                                    <Layout />
+                                  </AnalyticsProvider>
                                 </RoadmapProvider>
                               </ProjectsProvider>
                             </UiuxProvider>

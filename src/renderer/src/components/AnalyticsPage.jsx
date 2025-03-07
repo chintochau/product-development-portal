@@ -35,6 +35,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { Badge } from '../../../components/ui/badge'
 import { Progress } from '../../../components/ui/progress'
 import PlanningDetail from './analytics-page-components/PlanningDetail'
+import { useAnalytics } from '../contexts/analyticsContext'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -42,7 +43,7 @@ dayjs.extend(relativeTime)
 const AnalyticsPage = () => {
   const [issues, setIssues] = useState([])
 
-  const [selectedPlan, setSelectedPlan] = useState(null)
+  const { selectedPlan, setSelectedPlan } = useAnalytics()
 
   const getMilestonePlanning = async () => {
     const response = await getMilestonePlanningIssues()
@@ -81,7 +82,8 @@ const AnalyticsPage = () => {
           </TableBody>
         </Table>
       </div>
-      <PlanningDetail selectedPlan={selectedPlan} />
+
+      <PlanningDetail/>
     </FrameWraper>
   )
 }
@@ -89,14 +91,15 @@ const AnalyticsPage = () => {
 export default AnalyticsPage
 
 const PlanningRow = ({ issue, setSelectedPlan }) => {
-  const { milestones } = useSingleProduct()
-  const sortedMilestones = milestones.sort((a, b) => a.project_id - b.project_id)
+  const { allMilestones } = useAnalytics()
+
+  const sortedMilestones = allMilestones?.sort((a, b) => a.project_id - b.project_id)
   const [selectedMilestone, setSelectedMilestone] = useState(issue.milestoneId)
 
   const udpatePlanInfo = async (noteId, milestoneId) => {
     setSelectedMilestone(milestoneId)
 
-    const milestoneInfo = milestones.find((milestone) => milestone.id === milestoneId)
+    const milestoneInfo = allMilestones.find((milestone) => milestone.id === milestoneId)
 
     const response = await updateMilestonePlanningIssue(noteId, {
       milestoneProjectId: milestoneInfo.project_id,
@@ -118,7 +121,7 @@ const PlanningRow = ({ issue, setSelectedPlan }) => {
             <SelectItem value={null} className="text-muted-foreground">
               -
             </SelectItem>
-            {sortedMilestones.map((milestone) => (
+            {sortedMilestones?.map((milestone) => (
               <SelectItem key={milestone.id} value={milestone.id}>
                 <div className="flex items-center">
                   <p className="text-muted-foreground">{getNameForProject(milestone.project_id)}</p>

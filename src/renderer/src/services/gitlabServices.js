@@ -265,6 +265,19 @@ export const getMilestones = async () => {
     return data
 }
 
+export const getAllMilestones = async() => {
+
+    // get updatedAfter from six months ago
+    const updatedAfter = new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const firmware = await window.api.gitlab(`projects/${FIRMWARE_PROJECTID}/milestones?per_page=15&updated_after=${updatedAfter}`, "GET");
+    const ios = await window.api.gitlab(`projects/${IOS_PROJECTID}/milestones?per_page=15&updated_after=${updatedAfter}`, "GET");
+    const android = await window.api.gitlab(`projects/${ANDROID_PROJECTID}/milestones?per_page=15&updated_after=${updatedAfter}`, "GET");
+    const desktop = await window.api.gitlab(`projects/${DESKTOP_PROJECTID}/milestones?per_page=15&updated_after=${updatedAfter}`, "GET");
+    const data = [...firmware, ...ios, ...android, ...desktop]
+    return data
+}
+
 export const getIssuesFromMilestone = async (projectid, milestoneId) => {
     const data = await window.api.gitlab(`projects/${projectid}/milestones/${milestoneId}/issues?per_page=100`, "GET");
     return data
