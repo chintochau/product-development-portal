@@ -596,7 +596,6 @@ const ProjectAnalytics = ({ tickets }) => {
                 <TableHead>Tickets</TableHead>
                 <TableHead>Commits</TableHead>
                 <TableHead>Avg Cycle</TableHead>
-                <TableHead>Test Fail %</TableHead>
                 <TableHead>Doing (days)</TableHead>
                 <TableHead>Review (days)</TableHead>
                 <TableHead>Testing (days)</TableHead>
@@ -614,11 +613,7 @@ const ProjectAnalytics = ({ tickets }) => {
                     </span>
                   </TableCell>
                   <TableCell>{dev.averageCycleCount}</TableCell>
-                  <TableCell
-                    className={parseFloat(dev.failRatio) > 20 ? 'text-red-500' : 'text-green-500'}
-                  >
-                    {dev.failRatio}%
-                  </TableCell>
+
                   <TableCell>{dev.doingDays.toFixed(1)}</TableCell>
                   <TableCell>{dev.reviewDays.toFixed(1)}</TableCell>
                   <TableCell>{dev.testingDays.toFixed(1)}</TableCell>

@@ -20,68 +20,20 @@ import {
   TableHead,
   TableCell
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue
-} from '@/components/ui/select'
-import { useSingleProduct } from '../../contexts/singleProductContext'
 
-import frontMatter from 'front-matter'
-import { cn, getColorForAuthor, timeAgo } from '@/lib/utils'
-import { StatusComponent } from '../TicketPage'
-
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import ProjectAnalytics from './ProjectAnalytics'
-import { MilestoneChart } from '../project-page/ProjectsPage'
 import { Input } from '../../../../components/ui/input'
 import { useAnalytics } from '../../contexts/analyticsContext'
-import { Clock, ExternalLink, GitCommit, User } from 'lucide-react'
 import AnalyticsTicketRow from './AnalyticsTicketRow'
 
 const PlanningDetail = () => {
-  const { allMilestones: milestones, selectedPlan, tickets, currentStatus } = useAnalytics()
+  const { allMilestones: milestones, selectedPlan, tickets, currentStatus, shouldRefres,setShouldRefresh } = useAnalytics()
   const { milestoneProjectId, milestoneId } = selectedPlan || {}
-  const [shouldRefresh, setShouldRefresh] = useState(true)
 
   const [statusFilter, setStatusFilter] = useState(null) // "open", "closed", or null
   const [assigneeFilter, setAssigneeFilter] = useState('')
   const [labelFilter, setLabelFilter] = useState('')
 
-  const childRefs = useRef([])
-  const handleSaveAll = async () => {
-    // Filter out null or undefined refs and collect analytics data
-    const allAnalyticsData = childRefs.current
-      .filter((ref) => ref !== null && ref !== undefined)
-      .map((ref) => {
-        const { ticket, getAnalyticsData } = ref || {}
-        const { iid, project_id, title, assignee } = ticket || {}
-
-        return {
-          iid,
-          project_id,
-          title,
-          analytics: getAnalyticsData()
-        }
-      })
-    const response = await updateMilestonePlanningIssue(selectedPlan.id, {
-      milestoneProjectId,
-      milestoneId,
-      tickets: allAnalyticsData
-    })
-    setShouldRefresh(true)
-  }
-
-  if (!selectedPlan) {
-    return null
-  }
 
   const milestoneName =
     getNameForProject(milestoneProjectId) +
@@ -169,7 +121,6 @@ const PlanningDetail = () => {
                 <AnalyticsTicketRow
                   key={ticket.iid}
                   ticket={ticket}
-                  ref={(el) => (childRefs.current[index] = el)}
                 />
               ))}
           </TableBody>

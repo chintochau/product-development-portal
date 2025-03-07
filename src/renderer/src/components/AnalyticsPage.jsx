@@ -1,13 +1,7 @@
-import React, { useEffect, useState, forwardRef, useImperativeHandle, useRef } from 'react'
-import {
-  createMilestonePlanningIssue,
-  getIssuesFromMilestone,
-  getLabelsFromTicket,
-  getMilestonePlanningIssues,
-  getNameForProject,
-  getNotesFromTicket,
-  updateMilestonePlanningIssue
-} from '../services/gitlabServices'
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui/tabs'
+import { getNameForProject } from '../services/gitlabServices'
 import FrameWraper from './frameWarper'
 import {
   Table,
@@ -17,23 +11,13 @@ import {
   TableHead,
   TableCell
 } from '../../../components/ui/table'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue
-} from '../../../components/ui/select'
-import { useSingleProduct } from '../contexts/singleProductContext'
-
-import frontMatter from 'front-matter'
-import { getColorForAuthor, timeAgo } from '../../../lib/utils'
+import { timeAgo } from '../../../lib/utils'
+import { ChartBarIcon, ListIcon } from 'lucide-react'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { Badge } from '../../../components/ui/badge'
-import { Progress } from '../../../components/ui/progress'
 import PlanningDetail from './analytics-page-components/PlanningDetail'
 import { useAnalytics } from '../contexts/analyticsContext'
 
@@ -41,99 +25,127 @@ dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
 const AnalyticsPage = () => {
-  const [issues, setIssues] = useState([])
+  const { setSelectedPlan, allMilestones, selectedPlan } = useAnalytics()
+  const [activeView, setActiveView] = useState('milestones') // "milestones" or "details"
 
-  const { selectedPlan, setSelectedPlan } = useAnalytics()
-
-  const getMilestonePlanning = async () => {
-    const response = await getMilestonePlanningIssues()
-    setIssues(
-      response?.map((item) => {
-        const attributes = frontMatter(item.body).attributes
-        return { ...item, ...attributes, iid: item.iid, url: item.web_url }
-      })
-    )
+  const handlePlanSelect = (plan) => {
+    setSelectedPlan(plan)
+    setActiveView('details')
   }
-
-  useEffect(() => {
-    getMilestonePlanning()
-  }, [])
-  const createPlanning = () => {
-    const response = createMilestonePlanningIssue()
-  }
-
   return (
     <FrameWraper>
-      <div className="px-4">
-        <h2 className="text-2xl">Analytics</h2>
-        <Button onClick={createPlanning}>Create</Button>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Plan</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Last Updated</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {issues.map((issue) => (
-              <PlanningRow key={issue.id} issue={issue} setSelectedPlan={setSelectedPlan} />
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <div className="px-2">
+        <div className="sticky top-7 z-50 bg-background flex items-center justify-between">
 
-      <PlanningDetail/>
+          <h2 className="text-3xl font-bold tracking-tight">Analytics Dashboard</h2>
+          {selectedPlan && (
+            <div className="flex gap-2 items-center">
+
+              <Button
+                variant={activeView === 'milestones' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveView('milestones')}
+                className="gap-2"
+              >
+                <ListIcon size={16} />
+                Milestones
+              </Button>
+
+              <Button
+                variant={activeView === 'details' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveView('details')}
+                className="gap-2"
+              >
+                <ChartBarIcon size={16} />
+                Plan Details
+              </Button>
+
+            </div>
+          )}
+        </div>
+
+
+        <div className="grid gap-6">
+          <AnimatePresence mode="wait">
+            {activeView === 'milestones' || !selectedPlan ? (
+              <motion.div
+                key="milestones"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Milestone</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Last Updated</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {allMilestones?.length > 0 ? (
+                      allMilestones.sort((a, b) => dayjs(b.updated_at).isAfter(dayjs(a.updated_at)) ? 1 : -1).map((issue) => (
+                        <MilestoneRow
+                          key={issue.id}
+                          issue={issue}
+                          onClick={handlePlanSelect}
+                          isSelected={selectedPlan?.id === issue.id}
+                        />
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
+                          No milestones available
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </motion.div>
+            ) : selectedPlan && activeView === 'details' ? (
+              <motion.div
+                key="details"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <PlanningDetail />
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
+      </div>
     </FrameWraper>
   )
 }
 
 export default AnalyticsPage
 
-const PlanningRow = ({ issue, setSelectedPlan }) => {
-  const { allMilestones } = useAnalytics()
-
-  const sortedMilestones = allMilestones?.sort((a, b) => a.project_id - b.project_id)
-  const [selectedMilestone, setSelectedMilestone] = useState(issue.milestoneId)
-
-  const udpatePlanInfo = async (noteId, milestoneId) => {
-    setSelectedMilestone(milestoneId)
-
-    const milestoneInfo = allMilestones.find((milestone) => milestone.id === milestoneId)
-
-    const response = await updateMilestonePlanningIssue(noteId, {
-      milestoneProjectId: milestoneInfo.project_id,
-      milestoneId: milestoneInfo.id
-    })
-  }
-
-  return (
-    <TableRow key={issue.id} onClick={() => setSelectedPlan(issue)} className="cursor-pointer">
-      <TableCell className="font-medium">
-        <Select
-          onValueChange={(value) => udpatePlanInfo(issue.id, value)}
-          value={selectedMilestone}
-        >
-          <SelectTrigger className="w-[180px] border-0 hover:underline">
-            <SelectValue placeholder="-" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={null} className="text-muted-foreground">
-              -
-            </SelectItem>
-            {sortedMilestones?.map((milestone) => (
-              <SelectItem key={milestone.id} value={milestone.id}>
-                <div className="flex items-center">
-                  <p className="text-muted-foreground">{getNameForProject(milestone.project_id)}</p>
-                  <p>{milestone.title}</p>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </TableCell>
-      <TableCell className="font-medium">{issue.created_at.split('T')[0]}</TableCell>
-      <TableCell className="font-medium">{timeAgo(issue.updated_at)}</TableCell>
-    </TableRow>
-  )
-}
+const MilestoneRow = ({ issue, onClick, isSelected }) => (
+  <TableRow
+    className={`cursor-pointer transition-all duration-150 border-b hover:bg-muted/50 
+      ${isSelected ? 'bg-primary/10 border-primary' : 'border-border'}`}
+    onClick={() =>
+      onClick({
+        milestoneId: issue.id,
+        milestoneProjectId: issue.project_id
+      })
+    }
+  >
+    <TableCell className="py-2 px-3 font-medium text-foreground">
+      <span className="text-xs text-muted-foreground">{getNameForProject(issue.project_id)}</span>  
+      <span className="text-sm">{issue.title}</span> 
+    </TableCell>
+    
+    <TableCell className="py-2 px-3 text-xs text-muted-foreground">
+      {timeAgo(issue.created_at)}
+    </TableCell>
+    
+    <TableCell className="py-2 px-3 text-xs text-muted-foreground">
+      {timeAgo(issue.updated_at)}
+    </TableCell>
+  </TableRow>
+)

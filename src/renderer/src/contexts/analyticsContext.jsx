@@ -96,7 +96,10 @@ export const AnalyticsProvider = ({ children }) => {
         selectedPlan,
         setSelectedPlan,
         tickets,
-        currentStatus
+        currentStatus,
+        shouldRefresh,
+        setShouldRefresh
+
       }}
     >
       {children}
