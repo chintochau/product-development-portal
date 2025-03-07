@@ -16,6 +16,12 @@ const SettingsPage = () => {
 
   const changelog = [
     {
+      version: '1.0.4',
+      date: '2025-03-6',
+      changes: ["improve UIUX page", "rework analytics page"
+      ]
+    },
+    {
       version: '1.0.2',
       date: '2025-03-3',
       changes: ['UIUX Page added']
@@ -111,8 +117,8 @@ const SettingsPage = () => {
                   <Loader2 className="animate-spin mr-2 h-4 w-4" />
                   {downloadMessage}</> :
                   <>
-                  <CloudDownload className="mr-2 h-4 w-4" />
-                  <p>Update Now</p>
+                    <CloudDownload className="mr-2 h-4 w-4" />
+                    <p>Update Now</p>
                   </>
                 }
               </Button>
