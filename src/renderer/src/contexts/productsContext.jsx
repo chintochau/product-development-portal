@@ -13,6 +13,7 @@ export const useProducts = () => {
 export const ProductsProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [products, setProducts] = useState([])
+  const [productsDict, setProductsDict] = useState({})
   const [productDataFromExcel, setProductDataFromExcel] = useState(null)
   const [shouldRefreshProducts, setShouldRefreshProducts] = useState(false)
   const { userRole } = usePermissions()
@@ -28,80 +29,84 @@ export const ProductsProvider = ({ children }) => {
         item['Project Name'].trim() !== ''
     )
     setProductDataFromExcel(filteredData)
-    setProducts(
-      data
-        .map((item) => {
-          const attributes = ticketToJSON(item)
-          if (attributes.useLookup) {
-            const lookupData = getDataFromExcel(toInteger(attributes.lookup), filteredData)
 
-            const {
-              Description,
-              Status,
-              Brand,
-              Note,
-              Show,
-              ['Project Name']: projectName,
-              ['Model #']: model,
-              Launch,
-              MP1,
-              BluOS,
-              ['PIF Date\nSubmitted']: pifDate,
-              ['PIF Date\nAccepted']: pifDateAccepted,
-              ['MP1 Date\nActual']: mp1DateActual,
-              ['Greenlight\nDate']: greenlightDate,
-              ['Greenlight\nTarget PM1']: greenlightTargetMPDate
-            } = lookupData || {}
+    const productData = data
+    .map((item) => {
+      const attributes = ticketToJSON(item)
+      if (attributes.useLookup) {
+        const lookupData = getDataFromExcel(toInteger(attributes.lookup), filteredData)
 
-            const isBluOS = BluOS === 'Yes'
-            return {
-              ...attributes,
-              description: isBluOS ? Description : 'Non BluOS Product',
-              status: Status,
-              brand: Brand,
-              bluos: isBluOS,
-              projectName,
-              model,
-              note: Note,
-              show: Show,
-              launch: Launch
-                ? dayjs(Launch).isValid()
-                  ? dayjs(Launch).format('YYYY-MM-DD')
-                  : null
-                : null,
-              mp1Date: MP1 ? (dayjs(MP1).isValid() ? dayjs(MP1).format('YYYY-MM-DD') : null) : null,
-              mp1DateActual: mp1DateActual
-                ? dayjs(mp1DateActual).isValid()
-                  ? dayjs(mp1DateActual).format('YYYY-MM-DD')
-                  : null
-                : null,
-              pifDate: pifDate
-                ? dayjs(pifDate).isValid()
-                  ? dayjs(pifDate).format('YYYY-MM-DD')
-                  : null
-                : null,
-              pifDateAccepted: pifDateAccepted
-                ? dayjs(pifDateAccepted).isValid()
-                  ? dayjs(pifDateAccepted).format('YYYY-MM-DD')
-                  : null
-                : null,
-              greenlightDate: greenlightDate
-                ? dayjs(greenlightDate).isValid()
-                  ? dayjs(greenlightDate).format('YYYY-MM-DD')
-                  : null
-                : null,
-              greenlightTargetMP: greenlightTargetMPDate
-                ? dayjs(greenlightTargetMPDate).isValid()
-                  ? dayjs(greenlightTargetMPDate).format('YYYY-MM-DD')
-                  : null
-                : null
-            }
-          } else {
-            return attributes
-          }
-        })
-        .filter((item) => (userRole.team ? item.brand?.startsWith(userRole.team) : true))
-    )
+        const {
+          Description,
+          Status,
+          Brand,
+          Note,
+          Show,
+          ['Project Name']: projectName,
+          ['Model #']: model,
+          Launch,
+          MP1,
+          BluOS,
+          ['PIF Date\nSubmitted']: pifDate,
+          ['PIF Date\nAccepted']: pifDateAccepted,
+          ['MP1 Date\nActual']: mp1DateActual,
+          ['Greenlight\nDate']: greenlightDate,
+          ['Greenlight\nTarget PM1']: greenlightTargetMPDate
+        } = lookupData || {}
+
+        const isBluOS = BluOS === 'Yes'
+        return {
+          ...attributes,
+          description: isBluOS ? Description : 'Non BluOS Product',
+          status: Status,
+          brand: Brand,
+          bluos: isBluOS,
+          projectName,
+          model,
+          note: Note,
+          show: Show,
+          launch: Launch
+            ? dayjs(Launch).isValid()
+              ? dayjs(Launch).format('YYYY-MM-DD')
+              : null
+            : null,
+          mp1Date: MP1 ? (dayjs(MP1).isValid() ? dayjs(MP1).format('YYYY-MM-DD') : null) : null,
+          mp1DateActual: mp1DateActual
+            ? dayjs(mp1DateActual).isValid()
+              ? dayjs(mp1DateActual).format('YYYY-MM-DD')
+              : null
+            : null,
+          pifDate: pifDate
+            ? dayjs(pifDate).isValid()
+              ? dayjs(pifDate).format('YYYY-MM-DD')
+              : null
+            : null,
+          pifDateAccepted: pifDateAccepted
+            ? dayjs(pifDateAccepted).isValid()
+              ? dayjs(pifDateAccepted).format('YYYY-MM-DD')
+              : null
+            : null,
+          greenlightDate: greenlightDate
+            ? dayjs(greenlightDate).isValid()
+              ? dayjs(greenlightDate).format('YYYY-MM-DD')
+              : null
+            : null,
+          greenlightTargetMP: greenlightTargetMPDate
+            ? dayjs(greenlightTargetMPDate).isValid()
+              ? dayjs(greenlightTargetMPDate).format('YYYY-MM-DD')
+              : null
+            : null
+        }
+      } else {
+        return attributes
+      }
+    })
+    .filter((item) => (userRole.team ? item.brand?.startsWith(userRole.team) : true))
+    setProducts(productData)
+    setProductsDict(productData.reduce((acc, product) => {
+      acc[product.iid] = product
+      return acc
+    }, {}))
     setLoading(false)
   }
 
@@ -147,7 +152,8 @@ export const ProductsProvider = ({ children }) => {
     shouldRefreshProducts,
     setShouldRefreshProducts,
     findProductsById,
-    productDataFromExcel
+    productDataFromExcel,
+    productsDict
   }
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>

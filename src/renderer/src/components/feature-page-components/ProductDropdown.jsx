@@ -15,6 +15,7 @@ const ProductDropdown = ({ product, setProduct, includingApps }) => {
   const { products } = useProducts()
   return (
     <Select
+      defaultValue="none"
       value={product}
       onValueChange={(value) => {
         setProduct(value)
@@ -24,7 +25,7 @@ const ProductDropdown = ({ product, setProduct, includingApps }) => {
         <SelectValue className="" placeholder="-" value={product} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={null} className="text-muted-foreground">
+        <SelectItem value="none" className="text-muted-foreground">
           -
         </SelectItem>
         {includingApps && (

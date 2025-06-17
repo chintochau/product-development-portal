@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useSingleProduct } from './singleProductContext'
-import { getGroupIssuesWithQuery } from '../services/gitlabServices'
+import { getGroupIssuesWithQuery, getProjects } from '../services/gitlabServices'
 import dayjs from 'dayjs'
 
 const ProjectsContext = createContext()
@@ -12,12 +11,38 @@ export const useProjects = () => {
 export const ProjectsProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [projects, setProjects] = useState([])
+  const [projectDict, setProjectDict] = useState({})
   const [weekIssues, setWeekIssues] = useState([])
   const [shouldRefresh, setShouldRefresh] = useState(true)
   const [issuesOpenedThisWeek, setIssuesOpenedThisWeek] = useState([])
   const [issuesClosedThisWeek, setIssuesClosedThisWeek] = useState([])
   const [issuesOpenedLastWeek, setIssuesOpenedLastWeek] = useState([])
   const [issuesClosedLastWeek, setIssuesClosedLastWeek] = useState([])
+
+
+  const fetchProjects = async () => {
+    setLoading(true)
+    try {
+      const projects = await getProjects()
+      // make the project array a dictionary
+      const projectDict = projects.reduce((acc, project) => {
+        acc[project.projectId] = project
+        return acc
+      }, {})
+      setProjects(projects)
+      setProjectDict(projectDict)
+    } catch (error) {
+      console.error('Failed to fetch projects:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProjects()
+  }, [])
+
+
   const getTicketsForRecentTwoWeeks = async () => {
     const createQuery = {
       created_after: dayjs().startOf('week').subtract(1, 'week').toDate(),
@@ -78,6 +103,8 @@ export const ProjectsProvider = ({ children }) => {
     }
   }, [weekIssues,shouldRefresh])
 
+
+
   const value = {
     loading,
     projects,
@@ -88,7 +115,8 @@ export const ProjectsProvider = ({ children }) => {
     issuesClosedThisWeek,
     issuesClosedLastWeek,
     setShouldRefresh,
-    shouldRefresh
+    shouldRefresh,
+    projectDict
   }
 
   return <ProjectsContext.Provider value={value}>{children}</ProjectsContext.Provider>

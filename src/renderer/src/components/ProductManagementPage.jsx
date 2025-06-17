@@ -6,7 +6,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import React, { useEffect } from 'react'
-import { createGitlabIssue, getProductsLog } from '../services/gitlabServices'
+import { createGitlabIssueInYamlFormat, getProductsLog } from '../services/gitlabServices'
 import { Button } from '@/components/ui/button'
 import { Link, useNavigate } from 'react-router-dom'
 import { CREATE_NEW_PRODUCT_ROUTE } from '../constant'

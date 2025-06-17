@@ -40,6 +40,7 @@ import { usePermissions, WithPermission } from '../../contexts/permissionContext
 import { useUser } from '../../contexts/userContext'
 import { Label } from '../../../../components/ui/label'
 import dayjs from 'dayjs'
+import NewTicketPopover from '../NewTicketPopover'
 
 const FeatureRow = memo(({ feature, index }) => {
   const { developers } = useDevelopers()
@@ -394,8 +395,6 @@ const FeatureRow = memo(({ feature, index }) => {
   return (
     <>
       <TableRow className="group hover:bg-muted/10 transition-colors border-b border-muted">
-
-
         <TableCell className="py-4">
           <div className="flex items-center justify-between gap-4">
             {isEditing ? (
@@ -447,7 +446,11 @@ const FeatureRow = memo(({ feature, index }) => {
             ) : (
               <>
                 <div className="flex-1 space-y-2">
-                  {feature.archived && <p className="text-sm text-muted-foreground">Archived : {dayjs(feature.updatedAt).format('MMM DD, YYYY')}</p>}
+                  {feature.archived && (
+                    <p className="text-sm text-muted-foreground">
+                      Archived : {dayjs(feature.updatedAt).format('MMM DD, YYYY')}
+                    </p>
+                  )}
                   <h3 className="font-semibold text-primary/90 capitalize">{title}</h3>
                   {description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
@@ -554,12 +557,27 @@ const FeatureRow = memo(({ feature, index }) => {
               }}
             >
               <div className="flex gap-2">
-                <Input
-                  value={ticketUrl}
-                  onChange={(e) => setTicketUrl(e.target.value)}
-                  placeholder="Ticket URL"
-                  className="flex-1"
-                />
+                <div className="flex flex-col">
+                  <Input
+                    value={ticketUrl}
+                    onChange={(e) => setTicketUrl(e.target.value)}
+                    placeholder="Ticket URL"
+                    className="flex-1"
+                  />
+                  <NewTicketPopover
+                    context={{
+                      title: feature.title,
+                      description: description,
+                      priority: feature.priority,
+                      productId: feature.product
+                    }}
+                    onCreated={(ticketUrl) => {
+                      console.log('onCreated', ticketUrl)
+                      setTicketUrl(ticketUrl)
+                      handleTicketChange(ticketUrl)
+                    }}
+                  />
+                </div>
                 <Button size="icon" className="shrink-0" disabled={loading}>
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

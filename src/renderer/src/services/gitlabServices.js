@@ -61,7 +61,15 @@ export function getProjectNamesAndIds(issues) {
     return Array.from(projectMap.values()).sort((a, b) => a.id - b.id);
 }
 
-
+export const getProjects = async () => {
+    const data = [
+        {id: 1, name: "BluOS Firmware", projectId: FIRMWARE_PROJECTID, labels:["type::feature","BluOS","priority::high","workflow:: 1 to-do","stage::new"]},
+        {id: 2, name: "iOS", projectId: IOS_PROJECTID, labels:["type::feature","iOS","priority::normal","workflow:: 1 to-do","stage::new"]},
+        {id: 3, name: "Android", projectId: ANDROID_PROJECTID, labels:["type::feature", "Android","priority::normal","workflow:: 1 to-do","stage::new"]},
+        {id: 4, name: "Desktop", projectId: DESKTOP_PROJECTID, labels:["type::feature", "Desktop","priority::normal","workflow:: 1 to-do","stage::new"]},
+    ]
+    return data
+}
 
 
 export const getNameForProject = (id) => {
@@ -110,6 +118,14 @@ export const getProductsLog = async () => {
 
 
 export const createGitlabIssue = async (data, projectId = PRODUCT_PROJECTID) => {
+    const response = await window.api.gitlab(`projects/${projectId}/issues`, "POST", data);
+
+    console.log("createGitlabIssue",response);
+    
+    return response
+}
+
+export const createGitlabIssueInYamlFormat = async (data, projectId = PRODUCT_PROJECTID) => {
     const response = await window.api.gitlab(`projects/${projectId}/issues`, "POST", convertDataToTicketObject(data));
     return response
 }
