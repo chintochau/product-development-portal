@@ -16,6 +16,11 @@ const SettingsPage = () => {
 
   const changelog = [
     {
+      version: '1.0.5',
+      date: '2025-06-17',
+      changes: ['allow ticket creation from feature request']
+    },
+    {
       version: '1.0.4',
       date: '2025-03-6',
       changes: ["improve UIUX page", "rework analytics page"
