@@ -1,5 +1,8 @@
 # Release Notes
 
+## v1.0.5
+### Allow ticket creation efature
+
 ## v1.0.4
 ### improve UIUX page, improve analytics page
 

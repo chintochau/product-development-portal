@@ -14,6 +14,7 @@ import { useSingleProduct } from '../contexts/singleProductContext'
 import { useProducts } from '../contexts/productsContext'
 import ProductDropdown from './feature-page-components/ProductDropdown'
 import { toInteger } from 'lodash'
+import { WithPermission } from '../contexts/permissionContext'
 
 // The main popover component
 const NewTicketPopover = ({ context = {}, onCreated }) => {
@@ -57,12 +58,13 @@ const NewTicketPopover = ({ context = {}, onCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     const ticket = await createGitlabIssue({
       title,
       description,
       epic_id: selectedEpicId,
       labels: projectDict[selectedProject]?.labels || []
-    }, selectedProductId)
+    }, selectedProject)
     setSuccess(true)
     if (ticket?.web_url && onCreated) {
       onCreated(ticket.web_url)
@@ -108,7 +110,8 @@ const NewTicketPopover = ({ context = {}, onCreated }) => {
               rows={4}
               className="w-full p-2 border rounded min-h-[250px]"
             />
-            <Button
+            <WithPermission requiredAccess={2}>  
+              <Button
               variant="outline"
               className="mt-2"
               onClick={handleGenerateFeatureRequest}
@@ -116,6 +119,7 @@ const NewTicketPopover = ({ context = {}, onCreated }) => {
             >
               {loading ? 'Generating…' : 'Generate Feature Request'}
             </Button>
+            </WithPermission>
           </div>
 
           <div>
