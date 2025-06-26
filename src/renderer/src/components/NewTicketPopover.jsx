@@ -48,9 +48,11 @@ const NewTicketPopover = ({ context = {}, onCreated }) => {
     setLoading(true)
     setError('')
     try {
-      const aiDescription = await createFeatureTicket({ title, description, product: productsDict[selectedProductId].projectName })
+      const aiDescription = await createFeatureTicket({ title, description, product: productsDict[selectedProductId]?.projectName })
       setDescription(aiDescription)
+
     } catch (err) {
+      console.log(err)
       setError('Failed to generate description.')
     }
     setLoading(false)
