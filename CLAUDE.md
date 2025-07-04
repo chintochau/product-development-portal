@@ -8,6 +8,12 @@ This is the BluOS Product Development Portal - an Electron desktop application b
 
 **Note: This project is currently being migrated from JavaScript to TypeScript. See TYPESCRIPT_MIGRATION.md for progress tracking.**
 
+### TypeScript Migration Strategy
+- **New files**: Always create as `.ts` or `.tsx`
+- **Modified files**: Convert to TypeScript when making changes
+- **Priority conversions**: API files, contexts, and shared utilities
+- **Gradual migration**: Convert files as you work on them, not all at once
+
 ## Development Commands
 
 ```bash
