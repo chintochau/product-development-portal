@@ -63,15 +63,23 @@ npm run format       # Format code
 - **Electron 31** + React 18 + TypeScript
 - **Tailwind CSS** + shadcn/ui
 - **PostgreSQL** for data (migrating from GitLab)
-- **Express API** on port 3000/3001
 - **Firebase** for auth
+
+## Architecture
+**This is an Electron desktop application** - all backend operations run in the Electron main process:
+- PostgreSQL queries execute directly from main process
+- No separate Express/API server needed
+- IPC communication between main and renderer processes
+- All data operations go through `window.api` calls
+
+## Database Migration
+See `GITLAB_TO_POSTGRESQL_MIGRATION.md` for current migration progress and plan.
 
 ## Project Structure
 ```
 src/
 ├── @types/          # All type definitions
-├── main/            # Electron main process
+├── main/            # Electron main process (PostgreSQL runs here)
 ├── renderer/        # React app
-├── api/             # Express API server
 └── components/      # shadcn/ui components
 ```

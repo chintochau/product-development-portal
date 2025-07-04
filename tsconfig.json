@@ -15,7 +15,9 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/renderer/src/*"]
+      "@/*": ["src/renderer/src/*"],
+      "@/types": ["src/@types"],
+      "@/types/*": ["src/@types/*"]
     }
   },
   "include": [

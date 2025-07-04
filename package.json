@@ -21,7 +21,7 @@
     "db:init": "tsx database/init-db.ts",
     "db:reset": "tsx database/reset-db.ts",
     "db:migrate:products": "tsx database/migrations/migrate-products.ts",
-    "db:migrate:features": "tsx database/migrations/migrate-features.ts",
+    "db:migrate:features": "tsx database/migrations/migrate-features-v2.ts",
     "db:migrate:all": "npm run db:migrate:products && npm run db:migrate:features",
     "api:dev": "tsx watch api/server.ts",
     "api:build": "tsc --project api/tsconfig.json",
