@@ -22,7 +22,7 @@ import { Loader2 } from 'lucide-react'
 
 const UIUXGitlabTicketsTable = React.memo(
   ({ tickets, uiuxRequests, handleUpdateUiUxRequestIssue }) => {
-    const { assignTicketToTask,  loading } = useUiux()
+    const { assignTicketToTask, loading } = useUiux()
 
     const sortedUiuxRequests = useMemo(() => {
       return [...uiuxRequests].sort((a, b) => a.priority - b.priority)

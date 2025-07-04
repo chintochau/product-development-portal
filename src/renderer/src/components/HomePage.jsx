@@ -28,7 +28,7 @@ const HomePage = () => {
   const navigate = useNavigate()
   const { user } = useUser()
 
-  const {features} = useTickets()
+  const { features } = useTickets()
 
   // Navigation handler function
   const handleNavigation = (url) => {
@@ -151,7 +151,7 @@ const HomePage = () => {
                   <div
                     key={feature.id}
                     className="p-4 border rounded-lg"
-                  //   onClick={() => handleNavigation(`/features/${feature.id}`)}
+                    //   onClick={() => handleNavigation(`/features/${feature.id}`)}
                   >
                     <div className="flex justify-between items-center">
                       <h4 className="font-medium">{feature.title}</h4>
@@ -168,7 +168,7 @@ const HomePage = () => {
                 </button>
               </div>
             </div>
-  
+
             {/* Recent projects */}
             <div className=" rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-4">
@@ -203,7 +203,7 @@ const HomePage = () => {
               </div>
             </div>
           </div>
-        </WithPermission >
+        </WithPermission>
       </main>
     </div>
   )

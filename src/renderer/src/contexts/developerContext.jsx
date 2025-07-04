@@ -41,7 +41,7 @@ export const DeveloperProvider = ({ children }) => {
     for (const developer of selectedDevelopers) {
       const developerTickets = await getGroupIssuesForDeveloper(developer.id)
       allTickets.push(...developerTickets)
-      
+
       // check for duplicate tickets
       const uniqueTickets = allTickets.filter(
         (ticket, index) => allTickets.findIndex((t) => t.iid === ticket.iid) === index

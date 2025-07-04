@@ -27,13 +27,19 @@ import { useAnalytics } from '../../contexts/analyticsContext'
 import AnalyticsTicketRow from './AnalyticsTicketRow'
 
 const PlanningDetail = () => {
-  const { allMilestones: milestones, selectedPlan, tickets, currentStatus, shouldRefres,setShouldRefresh } = useAnalytics()
+  const {
+    allMilestones: milestones,
+    selectedPlan,
+    tickets,
+    currentStatus,
+    shouldRefres,
+    setShouldRefresh
+  } = useAnalytics()
   const { milestoneProjectId, milestoneId } = selectedPlan || {}
 
   const [statusFilter, setStatusFilter] = useState(null) // "open", "closed", or null
   const [assigneeFilter, setAssigneeFilter] = useState('')
   const [labelFilter, setLabelFilter] = useState('')
-
 
   const milestoneName =
     getNameForProject(milestoneProjectId) +
@@ -118,10 +124,7 @@ const PlanningDetail = () => {
             {filteredTickets
               .sort((a, b) => b.analytics?.totalCommits - a.analytics?.totalCommits)
               .map((ticket, index) => (
-                <AnalyticsTicketRow
-                  key={ticket.iid}
-                  ticket={ticket}
-                />
+                <AnalyticsTicketRow key={ticket.iid} ticket={ticket} />
               ))}
           </TableBody>
         </Table>

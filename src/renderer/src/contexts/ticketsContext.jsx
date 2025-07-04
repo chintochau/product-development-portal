@@ -23,8 +23,8 @@ export const TicketsProvider = ({ children }) => {
 
   const getFeatureRequests = async (page) => {
     setLoading(true)
-    const response = await getFeaturesRequestsIssues(page,1)
-    const adhoc = await getFeaturesRequestsIssues(page,3)
+    const response = await getFeaturesRequestsIssues(page, 1)
+    const adhoc = await getFeaturesRequestsIssues(page, 3)
     setAdhocTickets(
       adhoc?.map((item) => {
         const attributes = frontMatter(item.body).attributes
@@ -48,7 +48,6 @@ export const TicketsProvider = ({ children }) => {
       getFeatureRequests()
     }
   }, [shouldRefresh])
-
 
   const value = {
     loading,

@@ -1,46 +1,46 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Database, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Database, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 
 interface ConnectionInfo {
-  connected: boolean;
-  currentTime?: Date;
-  version?: string;
-  database?: string;
-  host?: string;
-  port?: number;
-  error?: string;
+  connected: boolean
+  currentTime?: Date
+  version?: string
+  database?: string
+  host?: string
+  port?: number
+  error?: string
 }
 
 export function PostgreSQLTest() {
-  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [tables, setTables] = useState<string[]>([]);
+  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [tables, setTables] = useState<string[]>([])
 
   const testConnection = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const result = await window.api.invoke('postgresql:test-connection');
-      setConnectionInfo(result);
-      
+      const result = await window.api.invoke('postgresql:test-connection')
+      setConnectionInfo(result)
+
       if (result.connected) {
         // Also check for existing tables
-        const tablesResult = await window.api.invoke('postgresql:check-tables');
+        const tablesResult = await window.api.invoke('postgresql:check-tables')
         if (tablesResult.success) {
-          setTables(tablesResult.tables || []);
+          setTables(tablesResult.tables || [])
         }
       }
     } catch (error) {
       setConnectionInfo({
         connected: false,
         error: error instanceof Error ? error.message : 'Unknown error'
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <Card className="w-full max-w-2xl">
@@ -49,16 +49,10 @@ export function PostgreSQLTest() {
           <Database className="h-5 w-5" />
           PostgreSQL Connection Test
         </CardTitle>
-        <CardDescription>
-          Test the connection to your PostgreSQL database
-        </CardDescription>
+        <CardDescription>Test the connection to your PostgreSQL database</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Button 
-          onClick={testConnection} 
-          disabled={loading}
-          className="w-full"
-        >
+        <Button onClick={testConnection} disabled={loading} className="w-full">
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -84,10 +78,20 @@ export function PostgreSQLTest() {
                 {connectionInfo.connected ? (
                   <>
                     <div className="text-sm space-y-1 text-muted-foreground">
-                      <p><strong>Database:</strong> {connectionInfo.database}</p>
-                      <p><strong>Host:</strong> {connectionInfo.host}:{connectionInfo.port}</p>
-                      <p><strong>PostgreSQL Version:</strong> {connectionInfo.version?.split('\n')[0]}</p>
-                      <p><strong>Server Time:</strong> {new Date(connectionInfo.currentTime!).toLocaleString()}</p>
+                      <p>
+                        <strong>Database:</strong> {connectionInfo.database}
+                      </p>
+                      <p>
+                        <strong>Host:</strong> {connectionInfo.host}:{connectionInfo.port}
+                      </p>
+                      <p>
+                        <strong>PostgreSQL Version:</strong>{' '}
+                        {connectionInfo.version?.split('\n')[0]}
+                      </p>
+                      <p>
+                        <strong>Server Time:</strong>{' '}
+                        {new Date(connectionInfo.currentTime!).toLocaleString()}
+                      </p>
                     </div>
                     {tables.length > 0 && (
                       <div className="mt-3">
@@ -99,9 +103,7 @@ export function PostgreSQLTest() {
                     )}
                   </>
                 ) : (
-                  <p className="text-sm text-red-600">
-                    Error: {connectionInfo.error}
-                  </p>
+                  <p className="text-sm text-red-600">Error: {connectionInfo.error}</p>
                 )}
               </AlertDescription>
             </div>
@@ -109,5 +111,5 @@ export function PostgreSQLTest() {
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

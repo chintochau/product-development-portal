@@ -36,11 +36,9 @@ const AnalyticsPage = () => {
     <FrameWraper>
       <div className="px-2">
         <div className="sticky top-7 z-50 bg-background flex items-center justify-between">
-
           <h2 className="text-3xl font-bold tracking-tight">Analytics Dashboard</h2>
           {selectedPlan && (
             <div className="flex gap-2 items-center">
-
               <Button
                 variant={activeView === 'milestones' ? 'default' : 'outline'}
                 size="sm"
@@ -60,11 +58,9 @@ const AnalyticsPage = () => {
                 <ChartBarIcon size={16} />
                 Plan Details
               </Button>
-
             </div>
           )}
         </div>
-
 
         <div className="grid gap-6">
           <AnimatePresence mode="wait">
@@ -86,14 +82,16 @@ const AnalyticsPage = () => {
                   </TableHeader>
                   <TableBody>
                     {allMilestones?.length > 0 ? (
-                      allMilestones.sort((a, b) => dayjs(b.updated_at).isAfter(dayjs(a.updated_at)) ? 1 : -1).map((issue) => (
-                        <MilestoneRow
-                          key={issue.id}
-                          issue={issue}
-                          onClick={handlePlanSelect}
-                          isSelected={selectedPlan?.id === issue.id}
-                        />
-                      ))
+                      allMilestones
+                        .sort((a, b) => (dayjs(b.updated_at).isAfter(dayjs(a.updated_at)) ? 1 : -1))
+                        .map((issue) => (
+                          <MilestoneRow
+                            key={issue.id}
+                            issue={issue}
+                            onClick={handlePlanSelect}
+                            isSelected={selectedPlan?.id === issue.id}
+                          />
+                        ))
                     ) : (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
@@ -136,14 +134,14 @@ const MilestoneRow = ({ issue, onClick, isSelected }) => (
     }
   >
     <TableCell className="py-2 px-3 font-medium text-foreground">
-      <span className="text-xs text-muted-foreground">{getNameForProject(issue.project_id)}</span>  
-      <span className="text-sm">{issue.title}</span> 
+      <span className="text-xs text-muted-foreground">{getNameForProject(issue.project_id)}</span>
+      <span className="text-sm">{issue.title}</span>
     </TableCell>
-    
+
     <TableCell className="py-2 px-3 text-xs text-muted-foreground">
       {timeAgo(issue.created_at)}
     </TableCell>
-    
+
     <TableCell className="py-2 px-3 text-xs text-muted-foreground">
       {timeAgo(issue.updated_at)}
     </TableCell>

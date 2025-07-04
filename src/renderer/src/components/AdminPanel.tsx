@@ -24,9 +24,8 @@ import { userRoles } from '../constant'
 import { PostgreSQLTest } from './PostgreSQLTest'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-
 const AdminPanel = () => {
-  const DEFAULT_ROLE = userRoles.find(role => role.role === 'User')?.role || ''
+  const DEFAULT_ROLE = userRoles.find((role) => role.role === 'User')?.role || ''
   const [allUsers, setAllUsers] = useState([])
   const [newUser, setNewUser] = useState({
     email: '',
@@ -61,12 +60,7 @@ const AdminPanel = () => {
 
     try {
       setIsLoading(true)
-      await window.api.createNewUser(
-        newUser.email,
-        newUser.password,
-        newUser.role,
-        newUser.name
-      )
+      await window.api.createNewUser(newUser.email, newUser.password, newUser.role, newUser.name)
       await getAllUsers()
       setNewUser({ email: '', name: '', role: DEFAULT_ROLE, password: '' })
       setError('')
@@ -80,86 +74,90 @@ const AdminPanel = () => {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h2 className="text-2xl font-semibold mb-6">Admin Panel</h2>
-      
+
       <Tabs defaultValue="users" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="users">User Management</TabsTrigger>
           <TabsTrigger value="database">Database Connection</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="users">
           <Table className="border rounded-lg">
-        <TableCaption className="my-4">User Management Dashboard (Only Visible to Admins & Platform Manager)</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="min-w-[200px]">Email</TableHead>
-            <TableHead className="min-w-[150px]">Name</TableHead>
-            <TableHead className="min-w-[150px]">Role</TableHead>
-            <TableHead className="min-w-[200px]">
-              <div className="flex justify-between items-center">
-                <span>Actions</span>
-                <RefreshCcw
-                  className={cn(
-                    'h-4 w-4 cursor-pointer transition-transform',
-                    isLoading && 'animate-spin'
-                  )}
-                  onClick={getAllUsers}
-                />
-              </div>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {allUsers.map((user) => (
-            <UserRow key={user.email} user={user} reloadUsers={getAllUsers} />
-          ))}
-          <TableRow className="bg-muted/50">
-            <TableCell>
-              <Input
-                placeholder="Email"
-                value={newUser.email}
-                onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
-                disabled={isLoading}
-              />
-            </TableCell>
-            <TableCell>
-              <Input
-                placeholder="Name"
-                value={newUser.name}
-                onChange={(e) => setNewUser(prev => ({ ...prev, name: e.target.value }))}
-                disabled={isLoading}
-              />
-            </TableCell>
-            <TableCell>
-              <RoleSelect
-                value={newUser.role}
-                onValueChange={(role) => setNewUser(prev => ({ ...prev, role }))}
-                disabled={isLoading}
-              />
-            </TableCell>
-            <TableCell>
-              <div className="flex gap-2">
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={newUser.password}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
-                  disabled={isLoading}
-                />
-                <Button
-                  onClick={createNewUser}
-                  disabled={isLoading || !newUser.email || !newUser.password}
-                >
-                  Create
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-      {error && <p className="mt-4 text-red-500">{error}</p>}
+            <TableCaption className="my-4">
+              User Management Dashboard (Only Visible to Admins & Platform Manager)
+            </TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="min-w-[200px]">Email</TableHead>
+                <TableHead className="min-w-[150px]">Name</TableHead>
+                <TableHead className="min-w-[150px]">Role</TableHead>
+                <TableHead className="min-w-[200px]">
+                  <div className="flex justify-between items-center">
+                    <span>Actions</span>
+                    <RefreshCcw
+                      className={cn(
+                        'h-4 w-4 cursor-pointer transition-transform',
+                        isLoading && 'animate-spin'
+                      )}
+                      onClick={getAllUsers}
+                    />
+                  </div>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {allUsers.map((user) => (
+                <UserRow key={user.email} user={user} reloadUsers={getAllUsers} />
+              ))}
+              <TableRow className="bg-muted/50">
+                <TableCell>
+                  <Input
+                    placeholder="Email"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser((prev) => ({ ...prev, email: e.target.value }))}
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    placeholder="Name"
+                    value={newUser.name}
+                    onChange={(e) => setNewUser((prev) => ({ ...prev, name: e.target.value }))}
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <RoleSelect
+                    value={newUser.role}
+                    onValueChange={(role) => setNewUser((prev) => ({ ...prev, role }))}
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      value={newUser.password}
+                      onChange={(e) =>
+                        setNewUser((prev) => ({ ...prev, password: e.target.value }))
+                      }
+                      disabled={isLoading}
+                    />
+                    <Button
+                      onClick={createNewUser}
+                      disabled={isLoading || !newUser.email || !newUser.password}
+                    >
+                      Create
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+          {error && <p className="mt-4 text-red-500">{error}</p>}
         </TabsContent>
-        
+
         <TabsContent value="database">
           <PostgreSQLTest />
         </TabsContent>

@@ -16,10 +16,10 @@ export const BrowsingProvider = ({ children }) => {
 
   useEffect(() => {
     if (productData) {
-      setPageTitle("- " + productData.projectName)
-    } 
-    
-    if (path.split("/").length === 2) {
+      setPageTitle('- ' + productData.projectName)
+    }
+
+    if (path.split('/').length === 2) {
       setPageTitle(null)
     }
   }, [path])

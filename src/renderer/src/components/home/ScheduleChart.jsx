@@ -33,8 +33,7 @@ const chartConfig = {
     color: 'hsl(var(--background))'
   }
 }
-const ScheduleChart = ({products}) => {
-
+const ScheduleChart = ({ products }) => {
   const [chartData, setChartData] = useState([])
 
   useEffect(() => {
@@ -76,43 +75,43 @@ const ScheduleChart = ({products}) => {
     }
   }, [products])
   return (
-        <ChartContainer
-          config={chartConfig}
-          style={{ height: Math.min(chartData.length * 40,550), width: '100%' }}
-        >
-          <BarChart
-            data={chartData}
-            margin={{ top: 20, right: 20, bottom: 20, left: 5 }}
-            layout="vertical"
-          >
-            <YAxis dataKey="projectName" type="category" width={150} />
-            <XAxis
-              type="number"
-              domain={[dayjs().subtract(14, 'day').valueOf(), dayjs().add(14, 'day').valueOf()]}
-              tickFormatter={(day) => dayjs(day).format('MM-YYYY')}
-            />
+    <ChartContainer
+      config={chartConfig}
+      style={{ height: Math.min(chartData.length * 40, 550), width: '100%' }}
+    >
+      <BarChart
+        data={chartData}
+        margin={{ top: 20, right: 20, bottom: 20, left: 5 }}
+        layout="vertical"
+      >
+        <YAxis dataKey="projectName" type="category" width={150} />
+        <XAxis
+          type="number"
+          domain={[dayjs().subtract(14, 'day').valueOf(), dayjs().add(14, 'day').valueOf()]}
+          tickFormatter={(day) => dayjs(day).format('MM-YYYY')}
+        />
 
-            <ChartTooltip
-              content={<ToolTipConpoment />}
-              formatter={(_, __, item) =>
-                `${dayjs(item.value[1]).format('MM-YYYY')} to ${dayjs(item.value[0]).format('MM-YYYY')}`
-              }
-            />
+        <ChartTooltip
+          content={<ToolTipConpoment />}
+          formatter={(_, __, item) =>
+            `${dayjs(item.value[1]).format('MM-YYYY')} to ${dayjs(item.value[0]).format('MM-YYYY')}`
+          }
+        />
 
-            <Bar dataKey="period2" fill="lightBlue" layout="vertical" radius={5} />
-            <ReferenceLine
-              x={dayjs().valueOf()} // Today's timestamp
-              stroke="hsl(var(--primary))" // Line color
-              strokeDasharray="3 3" // Optional: dashed line style
-              label={{
-                value: `Today: ${dayjs().format('D-MM-YYYY')}`,
-                position: 'top',
-                fill: 'hsl(var(--primary))',
-                fontSize: 12
-              }}
-            />
-          </BarChart>
-        </ChartContainer>
+        <Bar dataKey="period2" fill="lightBlue" layout="vertical" radius={5} />
+        <ReferenceLine
+          x={dayjs().valueOf()} // Today's timestamp
+          stroke="hsl(var(--primary))" // Line color
+          strokeDasharray="3 3" // Optional: dashed line style
+          label={{
+            value: `Today: ${dayjs().format('D-MM-YYYY')}`,
+            position: 'top',
+            fill: 'hsl(var(--primary))',
+            fontSize: 12
+          }}
+        />
+      </BarChart>
+    </ChartContainer>
   )
 }
 

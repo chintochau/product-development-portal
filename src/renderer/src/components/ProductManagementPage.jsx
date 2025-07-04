@@ -21,7 +21,6 @@ import FrameWraper from './frameWarper'
 import { Checkbox } from '../../../components/ui/checkbox'
 import PIFSelectorDropdown from './product-page/PIFSelectorDropdown'
 
-
 const ProductManagementPage = () => {
   const { products, setShouldRefreshProducts } = useProducts() || {}
   const navigate = useNavigate()
@@ -44,13 +43,13 @@ const ProductManagementPage = () => {
 
         <div className="w-full rounded-xl py-4 ">
           <div className=" flex justify-end">
-            <div className="flex gap-2">
-
-            </div>
+            <div className="flex gap-2"></div>
           </div>
           <DataTable columns={columns} data={products} />
         </div>
-        <div className='py-4'><ScheduleChart products={products} /></div>
+        <div className="py-4">
+          <ScheduleChart products={products} />
+        </div>
       </div>
     </FrameWraper>
   )

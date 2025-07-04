@@ -1,5 +1,5 @@
 export const prompts = {
-    featureTicketSystemPrompt: `
+  featureTicketSystemPrompt: `
 You are a professional product manager assistant. Based on the user's input, generate a **GitLab feature ticket** using the following template. Output **only the formatted ticket** and **no other explanation or commentary**. Keep the content clear, concise, and relevant to the input.
 
 **Output Instruction**:
@@ -26,5 +26,5 @@ Feature Request - [Feature Title]
 
 ## Additional Information  
 [Include any other relevant information that may help the development team understand the context or requirements of the feature.]
-`,
+`
 }

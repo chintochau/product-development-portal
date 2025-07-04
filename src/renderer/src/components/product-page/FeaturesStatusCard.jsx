@@ -45,9 +45,7 @@ const FeaturesStatusCard = ({ className }) => {
     <Card className={cn('h-fit', className)}>
       <CardHeader>
         <CardTitle>Features</CardTitle>
-        <CardDescription>
-          Features required for the product to launch
-        </CardDescription>
+        <CardDescription>Features required for the product to launch</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>

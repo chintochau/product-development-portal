@@ -46,35 +46,35 @@ const Layout = ({ children }) => {
       }}
     >
       <WithPermission requiredAccess={99} fallback={<Login />}>
-          <div className="flex items-center sticky top-0 z-50 bg-background border-b">
-            <div className="flex items-center">
-              <SidebarTrigger />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  {currentPath.split('/').length > 1 &&
-                    currentPath.split('/').map((path, index) => (
-                      <Fragment key={path}>
-                        <BreadcrumbItem>
-                          <BreadcrumbLink asChild>
-                            <Link
-                              to={currentPath
-                                .split('/')
-                                .slice(0, index + 1)
-                                .join('/')}
-                            >
-                              {path}
-                            </Link>
-                          </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        {index !== 0 && index < currentPath.split('/').length - 1 && (
-                          <BreadcrumbSeparator />
-                        )}
-                      </Fragment>
-                    ))}
-                </BreadcrumbList>
-              </Breadcrumb>
-            </div>
+        <div className="flex items-center sticky top-0 z-50 bg-background border-b">
+          <div className="flex items-center">
+            <SidebarTrigger />
+            <Breadcrumb>
+              <BreadcrumbList>
+                {currentPath.split('/').length > 1 &&
+                  currentPath.split('/').map((path, index) => (
+                    <Fragment key={path}>
+                      <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                          <Link
+                            to={currentPath
+                              .split('/')
+                              .slice(0, index + 1)
+                              .join('/')}
+                          >
+                            {path}
+                          </Link>
+                        </BreadcrumbLink>
+                      </BreadcrumbItem>
+                      {index !== 0 && index < currentPath.split('/').length - 1 && (
+                        <BreadcrumbSeparator />
+                      )}
+                    </Fragment>
+                  ))}
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
+        </div>
         <Routes>
           {navigationItems.map((item) => (
             <Route
@@ -111,7 +111,7 @@ const Layout = ({ children }) => {
           <Route path="/dashboard/:id" element={<ProductDetailPage editMode />} />{' '}
           <Route path="/dashboard/:id/edit" element={<ProductEditPage editMode />} />
         </Routes>
-      </WithPermission >
+      </WithPermission>
     </ScrollArea>
   )
 }

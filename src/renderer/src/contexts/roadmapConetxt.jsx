@@ -25,7 +25,7 @@ export const RoadmapProvider = ({ children }) => {
   const { products } = useProducts()
   const { featureEpics } = useSingleProduct()
   const { developers } = useDevelopers()
-  const { features,adhocTickets } = useTickets()
+  const { features, adhocTickets } = useTickets()
 
   const [featuersByDevelopers, setFeaturesByDevelopers] = useState([])
   const [shouldLoadWrike, setShouldLoadWrike] = useState(false)
@@ -155,7 +155,7 @@ export const RoadmapProvider = ({ children }) => {
     if (features.length > 0 && developers.length > 0) {
       groupFeaturesByDevelopers()
     }
-  }, [features, developers,adhocTickets])
+  }, [features, developers, adhocTickets])
 
   // set Developers Chart Data
   useEffect(() => {
@@ -177,8 +177,8 @@ export const RoadmapProvider = ({ children }) => {
             )
           )
           let endDate = maxDate ? new Date(maxDate) : new Date()
-          
-          const features = [...item.features,...item.adhoc].map((feature) => {
+
+          const features = [...item.features, ...item.adhoc].map((feature) => {
             return {
               id: feature.id,
               name: feature.title,
@@ -189,7 +189,7 @@ export const RoadmapProvider = ({ children }) => {
               end: dayjs(feature.startDate)
                 .add(feature.estimate ? feature.estimate : 1, 'day')
                 .toDate(),
-              fill: feature.isAdhoc ? 'hsl(var(--chart-1))' : 'hsl(var(--chart-2))',
+              fill: feature.isAdhoc ? 'hsl(var(--chart-1))' : 'hsl(var(--chart-2))'
             }
           })
 
@@ -199,7 +199,7 @@ export const RoadmapProvider = ({ children }) => {
             name: item.developer?.name,
             start: startDate,
             end: endDate, // Date()
-            fill: 'transparent', 
+            fill: 'transparent',
             subTasks: features,
             overlaps: overlaps
           }
@@ -278,8 +278,8 @@ export const RoadmapProvider = ({ children }) => {
     // Example `developers` input:
     // [{ id: 1, name: 'John Doe', email: 'john@example.com' }, ...]
     // Create a lookup for developers by their IDs
-    const developerLookup = _.keyBy(developers, 'id');
-  
+    const developerLookup = _.keyBy(developers, 'id')
+
     // Flatten the features and associate them with their developers
     const featuresByDeveloper = features.flatMap((feature) =>
       feature.assignee_ids
@@ -289,8 +289,8 @@ export const RoadmapProvider = ({ children }) => {
             type: 'feature' // Add a type to distinguish between features and adhoc tasks
           }))
         : []
-    );
-  
+    )
+
     // Flatten the adhoc tasks and associate them with their developers
     const adhocFeaturesByDeveloper = adhocTickets.flatMap((feature) =>
       feature.assignee_ids
@@ -300,42 +300,48 @@ export const RoadmapProvider = ({ children }) => {
             type: 'adhoc' // Add a type to distinguish between features and adhoc tasks
           }))
         : []
-    );
-  
+    )
+
     // Combine features and adhoc tasks into a single array
-    const combinedFeatures = [...featuresByDeveloper, ...adhocFeaturesByDeveloper];
-  
+    const combinedFeatures = [...featuresByDeveloper, ...adhocFeaturesByDeveloper]
+
     // Group by developer
-    const groupedByDeveloper = _.groupBy(combinedFeatures, 'developer.id');
-  
+    const groupedByDeveloper = _.groupBy(combinedFeatures, 'developer.id')
+
     // Transform the grouped data into the desired output format
     const groupedFeatures = Object.values(groupedByDeveloper).map((group) => ({
       developer: group[0].developer,
-      features: group.filter((item) => item.type === 'feature').map((item) => item.feature).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)),
-      adhoc: group.filter((item) => item.type === 'adhoc').map((item) => item.feature).sort((a, b) => new Date(a.startDate) - new Date(b.startDate)),
-    }));
-  
+      features: group
+        .filter((item) => item.type === 'feature')
+        .map((item) => item.feature)
+        .sort((a, b) => new Date(a.startDate) - new Date(b.startDate)),
+      adhoc: group
+        .filter((item) => item.type === 'adhoc')
+        .map((item) => item.feature)
+        .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+    }))
+
     // Set the combined state
-    setFeaturesByDevelopers(groupedFeatures);
-  };
+    setFeaturesByDevelopers(groupedFeatures)
+  }
 
   // Function to calculate overlaps
   function calculateOverlaps(features) {
-    const events = [];
-  
+    const events = []
+
     // Create an array of events for start and end times
     features.forEach((task) => {
-      events.push({ time: task.start, type: 'start' });
-      events.push({ time: task.end, type: 'end' });
-    });
-  
+      events.push({ time: task.start, type: 'start' })
+      events.push({ time: task.end, type: 'end' })
+    })
+
     // Sort events by time, with "end" events coming before "start" events when they overlap
-    events.sort((a, b) => a.time - b.time || (a.type === 'end' ? -1 : 1));
-  
-    const result = [];
-    let currentOverlap = 0;
-    let lastTime = null;
-  
+    events.sort((a, b) => a.time - b.time || (a.type === 'end' ? -1 : 1))
+
+    const result = []
+    let currentOverlap = 0
+    let lastTime = null
+
     // Process events to calculate overlaps
     for (const event of events) {
       if (lastTime !== null && event.time > lastTime) {
@@ -344,21 +350,21 @@ export const RoadmapProvider = ({ children }) => {
           start: new Date(lastTime),
           end: new Date(event.time),
           overlap: currentOverlap
-        });
+        })
       }
-  
+
       // Update overlap count
       if (event.type === 'start') {
-        currentOverlap++;
+        currentOverlap++
       } else if (event.type === 'end') {
-        currentOverlap--;
+        currentOverlap--
       }
-  
+
       // Update the last processed time
-      lastTime = event.time;
+      lastTime = event.time
     }
-  
-    return result;
+
+    return result
   }
 
   const fetchDataFromWrike = async (taskData, taskIndex) => {

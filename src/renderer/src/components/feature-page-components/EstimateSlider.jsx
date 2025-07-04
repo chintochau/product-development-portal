@@ -56,9 +56,7 @@ const EstimateSlider = ({ days, setDays, startDate, setStartDate }) => {
             Estimate: <span className="font-bold text-primary">{estimate}</span>
           </p>
         ) : (
-          <p className="text-muted-foreground/60">
-            No Estimate
-          </p>
+          <p className="text-muted-foreground/60">No Estimate</p>
         )}
         <WithPermission requiredAccess={2}>
           <Slider

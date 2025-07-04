@@ -22,30 +22,30 @@ function App() {
       <Router>
         <ThemeProvider>
           <UserProvider>
-              <AuthPermissionWrapper>
-                <DeveloperProvider>
-                  <TicketsProvider>
-                    <ProductsProvider>
-                      <SingleProductProvider>
-                        <BrowsingProvider>
-                          <SidebarProvider>
-                            <UiuxProvider>
-                              <ProjectsProvider>
-                                <RoadmapProvider>
-                                  <AnalyticsProvider>
-                                    <AppSidebar />
-                                    <Layout />
-                                  </AnalyticsProvider>
-                                </RoadmapProvider>
-                              </ProjectsProvider>
-                            </UiuxProvider>
-                          </SidebarProvider>
-                        </BrowsingProvider>
-                      </SingleProductProvider>
-                    </ProductsProvider>
-                  </TicketsProvider>
-                </DeveloperProvider>
-              </AuthPermissionWrapper>
+            <AuthPermissionWrapper>
+              <DeveloperProvider>
+                <TicketsProvider>
+                  <ProductsProvider>
+                    <SingleProductProvider>
+                      <BrowsingProvider>
+                        <SidebarProvider>
+                          <UiuxProvider>
+                            <ProjectsProvider>
+                              <RoadmapProvider>
+                                <AnalyticsProvider>
+                                  <AppSidebar />
+                                  <Layout />
+                                </AnalyticsProvider>
+                              </RoadmapProvider>
+                            </ProjectsProvider>
+                          </UiuxProvider>
+                        </SidebarProvider>
+                      </BrowsingProvider>
+                    </SingleProductProvider>
+                  </ProductsProvider>
+                </TicketsProvider>
+              </DeveloperProvider>
+            </AuthPermissionWrapper>
           </UserProvider>
         </ThemeProvider>
       </Router>

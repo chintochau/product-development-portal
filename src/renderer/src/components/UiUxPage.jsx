@@ -130,7 +130,7 @@ const UIUXRequestTableRow = memo(({ request, onUpdate, onDelete }) => {
   }, [request.gitlabTickets, ticketMap])
 
   return (
-    <TableRow >
+    <TableRow>
       <TableCell>
         <MemoizedProductDropdown
           product={request.product}

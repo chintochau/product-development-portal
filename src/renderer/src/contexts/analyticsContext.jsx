@@ -99,7 +99,6 @@ export const AnalyticsProvider = ({ children }) => {
         currentStatus,
         shouldRefresh,
         setShouldRefresh
-
       }}
     >
       {children}
@@ -116,7 +115,6 @@ export const useAnalytics = () => useContext(AnalyticsContext)
  * @returns {Object[]} - Array of analyzed ticket data
  */
 function analyzeGitLabTickets(tickets) {
-
   const WORKFLOW_LABELS = {
     DOING: 'workflow:: 2 doing',
     REVIEW: 'workflow:: 3 review',
@@ -124,7 +122,7 @@ function analyzeGitLabTickets(tickets) {
   }
 
   return tickets.map((ticket) => {
-    const { commits = [], closed_at, labelsDetails:labels = [], title, id } = ticket || {}
+    const { commits = [], closed_at, labelsDetails: labels = [], title, id } = ticket || {}
 
     // Parse commit dates
     const firstCommitDate = commits.length > 0 ? dayjs(commits[0].created_at) : null

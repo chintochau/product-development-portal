@@ -40,17 +40,20 @@ const NewTicketPopover = ({ context = {}, onCreated }) => {
     setOpen(false)
   }
 
- const { projects, projectDict } = useProjects()
- const {epics} = useSingleProduct()
- const {productsDict} = useProducts()
+  const { projects, projectDict } = useProjects()
+  const { epics } = useSingleProduct()
+  const { productsDict } = useProducts()
   const handleGenerateFeatureRequest = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
     try {
-      const aiDescription = await createFeatureTicket({ title, description, product: productsDict[selectedProductId]?.projectName })
+      const aiDescription = await createFeatureTicket({
+        title,
+        description,
+        product: productsDict[selectedProductId]?.projectName
+      })
       setDescription(aiDescription)
-
     } catch (err) {
       console.log(err)
       setError('Failed to generate description.')
@@ -61,12 +64,15 @@ const NewTicketPopover = ({ context = {}, onCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    const ticket = await createGitlabIssue({
-      title,
-      description,
-      epic_id: selectedEpicId,
-      labels: projectDict[selectedProject]?.labels || []
-    }, selectedProject)
+    const ticket = await createGitlabIssue(
+      {
+        title,
+        description,
+        epic_id: selectedEpicId,
+        labels: projectDict[selectedProject]?.labels || []
+      },
+      selectedProject
+    )
     setSuccess(true)
     if (ticket?.web_url && onCreated) {
       onCreated(ticket.web_url)
@@ -112,15 +118,15 @@ const NewTicketPopover = ({ context = {}, onCreated }) => {
               rows={4}
               className="w-full p-2 border rounded min-h-[250px]"
             />
-            <WithPermission requiredAccess={2}>  
+            <WithPermission requiredAccess={2}>
               <Button
-              variant="outline"
-              className="mt-2"
-              onClick={handleGenerateFeatureRequest}
-              disabled={loading}
-            >
-              {loading ? 'Generating…' : 'Generate Feature Request'}
-            </Button>
+                variant="outline"
+                className="mt-2"
+                onClick={handleGenerateFeatureRequest}
+                disabled={loading}
+              >
+                {loading ? 'Generating…' : 'Generate Feature Request'}
+              </Button>
             </WithPermission>
           </div>
 
@@ -145,12 +151,10 @@ const NewTicketPopover = ({ context = {}, onCreated }) => {
               ))}
             </select>
           </div>
-          <div className='flex flex-wrap gap-2 py-1 '>
-            {
-              projectDict[selectedProject]?.labels?.map((label) => (
-                <Badge key={label}>{label}</Badge>
-              ))
-            }
+          <div className="flex flex-wrap gap-2 py-1 ">
+            {projectDict[selectedProject]?.labels?.map((label) => (
+              <Badge key={label}>{label}</Badge>
+            ))}
           </div>
           <div>
             <Label>Epic</Label>
@@ -176,7 +180,9 @@ const NewTicketPopover = ({ context = {}, onCreated }) => {
           {error && <div style={{ color: 'red', fontSize: 13 }}>{error}</div>}
           {success && <div style={{ color: 'green', fontSize: 13 }}>Ticket created!</div>}
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-            <Button type="submit" disabled={loading || !title || !description || !selectedProject}>Create</Button>
+            <Button type="submit" disabled={loading || !title || !description || !selectedProject}>
+              Create
+            </Button>
             <Button
               type="button"
               onClick={() => setOpen(false)}

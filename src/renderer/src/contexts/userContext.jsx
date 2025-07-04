@@ -6,7 +6,6 @@ const UserContext = createContext()
 
 // UserProvider Component
 export const UserProvider = ({ children }) => {
-  
   const [user, setUser] = useState(null)
 
   // Clean up state if localStorage changes or user logs out
@@ -17,11 +16,10 @@ export const UserProvider = ({ children }) => {
     setRole(null)
   }
 
-
   const checkSignInStatus = async () => {
     const signInStatus = await window.api.checkSignIn()
-    console.log(signInStatus);
-    
+    console.log(signInStatus)
+
     setUser(signInStatus)
   }
 
@@ -43,7 +41,7 @@ export const UserProvider = ({ children }) => {
   const value = {
     logoutUser,
     signIn,
-    user:{
+    user: {
       ...user,
       team: findTeamByRole(user?.role || '')
     },

@@ -26,7 +26,7 @@ const TicketTitle = memo(({ title, web_url }) => {
   }, [web_url])
 
   return (
-    <h3 
+    <h3
       className="font-medium text-base text-primary group-hover:text-primary line-clamp-3"
       onClick={handleClick}
     >
@@ -59,9 +59,7 @@ const TicketMetadata = memo(({ assignee, analytics }) => {
       {analytics?.commitMetrics?.totalCommits > 0 && (
         <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/5 rounded-full">
           <GitCommit size={10} className="text-primary" />
-          <span className="font-semibold text-primary">
-            {analytics.commitMetrics.totalCommits}
-          </span>
+          <span className="font-semibold text-primary">{analytics.commitMetrics.totalCommits}</span>
         </div>
       )}
 
@@ -95,10 +93,7 @@ const AnalyticsTicketRow = memo(({ ticket }) => {
         </div>
       </TableCell>
 
-      <TableCell
-        className="py-3 cursor-pointer relative"
-        onClick={handleTicketClick}
-      >
+      <TableCell className="py-3 cursor-pointer relative" onClick={handleTicketClick}>
         <div className="flex flex-col gap-1.5 group-hover:translate-x-1 transition-transform duration-200">
           <TicketTitle title={ticket.title} web_url={ticket.web_url} />
           <TicketMetadata assignee={ticket.assignee} analytics={ticket.analytics} />
@@ -121,7 +116,8 @@ AnalyticsTicketRow.displayName = 'AnalyticsTicketRow'
 
 // Timeline component
 const WorkflowTimeline = memo(({ percentages }) => {
-  const { percentageOfTimeInDoing, percentageOfTimeInReview, percentageOfTimeInTesting } = percentages
+  const { percentageOfTimeInDoing, percentageOfTimeInReview, percentageOfTimeInTesting } =
+    percentages
 
   return (
     <div className="mb-2">
@@ -212,7 +208,7 @@ const CommitAnalytics = memo(({ analytics }) => {
   const workflowPercentages = useMemo(() => {
     return {
       totalTimeInDoing: workflowMetrics.totalTimeInDoing,
-      totalTimeInReview: workflowMetrics.totalTimeInReview, 
+      totalTimeInReview: workflowMetrics.totalTimeInReview,
       totalTimeInTesting: workflowMetrics.totalTimeInTesting,
       percentageOfTimeInDoing: workflowMetrics.percentageOfTimeInDoing,
       percentageOfTimeInReview: workflowMetrics.percentageOfTimeInReview,
@@ -220,17 +216,22 @@ const CommitAnalytics = memo(({ analytics }) => {
     }
   }, [workflowMetrics])
 
-  const { testFailCount, testingCount, testFailRatio, timeToFirstTestingAfterReview } = 
-    useMemo(() => ({
+  const { testFailCount, testingCount, testFailRatio, timeToFirstTestingAfterReview } = useMemo(
+    () => ({
       ...testMetrics,
       timeToFirstTestingAfterReview: workflowMetrics.timeToFirstTestingAfterReview
-    }), [testMetrics, workflowMetrics])
+    }),
+    [testMetrics, workflowMetrics]
+  )
 
   // Format dates only when needed
-  const formattedDates = useMemo(() => ({
-    firstCommit: firstCommitDate ? dayjs(firstCommitDate).format('MMM D, YYYY') : null,
-    lastCommit: lastCommitDate ? dayjs(lastCommitDate).format('MMM D, YYYY') : null
-  }), [firstCommitDate, lastCommitDate])
+  const formattedDates = useMemo(
+    () => ({
+      firstCommit: firstCommitDate ? dayjs(firstCommitDate).format('MMM D, YYYY') : null,
+      lastCommit: lastCommitDate ? dayjs(lastCommitDate).format('MMM D, YYYY') : null
+    }),
+    [firstCommitDate, lastCommitDate]
+  )
 
   return (
     <div className="bg-background/80 backdrop-blur-sm shadow-sm rounded-xl p-3 w-full border border-border/50 hover:shadow-md hover:border-border/80 transition-all duration-300">
@@ -294,50 +295,53 @@ const CommitAnalytics = memo(({ analytics }) => {
           </div>
 
           <div className="space-y-1">
-            {workflowPercentages.totalTimeInDoing && workflowPercentages.totalTimeInDoing !== 'N/A' && (
-              <div className="flex justify-between items-center text-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                  <span className="text-muted-foreground">Doing:</span>
+            {workflowPercentages.totalTimeInDoing &&
+              workflowPercentages.totalTimeInDoing !== 'N/A' && (
+                <div className="flex justify-between items-center text-xs">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span className="text-muted-foreground">Doing:</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">{workflowPercentages.totalTimeInDoing}</span>
+                    <span className="text-muted-foreground text-[10px] ml-1">
+                      ({workflowPercentages.percentageOfTimeInDoing}%)
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-medium">{workflowPercentages.totalTimeInDoing}</span>
-                  <span className="text-muted-foreground text-[10px] ml-1">
-                    ({workflowPercentages.percentageOfTimeInDoing}%)
-                  </span>
-                </div>
-              </div>
-            )}
+              )}
 
-            {workflowPercentages.totalTimeInReview && workflowPercentages.totalTimeInReview !== 'N/A' && (
-              <div className="flex justify-between items-center text-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                  <span className="text-muted-foreground">Review:</span>
+            {workflowPercentages.totalTimeInReview &&
+              workflowPercentages.totalTimeInReview !== 'N/A' && (
+                <div className="flex justify-between items-center text-xs">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                    <span className="text-muted-foreground">Review:</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">{workflowPercentages.totalTimeInReview}</span>
+                    <span className="text-muted-foreground text-[10px] ml-1">
+                      ({workflowPercentages.percentageOfTimeInReview}%)
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-medium">{workflowPercentages.totalTimeInReview}</span>
-                  <span className="text-muted-foreground text-[10px] ml-1">
-                    ({workflowPercentages.percentageOfTimeInReview}%)
-                  </span>
-                </div>
-              </div>
-            )}
+              )}
 
-            {workflowPercentages.totalTimeInTesting && workflowPercentages.totalTimeInTesting !== 'N/A' && (
-              <div className="flex justify-between items-center text-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                  <span className="text-muted-foreground">Testing:</span>
+            {workflowPercentages.totalTimeInTesting &&
+              workflowPercentages.totalTimeInTesting !== 'N/A' && (
+                <div className="flex justify-between items-center text-xs">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                    <span className="text-muted-foreground">Testing:</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">{workflowPercentages.totalTimeInTesting}</span>
+                    <span className="text-muted-foreground text-[10px] ml-1">
+                      ({workflowPercentages.percentageOfTimeInTesting}%)
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-medium">{workflowPercentages.totalTimeInTesting}</span>
-                  <span className="text-muted-foreground text-[10px] ml-1">
-                    ({workflowPercentages.percentageOfTimeInTesting}%)
-                  </span>
-                </div>
-              </div>
-            )}
+              )}
 
             {timeToFirstTestingAfterReview && timeToFirstTestingAfterReview !== 'N/A' && (
               <div className="flex justify-between items-center text-xs">

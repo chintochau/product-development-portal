@@ -62,8 +62,7 @@ const FeaturesPage = () => {
       }
     })
 
-    console.log(features);
-    
+  console.log(features)
 
   return (
     <FrameWraper>
@@ -84,12 +83,11 @@ const FeaturesPage = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="bluos" >
-          <TabsList >
+        <Tabs defaultValue="bluos">
+          <TabsList>
             <TabsTrigger value="bluos">BluOS</TabsTrigger>
             <TabsTrigger value="apps">Apps</TabsTrigger>
           </TabsList>
-
 
           <TabsContent value="bluos">
             <BluOSFeatureRequest className="">
@@ -111,7 +109,6 @@ const FeaturesPage = () => {
             </BluOSFeatureRequest>
           </TabsContent>
 
-          
           <TabsContent value="apps">
             <AppFeatureChart chartData={chartData}>
               <Table>

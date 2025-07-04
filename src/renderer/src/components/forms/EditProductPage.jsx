@@ -109,11 +109,11 @@ const ProductEditPage = ({ editMode }) => {
   // Use the reset method to update form values when data is loaded
   useEffect(() => {
     if (productData && editMode) {
-      console.log(productData);
-      
+      console.log(productData)
+
       form.reset((previousValues) => ({
         ...previousValues,
-        ...productData,
+        ...productData
       }))
     }
   }, [productData, form])

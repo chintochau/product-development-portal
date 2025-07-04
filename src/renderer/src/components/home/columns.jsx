@@ -18,7 +18,7 @@ export const columns = [
     }
   },
   {
-    accessorKey: 'brand',    
+    accessorKey: 'brand',
     header: ({ column }) => {
       return (
         <Button
@@ -109,7 +109,7 @@ export const columns = [
     }
   },
   {
-    accessorKey: 'launch',    
+    accessorKey: 'launch',
     header: ({ column }) => {
       return (
         <Button
@@ -150,6 +150,7 @@ export const columns = [
             epicId ? 'flex items-center justify-center' : 'hidden',
             'duration-300  transition-all hover:underline '
           )}
+          rel="noreferrer"
         >
           Open
         </a>
@@ -165,6 +166,7 @@ export const columns = [
         target="_blank"
         onClick={(e) => e.stopPropagation()}
         className="flex items-center justify-center"
+        rel="noreferrer"
       >
         <Link className="h-4 w-4 text-secondary" />
       </a>

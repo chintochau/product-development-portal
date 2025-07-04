@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Checkbox } from '../../../../components/ui/checkbox';
-import { Code, Cpu } from 'lucide-react';
+import React, { useState, useEffect } from 'react'
+import { Checkbox } from '../../../../components/ui/checkbox'
+import { Code, Cpu } from 'lucide-react'
 
 const FeatureTypeSelector = ({ type, handleTypeChange, rowIndex }) => {
-  const [featureType, setFeatureType] = useState(type);
+  const [featureType, setFeatureType] = useState(type)
 
   useEffect(() => {
-    setFeatureType(type);
-  }, [type]);
+    setFeatureType(type)
+  }, [type])
 
   const handleChange = (value) => {
-    const newFeatureType = { ...featureType, ...value };
-    setFeatureType(newFeatureType);
-    handleTypeChange(newFeatureType);
-  };
+    const newFeatureType = { ...featureType, ...value }
+    setFeatureType(newFeatureType)
+    handleTypeChange(newFeatureType)
+  }
 
   return (
     <div className="flex gap-4">
@@ -56,5 +56,4 @@ const FeatureTypeSelector = ({ type, handleTypeChange, rowIndex }) => {
   )
 }
 
-
-export default FeatureTypeSelector;
+export default FeatureTypeSelector

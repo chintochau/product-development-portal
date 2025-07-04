@@ -68,7 +68,11 @@ import { useRoadmap } from '../contexts/roadmapConetxt'
 import { useSidebar } from '../../../components/ui/sidebar'
 import { cn } from '../../../lib/utils'
 import FrameWraper from './frameWarper'
-import { createFeatureRequestIssue, deleteFeatureRequestIssue, updateFeatureRequestIssue } from '../services/gitlabServices'
+import {
+  createFeatureRequestIssue,
+  deleteFeatureRequestIssue,
+  updateFeatureRequestIssue
+} from '../services/gitlabServices'
 
 const FeatureManagementPortal = () => {
   const { features, setShouldRefresh } = useTickets()
@@ -200,7 +204,7 @@ const FeatureManagementPortal = () => {
 
         <Tabs defaultValue="list">
           <div className="flex justify-between items-center">
-            <TabsList >
+            <TabsList>
               <TabsTrigger value="list">List View</TabsTrigger>
               <TabsTrigger value="grid">Grid View</TabsTrigger>
               <TabsTrigger value="archived">Archived</TabsTrigger>
@@ -212,9 +216,8 @@ const FeatureManagementPortal = () => {
             <div className="flex flex-col gap-2 py-4">
               <AllFeatures features={sortedFeatures} />
             </div>
-          </TabsContent>         
-          
-          
+          </TabsContent>
+
           <TabsContent value="archived">
             <div className="flex flex-col gap-2 py-4">
               <AllFeatures features={features.filter((feature) => feature.archived === true)} />
@@ -335,15 +338,15 @@ export const CreateFeatureDialog = ({ onSubmit, title, description }) => {
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-         {title || "New Feature"}
+          {title || 'New Feature'}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Create {title || "New Feature"}</DialogTitle>
+            <DialogTitle>Create {title || 'New Feature'}</DialogTitle>
             <DialogDescription>
-              {description || "Add a new feature to the product management system."}
+              {description || 'Add a new feature to the product management system.'}
             </DialogDescription>
           </DialogHeader>
 

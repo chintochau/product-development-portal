@@ -303,8 +303,10 @@ const ProjectAnalytics = ({ tickets }) => {
 
   // Calculate percentages for workflow stage distribution
   const doingPercent = totalIssues > 0 ? ((totalTicketsInDoing / totalIssues) * 100).toFixed(1) : 0
-  const reviewPercent = totalIssues > 0 ? ((totalTicketsInReview / totalIssues) * 100).toFixed(1) : 0
-  const testingPercent = totalIssues > 0 ? ((totalTicketsInTesting / totalIssues) * 100).toFixed(1) : 0
+  const reviewPercent =
+    totalIssues > 0 ? ((totalTicketsInReview / totalIssues) * 100).toFixed(1) : 0
+  const testingPercent =
+    totalIssues > 0 ? ((totalTicketsInTesting / totalIssues) * 100).toFixed(1) : 0
   const donePercent = totalIssues > 0 ? ((totalTicketsInDone / totalIssues) * 100).toFixed(1) : 0
 
   return (

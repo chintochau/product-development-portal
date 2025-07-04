@@ -38,20 +38,23 @@ const AllFeatures = ({ features, className }) => {
   return (
     <div className={className}>
       {/* <DataTable columns={featureColumns} data={features} /> */}
-      <Table frameClassName="min-h-[calc(100vh-600px)]" >
+      <Table frameClassName="min-h-[calc(100vh-600px)]">
         <TableHeader className=" bg-secondary/10 text-secondary-foreground">
           <TableRow>
-            <TableHead className="w-60 flex items-center gap-2"><p>Title</p> {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}</TableHead>
+            <TableHead className="w-60 flex items-center gap-2">
+              <p>Title</p> {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            </TableHead>
             <TableHead>
               <Button variant="ghost" className="flex items-center">
                 <p>Product</p> <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead>Developers</TableHead>
-            <TableHead><Button variant="ghost" className="flex items-center">
+            <TableHead>
+              <Button variant="ghost" className="flex items-center">
                 <p>Time Estimate</p> <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
-              </TableHead>
+            </TableHead>
             <TableHead>Priority</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Gitlab</TableHead>
@@ -59,7 +62,7 @@ const AllFeatures = ({ features, className }) => {
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody >
+        <TableBody>
           {features &&
             features.map((feature, index) => (
               <FeatureRow feature={feature} key={feature.id} index={index} />

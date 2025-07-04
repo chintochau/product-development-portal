@@ -1,23 +1,23 @@
-import React from 'react';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ReferenceLine } from 'recharts';
-import dayjs from 'dayjs';
+import React from 'react'
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { BarChart, Bar, XAxis, YAxis, ReferenceLine } from 'recharts'
+import dayjs from 'dayjs'
 
 // Chart configuration for colors and labels
 const chartConfig = {
   developer: {
     label: 'Developer',
-    color: 'hsl(var(--chart-1))',
+    color: 'hsl(var(--chart-1))'
   },
   feature: {
     label: 'Feature',
-    color: 'hsl(var(--chart-2))',
+    color: 'hsl(var(--chart-2))'
   },
   adhoc: {
     label: 'Ad Hoc',
-    color: 'hsl(var(--chart-3))',
-  },
-};
+    color: 'hsl(var(--chart-3))'
+  }
+}
 
 // Custom Tooltip Component
 const TooltipComponent = ({ active, payload, label }) => {
@@ -31,10 +31,10 @@ const TooltipComponent = ({ active, payload, label }) => {
           </p>
         ))}
       </div>
-    );
+    )
   }
-  return null;
-};
+  return null
+}
 
 // BarChart Component
 const BarChartComponent = ({ chartData, developerChart }) => {
@@ -43,53 +43,63 @@ const BarChartComponent = ({ chartData, developerChart }) => {
     .sort((a, b) => a.start - b.start)
     .map((item) => ({
       name: item.name,
-      period1: [item.start, item.end],
-    }));
+      period1: [item.start, item.end]
+    }))
 
   // Calculate min and max dates for the XAxis
-  const minDate = processedData.length > 0
-    ? dayjs(processedData[0].period1[0]).subtract(14, 'day').valueOf()
-    : dayjs().subtract(14, 'day').valueOf();
-  const maxDate = dayjs().add(120, 'day').valueOf();
+  const minDate =
+    processedData.length > 0
+      ? dayjs(processedData[0].period1[0]).subtract(14, 'day').valueOf()
+      : dayjs().subtract(14, 'day').valueOf()
+  const maxDate = dayjs().add(120, 'day').valueOf()
 
   // Process developer-specific data
   if (developerChart) {
     const developerData = chartData.flatMap((item) => {
       // Combine features and adhoc tasks for start/end date calculations
-      const allTasks = [...item.features, ...item.adhoc];
-    
-      const developerStart = allTasks.reduce((acc, task) => (
-        Math.min(acc, task.startDate ? task.startDate : new Date().valueOf())
-      ), Infinity);
-    
-      const developerEnd = allTasks.reduce((acc, task) => (
-        task.startDate && task.estimate
-          ? Math.max(acc, dayjs(task.startDate).add(task.estimate, 'day').valueOf())
-          : acc
-      ), dayjs().add(1, 'day').valueOf());
-    
+      const allTasks = [...item.features, ...item.adhoc]
+
+      const developerStart = allTasks.reduce(
+        (acc, task) => Math.min(acc, task.startDate ? task.startDate : new Date().valueOf()),
+        Infinity
+      )
+
+      const developerEnd = allTasks.reduce(
+        (acc, task) =>
+          task.startDate && task.estimate
+            ? Math.max(acc, dayjs(task.startDate).add(task.estimate, 'day').valueOf())
+            : acc,
+        dayjs().add(1, 'day').valueOf()
+      )
+
       const features = item.features.map((feature) => ({
         name: feature.title,
-        period1: [feature.startDate || dayjs().valueOf(), dayjs(feature.startDate).add(feature.estimate, 'day').valueOf()],
-        type: 'feature',
-      }));
-    
+        period1: [
+          feature.startDate || dayjs().valueOf(),
+          dayjs(feature.startDate).add(feature.estimate, 'day').valueOf()
+        ],
+        type: 'feature'
+      }))
+
       const adhocTasks = item.adhoc.map((task) => ({
         name: task.title,
-        period1: [task.startDate || dayjs().valueOf(), dayjs(task.startDate).add(task.estimate, 'day').valueOf()],
-        type: 'adhoc',
-      }));
-    
+        period1: [
+          task.startDate || dayjs().valueOf(),
+          dayjs(task.startDate).add(task.estimate, 'day').valueOf()
+        ],
+        type: 'adhoc'
+      }))
+
       return [
         {
           name: item.developer?.name,
           period1: [developerStart, developerEnd],
-          type: 'developer',
+          type: 'developer'
         },
         ...features,
-        ...adhocTasks,
-      ];
-    });
+        ...adhocTasks
+      ]
+    })
 
     return (
       <ChartContainer
@@ -113,8 +123,8 @@ const BarChartComponent = ({ chartData, developerChart }) => {
             layout="vertical"
             radius={5}
             shape={(props) => {
-              const { x, y, width, height, type, name } = props;
-              const padding = 5;
+              const { x, y, width, height, type, name } = props
+              const padding = 5
               return type === 'developer' ? (
                 <text
                   x={x}
@@ -137,7 +147,7 @@ const BarChartComponent = ({ chartData, developerChart }) => {
                   rx={10}
                   fill={type === 'feature' ? chartConfig.feature.color : chartConfig.adhoc.color}
                 />
-              );
+              )
             }}
           />
           <ReferenceLine
@@ -148,18 +158,22 @@ const BarChartComponent = ({ chartData, developerChart }) => {
               value: `Today: ${dayjs().format('D MMM YYYY')}`,
               position: 'top',
               fill: 'hsl(var(--primary))',
-              fontSize: 12,
+              fontSize: 12
             }}
           />
         </BarChart>
       </ChartContainer>
-    );
+    )
   }
 
   // Default BarChart for non-developer data
   return (
     <ChartContainer config={chartConfig} style={{ height: chartData.length * 50, width: '100%' }}>
-      <BarChart data={processedData} margin={{ top: 20, right: 20, bottom: 20, left: 0 }} layout="vertical">
+      <BarChart
+        data={processedData}
+        margin={{ top: 20, right: 20, bottom: 20, left: 0 }}
+        layout="vertical"
+      >
         <YAxis dataKey="name" type="category" interval={0} width={250} />
         <XAxis
           type="number"
@@ -176,12 +190,12 @@ const BarChartComponent = ({ chartData, developerChart }) => {
             value: `Today: ${dayjs().format('D MMM YYYY')}`,
             position: 'top',
             fill: 'hsl(var(--primary))',
-            fontSize: 12,
+            fontSize: 12
           }}
         />
       </BarChart>
     </ChartContainer>
-  );
-};
+  )
+}
 
-export default BarChartComponent;
+export default BarChartComponent

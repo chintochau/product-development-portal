@@ -16,7 +16,7 @@ import {
 const SingleStep = ({ step, index, className, software, hardware }) => {
   const [completedSubSteps, setCompletedSubSteps] = useState(false)
   const [completedPercentage, setCompletedPercentage] = useState(0)
-  const { setHardware, setSoftware, pifs, saveData,milestones } = useSingleProduct()
+  const { setHardware, setSoftware, pifs, saveData, milestones } = useSingleProduct()
 
   useEffect(() => {
     if (step.subSteps) {
@@ -147,36 +147,38 @@ const SingleStep = ({ step, index, className, software, hardware }) => {
                   <span className="text-xs text-gray-400">Completed: {step.timestamp}</span>
                 )}
                 {step.milestone && (
-                  <div >
+                  <div>
                     <span className="text-sm font-bold text-blue-600">
                       Milestone: {step.milestone.title}
                     </span>
-  
-                      <Select
-                          onValueChange={(milestoneId) => {
-                            const chosenMilestone = milestones.find((milestone) => milestone.id === milestoneId)
-                            handleClick({ milestone: chosenMilestone })
-                          }}
-                        >
-                          <SelectTrigger className="h-5 overflow-hidden flex items-start py-0 max-w-56 text-wrap border-0">
-                            <SelectValue placeholder="Select Milestone" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {milestones && milestones.length > 0 ? (
-                              <>
-                                {milestones.map((milestone) => (
-                                  <SelectItem key={milestone.id} value={milestone.id}>
-                                    {milestone.title}
-                                  </SelectItem>
-                                ))}
-                              </>
-                            ) : (
-                              <SelectItem value="" disabled>
-                                No milestones found
+
+                    <Select
+                      onValueChange={(milestoneId) => {
+                        const chosenMilestone = milestones.find(
+                          (milestone) => milestone.id === milestoneId
+                        )
+                        handleClick({ milestone: chosenMilestone })
+                      }}
+                    >
+                      <SelectTrigger className="h-5 overflow-hidden flex items-start py-0 max-w-56 text-wrap border-0">
+                        <SelectValue placeholder="Select Milestone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {milestones && milestones.length > 0 ? (
+                          <>
+                            {milestones.map((milestone) => (
+                              <SelectItem key={milestone.id} value={milestone.id}>
+                                {milestone.title}
                               </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
+                            ))}
+                          </>
+                        ) : (
+                          <SelectItem value="" disabled>
+                            No milestones found
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
                 {step.pif && (

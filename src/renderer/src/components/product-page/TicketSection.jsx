@@ -11,14 +11,12 @@ import { ScrollArea } from '../../../../components/ui/scroll-area'
 import { Button } from '../../../../components/ui/button'
 import { useSingleProduct } from '../../contexts/singleProductContext'
 
-const TicketSection = ({ tickets:initialTickets, className }) => {
-
-
-  const [tickets, setTickets] = React.useState([]);
+const TicketSection = ({ tickets: initialTickets, className }) => {
+  const [tickets, setTickets] = React.useState([])
 
   useEffect(() => {
-    setTickets(initialTickets);
-  }, [initialTickets]);
+    setTickets(initialTickets)
+  }, [initialTickets])
 
   return (
     <Card className={cn('flex flex-col flex-1 min-w-96', className)}>
@@ -60,12 +58,8 @@ const TicketSection = ({ tickets:initialTickets, className }) => {
 
                     {/* Ticket Title and Link */}
                     <div className="flex flex-col gap-1">
-                      <p className="text-sm font-medium line-clamp-1">
-                        {ticket.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground line-clamp-1">
-                        {ticket.link}
-                      </p>
+                      <p className="text-sm font-medium line-clamp-1">{ticket.title}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{ticket.link}</p>
                     </div>
                   </div>
                 ))}

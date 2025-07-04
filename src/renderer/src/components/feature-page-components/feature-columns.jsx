@@ -204,7 +204,11 @@ export const featureColumns = [
         setShouldRefresh(true)
       }
       return (
-        <PriorityDropdown priority={priority} setPriority={handlePriorityChange} rowIndex={row.index} />
+        <PriorityDropdown
+          priority={priority}
+          setPriority={handlePriorityChange}
+          rowIndex={row.index}
+        />
       )
     }
   },
@@ -223,7 +227,7 @@ export const featureColumns = [
         setShouldRefresh(true)
       }
       return (
-       <FeatureTypeSelector type={type} handleTypeChange={handleTypeChange} rowIndex={row.index} />
+        <FeatureTypeSelector type={type} handleTypeChange={handleTypeChange} rowIndex={row.index} />
       )
     }
   },
@@ -249,7 +253,10 @@ export const featureColumns = [
       return (
         <>
           {ticket ? (
-            <p className="text-primary hover:underline cursor-pointer" onClick={() => window.open(ticket)}>
+            <p
+              className="text-primary hover:underline cursor-pointer"
+              onClick={() => window.open(ticket)}
+            >
               #{ticket.split('/').pop()}
             </p>
           ) : (

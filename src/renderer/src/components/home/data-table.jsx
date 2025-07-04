@@ -53,7 +53,7 @@ export function DataTable({ columns, data }) {
     }
   })
 
-  const { setIid,setLoading } = useSingleProduct()
+  const { setIid, setLoading } = useSingleProduct()
   const navigate = useNavigate()
 
   const handleProductClick = (iid) => {
@@ -91,7 +91,9 @@ export function DataTable({ columns, data }) {
   return (
     <div>
       <div className="flex items-center justify-between py-2">
-        <WithPermission requiredAccess={2}><BrandFilter /></WithPermission>
+        <WithPermission requiredAccess={2}>
+          <BrandFilter />
+        </WithPermission>
         <div className=" flex items-center gap-1">
           <Input
             placeholder="Search..."

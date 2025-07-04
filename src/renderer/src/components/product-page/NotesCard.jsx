@@ -27,7 +27,6 @@ const NotesCard = ({ className }) => {
     setShouldReloadNotes(true)
   }
 
-
   const canSendMessage = () => {
     return true
   }

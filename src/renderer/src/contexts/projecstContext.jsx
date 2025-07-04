@@ -19,7 +19,6 @@ export const ProjectsProvider = ({ children }) => {
   const [issuesOpenedLastWeek, setIssuesOpenedLastWeek] = useState([])
   const [issuesClosedLastWeek, setIssuesClosedLastWeek] = useState([])
 
-
   const fetchProjects = async () => {
     setLoading(true)
     try {
@@ -42,7 +41,6 @@ export const ProjectsProvider = ({ children }) => {
     fetchProjects()
   }, [])
 
-
   const getTicketsForRecentTwoWeeks = async () => {
     const createQuery = {
       created_after: dayjs().startOf('week').subtract(1, 'week').toDate(),
@@ -57,8 +55,12 @@ export const ProjectsProvider = ({ children }) => {
 
     const createResult = await getGroupIssuesWithQuery(createQuery)
     const closedResult = await getGroupIssuesWithQuery(closedQuery)
-    
-    const allTickets = createResult.concat(closedResult.filter((issue) => dayjs(issue.closed_at).isAfter(dayjs().startOf('week').subtract(1, 'week'))))
+
+    const allTickets = createResult.concat(
+      closedResult.filter((issue) =>
+        dayjs(issue.closed_at).isAfter(dayjs().startOf('week').subtract(1, 'week'))
+      )
+    )
     const uniqueTickets = allTickets.filter(
       (ticket, index) => allTickets.findIndex((t) => t.iid === ticket.iid) === index
     )
@@ -101,9 +103,7 @@ export const ProjectsProvider = ({ children }) => {
     if (weekIssues.length === 0 || shouldRefresh) {
       getTicketsForRecentTwoWeeks()
     }
-  }, [weekIssues,shouldRefresh])
-
-
+  }, [weekIssues, shouldRefresh])
 
   const value = {
     loading,

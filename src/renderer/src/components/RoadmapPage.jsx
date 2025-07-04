@@ -166,25 +166,25 @@ const RoadmapPage = ({ scrollTop }) => {
   })
   // Render
 
-// Generate quarters for all years in visible range
-const startYear = new Date(range[0]).getFullYear();
-const endYear = new Date(range[1]).getFullYear();
-const quarterDates = [];
+  // Generate quarters for all years in visible range
+  const startYear = new Date(range[0]).getFullYear()
+  const endYear = new Date(range[1]).getFullYear()
+  const quarterDates = []
 
-for (let year = startYear; year <= endYear; year++) {
-  QUARTER_CONFIG.forEach((config, index) => {
-    const quarterIndex = index * 3; // Each quarter spans 3 months
-    const start = new Date(year, quarterIndex, 1);
-    const end = new Date(year, quarterIndex + 3, 0); // Fix for month gaps
-    
-    quarterDates.push({
-      label: `${config.label} ${year}`,
-      start,
-      end,
-      fill: config.fill
-    });
-  });
-}
+  for (let year = startYear; year <= endYear; year++) {
+    QUARTER_CONFIG.forEach((config, index) => {
+      const quarterIndex = index * 3 // Each quarter spans 3 months
+      const start = new Date(year, quarterIndex, 1)
+      const end = new Date(year, quarterIndex + 3, 0) // Fix for month gaps
+
+      quarterDates.push({
+        label: `${config.label} ${year}`,
+        start,
+        end,
+        fill: config.fill
+      })
+    })
+  }
 
   return (
     <>
@@ -238,23 +238,21 @@ for (let year = startYear; year <= endYear; year++) {
               ))}
             </div>
             <div className="flex items-center space-x-2">
-              {
-                checkboxLists.map((checkbox) => (
-                  <Fragment key={checkbox.label}>
-                    <Checkbox
-                      id={checkbox.label}
-                      onCheckedChange={checkbox.onChange}
-                      checked={checkbox.checked}
-                    />
-                    <label
-                      htmlFor={checkbox.label}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {checkbox.label}
-                    </label>
-                  </Fragment>
-                ))
-              }
+              {checkboxLists.map((checkbox) => (
+                <Fragment key={checkbox.label}>
+                  <Checkbox
+                    id={checkbox.label}
+                    onCheckedChange={checkbox.onChange}
+                    checked={checkbox.checked}
+                  />
+                  <label
+                    htmlFor={checkbox.label}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {checkbox.label}
+                  </label>
+                </Fragment>
+              ))}
             </div>
           </div>
         </div>
@@ -322,40 +320,40 @@ for (let year = startYear; year <= endYear; year++) {
               }}
             >
               <Group top={margin.top} left={0}>
-{quarterDates.map((q, index) => {
-  const xStart = Math.max(xScale(q.start), xScale(range[0]));
-  const xEnd = Math.min(xScale(q.end), xScale(range[1]));
-  const width = xEnd - xStart;
+                {quarterDates.map((q, index) => {
+                  const xStart = Math.max(xScale(q.start), xScale(range[0]))
+                  const xEnd = Math.min(xScale(q.end), xScale(range[1]))
+                  const width = xEnd - xStart
 
-  // Only render if visible in current view
-  if (width <= 0) return null;
+                  // Only render if visible in current view
+                  if (width <= 0) return null
 
-  const middleX = xStart + width / 2;
-  
-  return (
-    <g key={index}>
-      <rect
-        x={xStart}
-        y={0}
-        width={width+5}
-        height={chartHeight}
-        fill={q.fill}
-        opacity={0.5}
-      />
-      <text
-        x={middleX}
-        y={chartHeight / 2}
-        textAnchor="middle"
-        fontSize={24}
-        fill="rgba(0, 0, 0, 0.15)"
-        fontFamily="Arial"
-        fontWeight="bold"
-      >
-        {q.label}
-      </text>
-    </g>
-  );
-})}
+                  const middleX = xStart + width / 2
+
+                  return (
+                    <g key={index}>
+                      <rect
+                        x={xStart}
+                        y={0}
+                        width={width + 5}
+                        height={chartHeight}
+                        fill={q.fill}
+                        opacity={0.5}
+                      />
+                      <text
+                        x={middleX}
+                        y={chartHeight / 2}
+                        textAnchor="middle"
+                        fontSize={24}
+                        fill="rgba(0, 0, 0, 0.15)"
+                        fontFamily="Arial"
+                        fontWeight="bold"
+                      >
+                        {q.label}
+                      </text>
+                    </g>
+                  )
+                })}
                 {pointerX && (
                   <Fragment>
                     <Line
@@ -443,21 +441,20 @@ for (let year = startYear; year <= endYear; year++) {
                             window.open(task.url, '_blank')
                           }
                         }}
-                        className={cn(
-                          task.url  ? 'cursor-pointer' : 'cursor-default'
-                        )}
+                        className={cn(task.url ? 'cursor-pointer' : 'cursor-default')}
                       />
-                      {
-                        task.overlaps && task.overlaps.length > 0 && task.overlaps.map((overlap, index) => {
+                      {task.overlaps &&
+                        task.overlaps.length > 0 &&
+                        task.overlaps.map((overlap, index) => {
                           const color = getColorIntensityByLevel(overlap.overlap)
                           const overlapStart = xScale(overlap.start)
                           const overlapWidth = xScale(overlap.end) - overlapStart
-                          
+
                           return (
                             <Fragment key={index}>
                               <Bar
                                 key={index}
-                                x={overlapStart-1}
+                                x={overlapStart - 1}
                                 y={barY - 1}
                                 width={overlapWidth + 2}
                                 height={barHeight / numberOfBars - gap + 2}
@@ -469,8 +466,7 @@ for (let year = startYear; year <= endYear; year++) {
                               />
                             </Fragment>
                           )
-                        })
-                      }
+                        })}
                       {showSubTasks &&
                         subTasks?.length > 0 &&
                         subTasks?.map((subTask, index) => {
@@ -497,7 +493,7 @@ for (let year = startYear; year <= endYear; year++) {
                                 onMouseMove={handleMouseMove}
                                 onMouseLeave={handleMouseLeave}
                                 onMouseOver={() => handleMouseOver({ task: subTask })}
-                                rx={subBarHeight/2}
+                                rx={subBarHeight / 2}
                               />
                               {subTask.dates &&
                                 subTask.dates.map((date) => {

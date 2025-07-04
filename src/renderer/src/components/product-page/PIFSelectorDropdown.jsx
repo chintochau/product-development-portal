@@ -81,7 +81,7 @@ const PIFSelectorDropdown = ({ fileUrl, setFileUrl, setFileUrlName }) => {
           ))}
         </BreadcrumbList>
       </Breadcrumb>
-      <ScrollArea >
+      <ScrollArea>
         <div className="px-4 py-2 h-96">
           {filesList && filesList.length > 0 ? (
             filesList.map((file) => (
