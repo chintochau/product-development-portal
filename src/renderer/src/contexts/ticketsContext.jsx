@@ -23,24 +23,70 @@ export const TicketsProvider = ({ children }) => {
 
   const getFeatureRequests = async (page) => {
     setLoading(true)
-    const response = await getFeaturesRequestsIssues(page, 1)
-    const adhoc = await getFeaturesRequestsIssues(page, 3)
-    setAdhocTickets(
-      adhoc?.map((item) => {
-        const attributes = frontMatter(item.body).attributes
-        return { ...item, ...attributes, iid: item.iid, url: item.web_url }
-      })
-    )
-    setFeatures(
-      response?.map((item) => {
-        const attributes = frontMatter(item.body).attributes
-        return { ...item, ...attributes, iid: item.iid, url: item.web_url }
-      })
-    )
-    setTotalPages(toInteger(response?.headers?.['x-total-pages']))
-    setCurrentPage(toInteger(response?.headers?.['x-page']))
-    setLoading(false)
-    setShouldRefresh(false)
+    
+    try {
+      // Get features from PostgreSQL
+      const postgresResponse = await window.api.features.getAll()
+      
+      if (postgresResponse.success) {
+        // Transform PostgreSQL data to match existing format
+        const transformedFeatures = postgresResponse.data.map(feature => ({
+          id: feature.id,
+          iid: feature.gitlab_note_id || feature.id,
+          title: feature.title,
+          overview: feature.overview,
+          currentProblems: feature.current_problems,
+          requirements: feature.requirements,
+          priority: feature.priority,
+          estimate: feature.estimate,
+          status: feature.status,
+          requestor: feature.requestor,
+          platforms: feature.platforms || [],
+          created_at: feature.created_at,
+          updated_at: feature.updated_at,
+          url: `#/features/${feature.id}` // Local URL since it's in PostgreSQL
+        }))
+        
+        setFeatures(transformedFeatures)
+        
+        // For now, still get adhoc from GitLab
+        const adhoc = await getFeaturesRequestsIssues(page, 3)
+        setAdhocTickets(
+          adhoc?.map((item) => {
+            const attributes = frontMatter(item.body).attributes
+            return { ...item, ...attributes, iid: item.iid, url: item.web_url }
+          })
+        )
+        
+        // Set pagination (todo: implement proper pagination in PostgreSQL)
+        setTotalPages(1)
+        setCurrentPage(1)
+      } else {
+        console.error('Failed to fetch features from PostgreSQL:', postgresResponse.error)
+        // Fallback to GitLab
+        const response = await getFeaturesRequestsIssues(page, 1)
+        const adhoc = await getFeaturesRequestsIssues(page, 3)
+        setAdhocTickets(
+          adhoc?.map((item) => {
+            const attributes = frontMatter(item.body).attributes
+            return { ...item, ...attributes, iid: item.iid, url: item.web_url }
+          })
+        )
+        setFeatures(
+          response?.map((item) => {
+            const attributes = frontMatter(item.body).attributes
+            return { ...item, ...attributes, iid: item.iid, url: item.web_url }
+          })
+        )
+        setTotalPages(toInteger(response?.headers?.['x-total-pages']))
+        setCurrentPage(toInteger(response?.headers?.['x-page']))
+      }
+    } catch (error) {
+      console.error('Error fetching features:', error)
+    } finally {
+      setLoading(false)
+      setShouldRefresh(false)
+    }
   }
 
   useEffect(() => {

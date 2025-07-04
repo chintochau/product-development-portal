@@ -77,14 +77,42 @@ export function FeatureRequestForm({ editMode }) {
   const onSubmit = async (values) => {
     if (editMode) {
       const newData = { ...selectedTicket, ...values }
-      await updateFeatureRequestIssue(selectedTicket.iid, newData)
-      setShouldRefresh(true)
-      setSelectedTicket(newData)
-      navigate(`/features/${selectedTicket.iid}`)
+      // Use PostgreSQL API for updating
+      const response = await window.api.features.update(selectedTicket.id, {
+        ...values,
+        platforms: values.platforms || []
+      })
+      
+      if (response.success) {
+        setShouldRefresh(true)
+        setSelectedTicket(response.data)
+        navigate(`/features/${selectedTicket.id}`)
+      } else {
+        console.error('Failed to update feature:', response.error)
+        // Fallback to GitLab
+        await updateFeatureRequestIssue(selectedTicket.iid, newData)
+        setShouldRefresh(true)
+        setSelectedTicket(newData)
+        navigate(`/features/${selectedTicket.iid}`)
+      }
     } else {
-      await createFeatureRequestIssue({ requestor: user.email, ...values })
-      setShouldRefresh(true)
-      navigate('/features')
+      // Use PostgreSQL API for creating
+      const response = await window.api.features.create({
+        ...values,
+        requestor: user.email,
+        platforms: values.platforms || []
+      })
+      
+      if (response.success) {
+        setShouldRefresh(true)
+        navigate('/features')
+      } else {
+        console.error('Failed to create feature:', response.error)
+        // Fallback to GitLab
+        await createFeatureRequestIssue({ requestor: user.email, ...values })
+        setShouldRefresh(true)
+        navigate('/features')
+      }
     }
   }
 

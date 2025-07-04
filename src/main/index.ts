@@ -91,7 +91,17 @@ function createWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // Initialize PostgreSQL connection
+  console.log('Initializing PostgreSQL connection...')
+  const initResult = await initializePostgreSQL()
+  if (!initResult.success) {
+    console.error('Failed to initialize PostgreSQL:', initResult.error)
+    // You might want to show an error dialog here
+  } else {
+    console.log('PostgreSQL initialized successfully')
+  }
+
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
@@ -114,10 +124,18 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
+  // Close PostgreSQL connection
+  await closePostgreSQL()
+  
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+// Also close PostgreSQL when app is quitting
+app.on('before-quit', async () => {
+  await closePostgreSQL()
 })
 
 // In this file you can include the rest of your app"s specific main process

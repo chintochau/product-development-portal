@@ -45,9 +45,24 @@ export async function getAllFeatures(filters?: {
     query += ' ORDER BY f.created_at DESC'
 
     const result = await executeQuery(query, params)
+    
+    // Fetch platforms for each feature
+    const featuresWithPlatforms = await Promise.all(
+      (result.rows || []).map(async (feature) => {
+        const platformsResult = await executeQuery(
+          'SELECT platform FROM feature_platforms WHERE feature_id = $1',
+          [feature.id]
+        )
+        return {
+          ...feature,
+          platforms: platformsResult.rows?.map((row) => row.platform) || []
+        }
+      })
+    )
+    
     return {
       success: true,
-      data: result.rows,
+      data: featuresWithPlatforms,
       count: result.rowCount
     }
   } catch (error) {

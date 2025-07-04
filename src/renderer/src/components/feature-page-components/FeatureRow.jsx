@@ -41,14 +41,16 @@ import { useUser } from '../../contexts/userContext'
 import { Label } from '../../../../components/ui/label'
 import dayjs from 'dayjs'
 import NewTicketPopover from '../NewTicketPopover'
+import { useNavigate } from 'react-router-dom'
 
 const FeatureRow = memo(({ feature, index }) => {
   const { developers } = useDevelopers()
-  const { setShouldRefresh, setLoading, loading } = useTickets()
+  const { setShouldRefresh, setLoading, loading, setSelectedTicket } = useTickets()
   const [showStatusBar, setShowStatusBar] = useState(false)
   const [selectedDevelopers, setSelectedDevelopers] = useState([])
   const [isEditing, setIsEditing] = useState(false)
   const [ticketUrl, setTicketUrl] = useState(feature?.ticket || '')
+  const navigate = useNavigate()
 
   const {
     isAdhoc,
@@ -451,7 +453,15 @@ const FeatureRow = memo(({ feature, index }) => {
                       Archived : {dayjs(feature.updatedAt).format('MMM DD, YYYY')}
                     </p>
                   )}
-                  <h3 className="font-semibold text-primary/90 capitalize">{title}</h3>
+                  <h3 
+                    className="font-semibold text-primary/90 capitalize cursor-pointer hover:text-primary hover:underline"
+                    onClick={() => {
+                      setSelectedTicket(feature)
+                      navigate(`/features/${feature.id || feature.iid}`)
+                    }}
+                  >
+                    {title}
+                  </h3>
                   {description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
                   )}

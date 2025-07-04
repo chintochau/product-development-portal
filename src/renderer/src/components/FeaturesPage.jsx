@@ -83,21 +83,57 @@ const FeatureManagementPortal = () => {
   const [searchText, setSearchText] = useState('')
 
   const createNewFeature = async (featureData) => {
-    const response = await createFeatureRequestIssue(featureData)
-    setShouldRefresh(true)
-    return response
+    // Use PostgreSQL API for creating features
+    const response = await window.api.features.create({
+      ...featureData,
+      platforms: featureData.platforms || []
+    })
+    
+    if (response.success) {
+      setShouldRefresh(true)
+      return response.data
+    } else {
+      console.error('Failed to create feature:', response.error)
+      // Fallback to GitLab
+      const gitlabResponse = await createFeatureRequestIssue(featureData)
+      setShouldRefresh(true)
+      return gitlabResponse
+    }
   }
 
   const updateFeature = async (id, updatedData) => {
-    const response = await updateFeatureRequestIssue(id, updatedData)
-    setShouldRefresh(true)
-    return response
+    // Use PostgreSQL API for updating features
+    const response = await window.api.features.update(id, {
+      ...updatedData,
+      platforms: updatedData.platforms || []
+    })
+    
+    if (response.success) {
+      setShouldRefresh(true)
+      return response.data
+    } else {
+      console.error('Failed to update feature:', response.error)
+      // Fallback to GitLab
+      const gitlabResponse = await updateFeatureRequestIssue(id, updatedData)
+      setShouldRefresh(true)
+      return gitlabResponse
+    }
   }
 
   const deleteFeature = async (id) => {
-    const response = await deleteFeatureRequestIssue(id)
-    setShouldRefresh(true)
-    return response
+    // Use PostgreSQL API for deleting features
+    const response = await window.api.features.delete(id)
+    
+    if (response.success) {
+      setShouldRefresh(true)
+      return response
+    } else {
+      console.error('Failed to delete feature:', response.error)
+      // Fallback to GitLab
+      const gitlabResponse = await deleteFeatureRequestIssue(id)
+      setShouldRefresh(true)
+      return gitlabResponse
+    }
   }
 
   // Filter features based on selected filter

@@ -6,6 +6,41 @@ const api = {
   // Generic invoke method for any IPC channel
   invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
 
+  // PostgreSQL APIs
+  postgresql: {
+    testConnection: () => ipcRenderer.invoke('postgresql:test-connection'),
+    getStats: () => ipcRenderer.invoke('postgresql:get-stats')
+  },
+
+  products: {
+    getAll: (filters?: any) => ipcRenderer.invoke('products:get-all', filters),
+    getById: (id: string) => ipcRenderer.invoke('products:get-by-id', id),
+    create: (productData: any) => ipcRenderer.invoke('products:create', productData),
+    update: (id: string, productData: any) => 
+      ipcRenderer.invoke('products:update', { id, productData }),
+    delete: (id: string) => ipcRenderer.invoke('products:delete', id),
+    getSummary: (id: string) => ipcRenderer.invoke('products:get-summary', id)
+  },
+
+  features: {
+    getAll: (filters?: any) => ipcRenderer.invoke('features:get-all', filters),
+    getById: (id: string) => ipcRenderer.invoke('features:get-by-id', id),
+    create: (featureData: any) => ipcRenderer.invoke('features:create', featureData),
+    update: (id: string, featureData: any) => 
+      ipcRenderer.invoke('features:update', { id, featureData }),
+    delete: (id: string) => ipcRenderer.invoke('features:delete', id),
+    getByProduct: (productId: string) => ipcRenderer.invoke('features:get-by-product', productId)
+  },
+
+  migration: {
+    getStatus: (entityType?: string) => ipcRenderer.invoke('migration:get-status', entityType),
+    recordMigration: (data: any) => ipcRenderer.invoke('migration:record', data),
+    recordBatch: (records: any[]) => ipcRenderer.invoke('migration:record-batch', records),
+    resetStatus: (entityType: string) => ipcRenderer.invoke('migration:reset-status', entityType),
+    checkStatus: (entityType: string, gitlabId: number) => 
+      ipcRenderer.invoke('migration:check-status', { entityType, gitlabId })
+  },
+
   // Legacy methods (kept for backward compatibility)
   getGitlab: (path: string) => ipcRenderer.invoke('gitlab-get', path),
   gitlab: (path: string, type: string, data?: any) =>
