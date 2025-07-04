@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import type { Product, ProductCreateInput, ProductUpdateInput } from '@/types/models'
-import type { ApiListResponse, ApiResponse } from '@/types/api'
+import type { Product, ProductCreateInput, ProductUpdateInput } from '../../../@types/models'
+import type { ApiListResponse, ApiResponse } from '../../../@types/api'
 
 interface ProductsContextType {
   loading: boolean
@@ -8,6 +8,8 @@ interface ProductsContextType {
   products: Product[]
   setProducts: (products: Product[]) => void
   productsDict: Record<string, Product>
+  shouldRefreshProducts: boolean
+  setShouldRefreshProducts: (value: boolean) => void
   createProduct: (product: ProductCreateInput) => Promise<Product>
   updateProduct: (id: string, updates: ProductUpdateInput) => Promise<Product>
   deleteProduct: (id: string) => Promise<void>
@@ -25,12 +27,13 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
   const [productsDict, setProductsDict] = useState<Record<string, Product>>({})
+  const [shouldRefreshProducts, setShouldRefreshProducts] = useState(false)
 
   // Load products from PostgreSQL via Electron IPC
   const loadProducts = async () => {
     setLoading(true)
     try {
-      const data = await api.invoke('products:get-all')
+      const data = await api.products.getAll()
 
       if (data.success && data.data) {
         setProducts(data.data)
@@ -53,7 +56,7 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
 
   // Create a new product
   const createProduct = async (productData: ProductCreateInput): Promise<Product> => {
-    const data = await api.invoke('products:create', productData)
+    const data = await api.products.create(productData)
 
     if (!data.success || !data.data) {
       throw new Error(data.error || 'Failed to create product')
@@ -67,7 +70,7 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
 
   // Update a product
   const updateProduct = async (id: string, updates: ProductUpdateInput): Promise<Product> => {
-    const data = await api.invoke('products:update', { id, productData: updates })
+    const data = await api.products.update(id, updates)
 
     if (!data.success || !data.data) {
       throw new Error(data.error || 'Failed to update product')
@@ -81,7 +84,7 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
 
   // Delete a product
   const deleteProduct = async (id: string): Promise<void> => {
-    const data = await api.invoke('products:delete', id)
+    const data = await api.products.delete(id)
 
     if (!data.success) {
       throw new Error(data.error || 'Failed to delete product')
@@ -106,6 +109,14 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     return products.find((p) => p.name.toLowerCase() === name.toLowerCase())
   }
 
+  // Load products on mount and when shouldRefreshProducts changes
+  useEffect(() => {
+    if (shouldRefreshProducts) {
+      loadProducts()
+      setShouldRefreshProducts(false)
+    }
+  }, [shouldRefreshProducts])
+
   // Load products on mount
   useEffect(() => {
     loadProducts()
@@ -117,6 +128,8 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     products,
     setProducts,
     productsDict,
+    shouldRefreshProducts,
+    setShouldRefreshProducts,
     createProduct,
     updateProduct,
     deleteProduct,

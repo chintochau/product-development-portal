@@ -15,6 +15,14 @@ export interface Product {
   gitlab_issue_id?: number
   gitlab_issue_iid?: number
   gitlab_project_id?: number
+  // Display fields - might come from joined data or computed
+  project_name?: string
+  model_number?: string
+  show_location?: string
+  mp1_target_date?: Date | string
+  mp1_actual_date?: Date | string
+  gitlab_epic_url?: string
+  gitlab_issue_url?: string
 }
 
 export interface ProductCreateInput {
