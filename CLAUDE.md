@@ -83,3 +83,8 @@ src/
 ├── renderer/        # React app
 └── components/      # shadcn/ui components
 ```
+
+## Design Guidelines
+- When redesigning, make use of shadcn UI and semantic style
+  - Use `bg-primary` instead of `bg-blue-600` for example
+  - Design in a visually appealing way, up to modern standards
