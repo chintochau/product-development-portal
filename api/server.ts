@@ -15,7 +15,7 @@ import migrationRouter from './src/routes/migration';
 
 // Create Express app
 const app = express();
-const PORT = process.env.API_PORT || 3001;
+const PORT = process.env.API_PORT || 3000;
 
 // Database pool configuration
 export const pool = new Pool({
