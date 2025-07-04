@@ -8,6 +8,7 @@ import { wrike } from './wrikeAPI'
 import { readFromExcel } from './excelAPI'
 import { changePassword, checkSignInStatus, createNewUser, getAllUsersFromFirestore, signinWithFirebaseEmail, signOut, updateUserInformation } from './firebaseAPI'
 import { graphGet } from './graphAPI'
+import { testPostgreSQLConnection, initializePostgreSQL, closePostgreSQL, executeQuery, checkTablesExist } from './postgresqlAPI'
 
 const { autoUpdater } = require('electron-updater');
 
@@ -229,3 +230,24 @@ autoUpdater.on('update-downloaded', (info) => {
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err)
 })
+
+// PostgreSQL IPC handlers
+ipcMain.handle('postgresql:test-connection', async () => {
+  return await testPostgreSQLConnection();
+});
+
+ipcMain.handle('postgresql:initialize', async () => {
+  return await initializePostgreSQL();
+});
+
+ipcMain.handle('postgresql:close', async () => {
+  return await closePostgreSQL();
+});
+
+ipcMain.handle('postgresql:execute-query', async (_event, { query, params }) => {
+  return await executeQuery(query, params);
+});
+
+ipcMain.handle('postgresql:check-tables', async () => {
+  return await checkTablesExist();
+});

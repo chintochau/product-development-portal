@@ -13,6 +13,8 @@ This is the BluOS Product Development Portal - an Electron desktop application b
 - **Modified files**: Convert to TypeScript when making changes
 - **Priority conversions**: API files, contexts, and shared utilities
 - **Gradual migration**: Convert files as you work on them, not all at once
+- **Always use ts, not js**
+- **While changing a js file, convert it to ts**
 
 ### TypeScript Best Practices
 1. **Type Organization**:

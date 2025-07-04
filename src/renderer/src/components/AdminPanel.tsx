@@ -21,6 +21,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { userRoles } from '../constant'
+import { PostgreSQLTest } from './PostgreSQLTest'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 
 const AdminPanel = () => {
@@ -77,7 +79,16 @@ const AdminPanel = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <Table className="border rounded-lg">
+      <h2 className="text-2xl font-semibold mb-6">Admin Panel</h2>
+      
+      <Tabs defaultValue="users" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="users">User Management</TabsTrigger>
+          <TabsTrigger value="database">Database Connection</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="users">
+          <Table className="border rounded-lg">
         <TableCaption className="my-4">User Management Dashboard (Only Visible to Admins & Platform Manager)</TableCaption>
         <TableHeader>
           <TableRow>
@@ -147,6 +158,12 @@ const AdminPanel = () => {
         </TableBody>
       </Table>
       {error && <p className="mt-4 text-red-500">{error}</p>}
+        </TabsContent>
+        
+        <TabsContent value="database">
+          <PostgreSQLTest />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
