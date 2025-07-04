@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import FrameWraper from '../frameWarper'
-import { useProjects } from '../../contexts/projecstContext'
+import { useProjects } from '../../contexts/projectsContext'
 import {
   Table,
   TableBody,

@@ -221,6 +221,26 @@ Total: ~7 weeks for complete migration
 - Updated features context to read from PostgreSQL with GitLab fallback
 - Modified feature components to use PostgreSQL API
 - Implemented navigation and detail views for PostgreSQL features
+- Found that products UI is already using PostgreSQL (not GitLab)
+- Created comments table schema and migration script
+- Built comments API module with CRUD operations
+- Added IPC handlers for comment operations
+- Created TypeScript types for comments
+- Updated singleProductContext to TypeScript and PostgreSQL
+- Fixed ProductDetailPage to use PostgreSQL product ID
+- Added comments API to preload script
+- Created window.d.ts for type definitions
+- Fixed context filename typos (roadmapConetxt → roadmapContext, projecstContext → projectsContext)
+- Removed dependency on ProductsProvider from SingleProductProvider
+- Fixed provider ordering issues
+- Created mock RoadmapContext to avoid complex data dependencies during migration
+- Added error handling for context access in ProductDetailPage
+- Added ErrorBoundary component for better error reporting
+- Fixed typo: findProductsById → findProductById in multiple components
+- Fixed Select component empty value error in ProcessStepper
+- Removed all RoadmapContext dependencies temporarily
+- Created placeholder pages for roadmap features
+- Removed roadmap imports from FeaturesPage, DeveloperPage, and OldFeaturesPage
 
 ## Current Status
 
@@ -231,20 +251,28 @@ Total: ~7 weeks for complete migration
 - Feature migration (65 features migrated from GitLab notes)
 - Type definitions in @types folder
 - IPC handlers for database operations
+- Products context already using PostgreSQL
 - Features context updated to use PostgreSQL with GitLab fallback
 - Feature CRUD operations using PostgreSQL
 - Feature navigation and detail views working with PostgreSQL
+- Comments table schema created
+- Comments API module with full CRUD operations
+- IPC handlers for comment operations
+- TypeScript types for comments
 
 ### 🔄 In Progress
-- Migrating related data (comments, notes)
-- Products UI still using GitLab API
+- Testing comment migration scripts
+- Creating UI components for comments
+- Testing ProductDetailPage with PostgreSQL data
 
 ### 📋 Next Steps
-1. Update products context to use PostgreSQL instead of GitLab
-2. Migrate comments/notes from GitLab to PostgreSQL
-3. Create admin UI for managing PostgreSQL data
-4. Implement proper pagination for features
-5. Remove GitLab YAML dependencies once fully migrated
+1. Test ProductDetailPage to ensure it loads correctly
+2. Run comment migration script to import GitLab comments
+3. Create UI components to display comments on products and features
+4. Create admin UI for managing PostgreSQL data
+5. Implement proper pagination for features
+6. Reimplement RoadmapContext with PostgreSQL data
+7. Remove GitLab YAML dependencies once fully migrated
 
 ## Notes
 - Consider using TypeORM or Prisma for database management

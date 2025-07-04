@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AlertCircle } from 'lucide-react'
 import FrameWraper from './frameWarper'
 
-const RoadmapPage = () => {
+const RoadmapPagePlaceholder = () => {
   return (
     <FrameWraper>
       <div className="flex items-center justify-center min-h-[600px] p-8">
@@ -29,4 +29,4 @@ const RoadmapPage = () => {
   )
 }
 
-export default RoadmapPage
+export default RoadmapPagePlaceholder

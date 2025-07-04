@@ -47,6 +47,14 @@ import {
   resetMigrationStatus,
   checkMigrationStatus
 } from './migrationAPI'
+import {
+  getCommentsByEntity,
+  getCommentById,
+  createComment,
+  updateComment,
+  deleteComment,
+  getCommentCount
+} from './commentsAPI'
 
 const { autoUpdater } = require('electron-updater')
 
@@ -377,4 +385,29 @@ ipcMain.handle('migration:reset', async (_event, entityType) => {
 
 ipcMain.handle('migration:check', async (_event, { entityType, gitlabId }) => {
   return await checkMigrationStatus(entityType, gitlabId)
+})
+
+// Comments API handlers
+ipcMain.handle('comments:get-by-entity', async (_event, { entityType, entityId }) => {
+  return await getCommentsByEntity(entityType, entityId)
+})
+
+ipcMain.handle('comments:get-by-id', async (_event, id) => {
+  return await getCommentById(id)
+})
+
+ipcMain.handle('comments:create', async (_event, commentData) => {
+  return await createComment(commentData)
+})
+
+ipcMain.handle('comments:update', async (_event, { id, updates }) => {
+  return await updateComment(id, updates)
+})
+
+ipcMain.handle('comments:delete', async (_event, id) => {
+  return await deleteComment(id)
+})
+
+ipcMain.handle('comments:get-count', async (_event, { entityType, entityId }) => {
+  return await getCommentCount(entityType, entityId)
 })

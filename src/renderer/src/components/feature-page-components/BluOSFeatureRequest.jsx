@@ -23,7 +23,7 @@ const BluOSFeatureRequest = ({ productIssueId, children, className }) => {
   const [description, setDescription] = React.useState('')
   const [product, setProduct] = React.useState(productIssueId)
   const { setShouldRefresh, loading, setLoading } = useTickets()
-  const { findProductsById } = useProducts()
+  const { findProductById } = useProducts()
 
   const resetForm = () => {
     setTitle('')
@@ -54,7 +54,7 @@ const BluOSFeatureRequest = ({ productIssueId, children, className }) => {
           <div className="mt-4">
             <Label className="block font-semibold text-gray-700">Product</Label>
             {productIssueId ? (
-              <p className="mt-1 text-sm text-gray-600">{findProductsById(productIssueId)}</p>
+              <p className="mt-1 text-sm text-gray-600">{findProductById(productIssueId)?.name || productIssueId}</p>
             ) : (
               <ProductDropdown product={product} setProduct={setProduct} />
             )}

@@ -173,7 +173,7 @@ const SingleStep = ({ step, index, className, software, hardware }) => {
                             ))}
                           </>
                         ) : (
-                          <SelectItem value="" disabled>
+                          <SelectItem value="no-milestones" disabled>
                             No milestones found
                           </SelectItem>
                         )}

@@ -10,15 +10,16 @@ import { UserProvider, useUser } from './contexts/userContext'
 import { BrowsingProvider } from './contexts/browsingContext'
 import { ThemeProvider } from '../../components/theme-provider'
 import { DeveloperProvider } from './contexts/developerContext'
-import { RoadmapProvider } from './contexts/roadmapConetxt'
-import { ProjectsProvider } from './contexts/projecstContext'
+// import { RoadmapProvider } from './contexts/roadmapContext' // Removed during migration
+import { ProjectsProvider } from './contexts/projectsContext'
 import { AuthPermissionWrapper } from './contexts/permissionContext'
 import { UiuxProvider } from './contexts/uiuxContext'
 import { AnalyticsProvider } from './contexts/analyticsContext'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
   return (
-    <>
+    <ErrorBoundary>
       <Router>
         <ThemeProvider>
           <UserProvider>
@@ -31,12 +32,10 @@ function App() {
                         <SidebarProvider>
                           <UiuxProvider>
                             <ProjectsProvider>
-                              <RoadmapProvider>
-                                <AnalyticsProvider>
-                                  <AppSidebar />
-                                  <Layout />
-                                </AnalyticsProvider>
-                              </RoadmapProvider>
+                              <AnalyticsProvider>
+                                <AppSidebar />
+                                <Layout />
+                              </AnalyticsProvider>
                             </ProjectsProvider>
                           </UiuxProvider>
                         </SidebarProvider>
@@ -49,7 +48,7 @@ function App() {
           </UserProvider>
         </ThemeProvider>
       </Router>
-    </>
+    </ErrorBoundary>
   )
 }
 

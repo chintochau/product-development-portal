@@ -43,30 +43,59 @@ import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
 import FrameWraper from './frameWarper'
 
 const ProductDetailPage = () => {
-  const {
-    productData,
-    setTickets,
-    tickets,
-    loading,
-    epics,
-    selectedEpicId,
-    setSelectedEpicId,
-    setIid,
-    setLoading
-  } = useSingleProduct() || {}
-  const { setShouldRefreshProducts } = useProducts() || {}
+  let singleProductContext, productsContext, ticketsContext
+  
+  try {
+    singleProductContext = useSingleProduct()
+  } catch (e) {
+    console.error('SingleProduct context not available:', e)
+  }
+  
+  try {
+    productsContext = useProducts()
+  } catch (e) {
+    console.error('Products context not available:', e)
+  }
+  
+  try {
+    ticketsContext = useTickets()
+  } catch (e) {
+    console.error('Tickets context not available:', e)
+  }
+  
   const location = useLocation() || {}
-  const { projectName, softwareSignoffDate, iid: productIid } = productData || {}
-  const { features } = useTickets() || {}
+  
+  // Safely destructure with defaults
+  const {
+    productData = null,
+    setTickets = () => {},
+    tickets = [],
+    loading = true,
+    epics = [],
+    selectedEpicId = null,
+    setSelectedEpicId = () => {},
+    setProductId = () => {},
+    features: productFeatures = [],
+    setIid = () => {}
+  } = singleProductContext || {}
+  
+  const { setShouldRefreshProducts = () => {} } = productsContext || {}
+  const { name: projectName, softwareSignoffDate, gitlab_issue_iid: productIid } = productData || {}
+  const { features = [] } = ticketsContext || {}
 
-  const featuresFilteredByIID = features?.filter((feature) => feature.product === productIid)
+  const featuresFilteredByIID = productFeatures?.length > 0 ? productFeatures : features?.filter((feature) => feature.product === productIid)
 
   // find the path using react-router-dom
   const productId = location.pathname.split('/').pop()
 
   useEffect(() => {
-    setIid(productId)
-  }, [productId])
+    // Set the PostgreSQL product ID
+    setProductId(productId)
+    // For backward compatibility, also set the iid if we have GitLab data
+    if (productData?.gitlab_issue_iid) {
+      setIid(productData.gitlab_issue_iid.toString())
+    }
+  }, [productId, productData])
 
   const loadTickets = async (epicId) => {
     const data = await getTicketsFromEpic(epicId)

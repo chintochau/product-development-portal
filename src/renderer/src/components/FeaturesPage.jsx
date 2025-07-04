@@ -64,7 +64,7 @@ const chartConfig = {
 import AllFeatures from './feature-page-components/AllFeatures'
 import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
 import BarChartComponent from './BarChartComponent'
-import { useRoadmap } from '../contexts/roadmapConetxt'
+// import { useRoadmap } from '../contexts/roadmapContext' // Removed during migration
 import { useSidebar } from '../../../components/ui/sidebar'
 import { cn } from '../../../lib/utils'
 import FrameWraper from './frameWarper'
@@ -77,7 +77,9 @@ import {
 const FeatureManagementPortal = () => {
   const { features, setShouldRefresh } = useTickets()
   const { getFeatureEpics } = useSingleProduct()
-  const { featureChartData, featuersByDevelopers } = useRoadmap()
+  // const { featureChartData, featuersByDevelopers } = useRoadmap() // Removed during migration
+  const featureChartData = [] // Temporary empty data
+  const featuersByDevelopers = [] // Temporary empty data
   const [filter, setFilter] = useState('all')
   const [sortBy, setSortBy] = useState('newest')
   const [searchText, setSearchText] = useState('')

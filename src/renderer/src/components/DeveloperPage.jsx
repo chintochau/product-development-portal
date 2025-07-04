@@ -39,11 +39,12 @@ import BarChartComponent from './BarChartComponent'
 import { createFeatureRequestIssue } from '../services/gitlabServices'
 import FeatureRow from './feature-page-components/FeatureRow'
 import FrameWraper from './frameWarper'
-import { useRoadmap } from '../contexts/roadmapConetxt'
+// import { useRoadmap } from '../contexts/roadmapContext' // Removed during migration
 
 const DeveloperPage = () => {
-  const { findProductsById } = useProducts()
-  const { featuersByDevelopers } = useRoadmap()
+  const { findProductById } = useProducts()
+  // const { featuersByDevelopers } = useRoadmap() // Removed during migration
+  const featuersByDevelopers = [] // Temporary empty data
 
   return (
     <FrameWraper>
@@ -94,7 +95,7 @@ const DeveloperPage = () => {
                     developer.features.map((feature, idx) => (
                       <div key={feature.id + idx} className="flex flex-col gap-1 mb-2">
                         <span className="text-sm font-medium text-gray-900">
-                          {findProductsById(feature.product)}
+                          {findProductById(feature.product)?.name || feature.product}
                         </span>
                         <span className="text-sm text-gray-600">{feature.title}</span>
                       </div>
@@ -108,7 +109,7 @@ const DeveloperPage = () => {
                     developer.adhoc.map((task, idx) => (
                       <div key={task.id + idx} className="flex flex-col gap-1 mb-2">
                         <span className="text-sm font-medium text-gray-900">
-                          {findProductsById(task.product)}
+                          {findProductById(task.product)?.name || task.product}
                         </span>
                         <span className="text-sm text-gray-600">{task.title}</span>
                       </div>

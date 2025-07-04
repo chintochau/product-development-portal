@@ -41,6 +41,18 @@ const api = {
       ipcRenderer.invoke('migration:check-status', { entityType, gitlabId })
   },
 
+  comments: {
+    getByEntity: (entityType: 'product' | 'feature', entityId: string) => 
+      ipcRenderer.invoke('comments:get-by-entity', { entityType, entityId }),
+    getById: (id: string) => ipcRenderer.invoke('comments:get-by-id', id),
+    create: (commentData: any) => ipcRenderer.invoke('comments:create', commentData),
+    update: (id: string, updates: any) => 
+      ipcRenderer.invoke('comments:update', { id, updates }),
+    delete: (id: string) => ipcRenderer.invoke('comments:delete', id),
+    getCount: (entityType: 'product' | 'feature', entityId: string) => 
+      ipcRenderer.invoke('comments:get-count', { entityType, entityId })
+  },
+
   // Legacy methods (kept for backward compatibility)
   getGitlab: (path: string) => ipcRenderer.invoke('gitlab-get', path),
   gitlab: (path: string, type: string, data?: any) =>

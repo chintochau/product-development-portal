@@ -40,7 +40,7 @@ const chartConfig = {
 import AllFeatures from './feature-page-components/AllFeatures'
 import BluOSFeatureRequest from './feature-page-components/BluOSFeatureRequest'
 import BarChartComponent from './BarChartComponent'
-import { useRoadmap } from '../contexts/roadmapConetxt'
+// import { useRoadmap } from '../contexts/roadmapContext' // Removed during migration
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useSidebar } from '../../../components/ui/sidebar'
 import { cn } from '../../../lib/utils'
@@ -49,7 +49,9 @@ import FrameWraper from './frameWarper'
 const FeaturesPage = () => {
   const { features } = useTickets()
   const { getFeatureEpics } = useSingleProduct()
-  const { featureChartData, featuersByDevelopers } = useRoadmap()
+  // const { featureChartData, featuersByDevelopers } = useRoadmap() // Removed during migration
+  const featureChartData = [] // Temporary empty data
+  const featuersByDevelopers = [] // Temporary empty data
   // get the open status of sidebar
   const { open, isMobile } = useSidebar()
 
