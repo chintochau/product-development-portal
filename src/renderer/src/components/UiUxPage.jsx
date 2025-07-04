@@ -52,6 +52,7 @@ import {
   Trash2
 } from 'lucide-react'
 import { useUiux } from '../contexts/uiuxContext'
+import { useUser } from '../contexts/userContext'
 import {
   createUiUxRequestIssue,
   deleteUiUxRequestIssue,
@@ -196,6 +197,7 @@ const UiUxManagementDashboard = () => {
   const [showFilterDialog, setShowFilterDialog] = useState(false)
   const { uiuxRequests, loading, setLoading, setShouldRefresh, uiuxTickets, setUiuxTickets } =
     useUiux()
+  const { user } = useUser()
 
   // Memoize filtered requests to prevent recalculation on every render
   const filteredRequests = useMemo(() => {
@@ -234,10 +236,26 @@ const UiUxManagementDashboard = () => {
   const handleCreateUiUxRequestIssue = useCallback(
     async (newRequest) => {
       setLoading(true)
-      await createUiUxRequestIssue(newRequest)
+      try {
+        // Create in PostgreSQL
+        const result = await window.api.uiux.create({
+          ...newRequest,
+          created_by: user?.email || 'unknown'
+        })
+        
+        if (!result.success) {
+          console.error('Failed to create UI/UX request:', result.error)
+          // Fallback to GitLab
+          await createUiUxRequestIssue(newRequest)
+        }
+      } catch (error) {
+        console.error('Error creating UI/UX request:', error)
+        // Fallback to GitLab
+        await createUiUxRequestIssue(newRequest)
+      }
       setShouldRefresh(true)
     },
-    [setLoading, setShouldRefresh]
+    [setLoading, setShouldRefresh, user]
   )
 
   const handleUpdateUiUxRequestIssue = useCallback(
@@ -245,7 +263,25 @@ const UiUxManagementDashboard = () => {
       const request = uiuxRequests.find((r) => r.id === id)
       if (!request || !newData) return
       setLoading(true)
-      await updateUiUxRequestIssue(id, { ...request, ...newData })
+      
+      try {
+        // Update in PostgreSQL
+        const result = await window.api.uiux.update(id, newData)
+        
+        if (!result.success) {
+          console.error('Failed to update UI/UX request:', result.error)
+          // Fallback to GitLab if we have a GitLab note ID
+          if (request.gitlab_note_id) {
+            await updateUiUxRequestIssue(request.gitlab_note_id, { ...request, ...newData })
+          }
+        }
+      } catch (error) {
+        console.error('Error updating UI/UX request:', error)
+        // Fallback to GitLab if we have a GitLab note ID
+        if (request.gitlab_note_id) {
+          await updateUiUxRequestIssue(request.gitlab_note_id, { ...request, ...newData })
+        }
+      }
       setShouldRefresh(true)
     },
     [uiuxRequests, setLoading, setShouldRefresh]
@@ -254,10 +290,29 @@ const UiUxManagementDashboard = () => {
   const handleDeleteUiUxRequestIssue = useCallback(
     async (id) => {
       setLoading(true)
-      await deleteUiUxRequestIssue(id)
+      try {
+        // Delete from PostgreSQL
+        const result = await window.api.uiux.delete(id)
+        
+        if (!result.success) {
+          console.error('Failed to delete UI/UX request:', result.error)
+          // Find the request to get GitLab note ID for fallback
+          const request = uiuxRequests.find((r) => r.id === id)
+          if (request?.gitlab_note_id) {
+            await deleteUiUxRequestIssue(request.gitlab_note_id)
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting UI/UX request:', error)
+        // Find the request to get GitLab note ID for fallback
+        const request = uiuxRequests.find((r) => r.id === id)
+        if (request?.gitlab_note_id) {
+          await deleteUiUxRequestIssue(request.gitlab_note_id)
+        }
+      }
       setShouldRefresh(true)
     },
-    [setLoading, setShouldRefresh]
+    [setLoading, setShouldRefresh, uiuxRequests]
   )
 
   // Handler for search input changes

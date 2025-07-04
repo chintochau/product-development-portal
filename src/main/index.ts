@@ -55,6 +55,15 @@ import {
   deleteComment,
   getCommentCount
 } from './commentsAPI'
+import {
+  getAllUiUxRequests,
+  getUiUxRequestById,
+  createUiUxRequest,
+  updateUiUxRequest,
+  deleteUiUxRequest,
+  getUiUxRequestsByProduct,
+  getUiUxRequestStats
+} from './uiuxAPI'
 
 const { autoUpdater } = require('electron-updater')
 
@@ -410,4 +419,33 @@ ipcMain.handle('comments:delete', async (_event, id) => {
 
 ipcMain.handle('comments:get-count', async (_event, { entityType, entityId }) => {
   return await getCommentCount(entityType, entityId)
+})
+
+// UI/UX Request handlers
+ipcMain.handle('uiux:get-all', async (_event, filters) => {
+  return await getAllUiUxRequests(filters)
+})
+
+ipcMain.handle('uiux:get-by-id', async (_event, id) => {
+  return await getUiUxRequestById(id)
+})
+
+ipcMain.handle('uiux:create', async (_event, requestData) => {
+  return await createUiUxRequest(requestData)
+})
+
+ipcMain.handle('uiux:update', async (_event, { id, requestData }) => {
+  return await updateUiUxRequest(id, requestData)
+})
+
+ipcMain.handle('uiux:delete', async (_event, id) => {
+  return await deleteUiUxRequest(id)
+})
+
+ipcMain.handle('uiux:get-by-product', async (_event, productId) => {
+  return await getUiUxRequestsByProduct(productId)
+})
+
+ipcMain.handle('uiux:get-stats', async (_event) => {
+  return await getUiUxRequestStats()
 })

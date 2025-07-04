@@ -1,5 +1,5 @@
 import type { ApiResponse, ApiListResponse } from '../../@types/api'
-import type { Product, ProductCreateInput, ProductUpdateInput, Feature, FeatureCreateInput, FeatureUpdateInput, Comment, CommentCreateInput, CommentUpdateInput } from '../../@types/models'
+import type { Product, ProductCreateInput, ProductUpdateInput, Feature, FeatureCreateInput, FeatureUpdateInput, Comment, CommentCreateInput, CommentUpdateInput, UiUxRequest } from '../../@types/models'
 
 declare global {
   interface Window {
@@ -36,6 +36,16 @@ declare global {
         update: (id: string, updates: CommentUpdateInput) => Promise<ApiResponse<Comment>>
         delete: (id: string) => Promise<ApiResponse<void>>
         getCount: (entityType: 'product' | 'feature', entityId: string) => Promise<ApiResponse<number>>
+      }
+      
+      uiux: {
+        getAll: (filters?: any) => Promise<ApiListResponse<UiUxRequest>>
+        getById: (id: string) => Promise<ApiResponse<UiUxRequest>>
+        create: (requestData: Partial<UiUxRequest>) => Promise<ApiResponse<UiUxRequest>>
+        update: (id: string, requestData: Partial<UiUxRequest>) => Promise<ApiResponse<UiUxRequest>>
+        delete: (id: string) => Promise<ApiResponse<void>>
+        getByProduct: (productId: string) => Promise<ApiListResponse<UiUxRequest>>
+        getStats: () => Promise<ApiResponse<any>>
       }
       
       migration: {

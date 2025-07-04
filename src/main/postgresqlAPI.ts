@@ -185,3 +185,6 @@ export async function checkTablesExist(): Promise<TablesResult> {
     }
   }
 }
+
+// Export pool for direct use in migration scripts
+export { pool }

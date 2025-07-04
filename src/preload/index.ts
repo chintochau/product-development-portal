@@ -53,6 +53,17 @@ const api = {
       ipcRenderer.invoke('comments:get-count', { entityType, entityId })
   },
 
+  uiux: {
+    getAll: (filters?: any) => ipcRenderer.invoke('uiux:get-all', filters),
+    getById: (id: string) => ipcRenderer.invoke('uiux:get-by-id', id),
+    create: (requestData: any) => ipcRenderer.invoke('uiux:create', requestData),
+    update: (id: string, requestData: any) => 
+      ipcRenderer.invoke('uiux:update', { id, requestData }),
+    delete: (id: string) => ipcRenderer.invoke('uiux:delete', id),
+    getByProduct: (productId: string) => ipcRenderer.invoke('uiux:get-by-product', productId),
+    getStats: () => ipcRenderer.invoke('uiux:get-stats')
+  },
+
   // Legacy methods (kept for backward compatibility)
   getGitlab: (path: string) => ipcRenderer.invoke('gitlab-get', path),
   gitlab: (path: string, type: string, data?: any) =>
