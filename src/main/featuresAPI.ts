@@ -14,7 +14,13 @@ interface Feature {
   requestor?: string
   created_at: Date
   updated_at: Date
-  gitlab_issue_id?: number
+  developers?: string[]
+  start_date?: Date
+  due_date?: Date
+  hardware?: boolean
+  software?: boolean
+  gitlab_url?: string
+  description?: string
 }
 
 export async function getAllFeatures(filters?: {
@@ -123,6 +129,13 @@ export async function createFeature(featureData: Partial<Feature> & { platforms?
       estimate,
       status,
       requestor,
+      developers,
+      start_date,
+      due_date,
+      hardware,
+      software,
+      gitlab_url,
+      description,
       platforms = []
     } = featureData
 
@@ -142,8 +155,9 @@ export async function createFeature(featureData: Partial<Feature> & { platforms?
     const featureResult = await client.query<Feature>(
       `INSERT INTO features (
         product_id, title, overview, current_problems, requirements,
-        priority, estimate, status, requestor
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        priority, estimate, status, requestor, developers, start_date,
+        due_date, hardware, software, gitlab_url, description
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       RETURNING *`,
       [
         product_id,
@@ -154,7 +168,14 @@ export async function createFeature(featureData: Partial<Feature> & { platforms?
         priority,
         estimate,
         status,
-        requestor
+        requestor,
+        developers,
+        start_date,
+        due_date,
+        hardware,
+        software,
+        gitlab_url,
+        description
       ]
     )
 
@@ -212,6 +233,13 @@ export async function updateFeature(
       estimate,
       status,
       requestor,
+      developers,
+      start_date,
+      due_date,
+      hardware,
+      software,
+      gitlab_url,
+      description,
       platforms
     } = featureData
 
@@ -256,6 +284,34 @@ export async function updateFeature(
     if (requestor !== undefined) {
       updates.push(`requestor = $${paramCount++}`)
       values.push(requestor)
+    }
+    if (developers !== undefined) {
+      updates.push(`developers = $${paramCount++}`)
+      values.push(developers)
+    }
+    if (start_date !== undefined) {
+      updates.push(`start_date = $${paramCount++}`)
+      values.push(start_date)
+    }
+    if (due_date !== undefined) {
+      updates.push(`due_date = $${paramCount++}`)
+      values.push(due_date)
+    }
+    if (hardware !== undefined) {
+      updates.push(`hardware = $${paramCount++}`)
+      values.push(hardware)
+    }
+    if (software !== undefined) {
+      updates.push(`software = $${paramCount++}`)
+      values.push(software)
+    }
+    if (gitlab_url !== undefined) {
+      updates.push(`gitlab_url = $${paramCount++}`)
+      values.push(gitlab_url)
+    }
+    if (description !== undefined) {
+      updates.push(`description = $${paramCount++}`)
+      values.push(description)
     }
 
     let feature

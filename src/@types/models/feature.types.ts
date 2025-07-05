@@ -11,9 +11,13 @@ export interface Feature {
   requestor?: string
   created_at: Date | string
   updated_at: Date | string
-  gitlab_issue_id?: number
-  gitlab_issue_iid?: number
-  gitlab_project_id?: number
+  developers?: string[]
+  start_date?: Date | string
+  due_date?: Date | string
+  hardware?: boolean
+  software?: boolean
+  gitlab_url?: string
+  description?: string
   platforms?: string[]
 }
 
@@ -27,6 +31,13 @@ export interface FeatureCreateInput {
   estimate?: number
   status?: FeatureStatus
   requestor?: string
+  developers?: string[]
+  start_date?: Date | string
+  due_date?: Date | string
+  hardware?: boolean
+  software?: boolean
+  gitlab_url?: string
+  description?: string
   platforms?: string[]
 }
 
